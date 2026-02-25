@@ -1,3 +1,18 @@
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('./assets/fonts/OpenDyslexic-Regular.otf') format ('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* bold font */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('./assets/fonts/OpenDyslexic-Bold.otf') format ('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 .home-container {
   width: 100%;
   z-index: 0;
@@ -12,6 +27,9 @@
 
 /* putting green */
 .home-container::before {
+  font-family: 'OpenDyslexic', sans-serif;
+  width: 100%;
+  z-index: 0;
   content: '';
   position: absolute;
   top: -10%; 
@@ -60,7 +78,7 @@
 
   text-shadow: none; 
   transition: all 0.2s ease;
-  -webkit-text-stroke: 3px #000; /* Width and color */
+  -webkit-text-stroke: 3px #000; 
   paint-order: stroke fill;
   
 }
@@ -109,6 +127,7 @@
 }
 
 .main-title {
+  font-family: 'OpenDyslexic', sans-serif;
   position: relative;
   z-index: 2; /* makes sure text is on top of the ball */
   font-size: 80px;
@@ -122,7 +141,7 @@
 .game-area {
   display: flex;
   flex-direction: row;
-  align-items: flex-end; /* Aligns cards and buttons to the bottom */
+  align-items: flex-end; 
   justify-content: center;
   gap: 30px; 
   margin-top: -20px; 
@@ -138,7 +157,7 @@
 }
 
 .card-window img {
-  width: 652px; /* The width of your entire 3-card graphic */
+  width: 652px; 
   height: auto;
 }
 
