@@ -1,0 +1,168 @@
+.home-container {
+  width: 100%;
+  z-index: 0;
+  height: 100vh;
+  background-color: #1a1a1a; 
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* putting green */
+.home-container::before {
+  content: '';
+  position: absolute;
+  top: -10%; 
+  left: -10%;
+  width: 120%; 
+  height: 70%; 
+  background-color: #386641;
+  border-bottom: 5px solid #000; 
+  
+  /* curve the bottom edge */
+  border-bottom-left-radius: 50% 20%;
+  border-bottom-right-radius: 50% 20%;
+  z-index: 1;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 2; /* makes buttons and cards sit on top of the green */
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button-stack {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+}
+/* style for buttons */
+.green-btn {
+  background-color: #a7c957; 
+  color: #F2E8CF; 
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 20px; 
+  font-weight: bold;
+  padding: 10px 0; 
+  width: 280px;   
+  border: 2px solid #000; 
+  border-radius: 10px;
+  cursor: pointer;
+
+  text-shadow: none; 
+  transition: all 0.2s ease;
+  -webkit-text-stroke: 3px #000; /* Width and color */
+  paint-order: stroke fill;
+  
+}
+/* hover states for buttons */
+.green-btn:hover {
+  background-color: #bcda6f;
+  transform: translateY(-2px);
+}
+
+/* active state for buttons */
+.green-btn:active {
+  transform: scale(0.98);
+}
+
+/* focus state for accessibility */
+.content-wrapper {
+  position: absolute;
+  top: 45%; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px; 
+  z-index: 10;
+  width: 100%;
+}
+
+
+.title-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px; 
+}
+
+/* golf ball image*/
+.golf-ball-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -42%); 
+  width: 350px;
+  z-index: 1;
+}
+
+.main-title {
+  position: relative;
+  z-index: 2; /* makes sure text is on top of the ball */
+  font-size: 80px;
+  color: #a7c957;
+  line-height: 0.95;
+  text-align: center;
+  
+  -webkit-text-stroke: 2px #000;
+  text-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+}
+.game-area {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end; /* Aligns cards and buttons to the bottom */
+  justify-content: center;
+  gap: 30px; 
+  margin-top: -20px; 
+}
+
+.card-window {
+  width: 160px;  
+  height: 220px; 
+  overflow: hidden; 
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  border: 2px solid #000;
+}
+
+.card-window img {
+  width: 652px; /* The width of your entire 3-card graphic */
+  height: auto;
+}
+
+/* position for King of Clubs (Bottom Left) */
+.king-card img {
+  margin-left: -24px;  
+  margin-top: -320px; 
+}
+
+/* position for Green Card Back (Middle Top) */
+.green-card img {
+  margin-left: -253px; 
+  margin-top: -24px;    
+}
+
+.middle-card img {
+  margin-left: -253px; 
+  margin-top: -320px; 
+}
+
+.middle-card {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5; 
+  pointer-events: none; 
+}
