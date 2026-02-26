@@ -67,7 +67,7 @@ CREATE TABLE cards (
 
     CONSTRAINT fk_card_owner FOREIGN KEY (owner_game_player_id)
         REFERENCES game_players(game_player_id)
-        ON DELETE CASCADE,
+        ON DELETE NO ACTION,
 
     CONSTRAINT uq_card_position UNIQUE (round_id, owner_game_player_id, position)
 );
