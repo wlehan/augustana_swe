@@ -26,7 +26,7 @@ return (
           
         <div className="button-stack">
             <button className="green-btn" onClick={() => navigate('/login')}>Log in</button>
-            <button className="green-btn">Create an account</button>
+            <button className="green-btn" onClick={() => navigate('/signup')}>Create an account</button>
           </div>
 
           {/* Green Card Back */}

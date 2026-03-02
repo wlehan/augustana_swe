@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 import java.time.OffsetDateTime;
 
 @Configuration
-@org.springframework.context.annotation.Profile("!test")
+@org.springframework.context.annotation.Profile("!test & !local")
 public class AzureSqlEntraDataSourceConfig {
 
     private static final String SCOPE = "https://database.windows.net//.default";

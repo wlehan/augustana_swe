@@ -31,7 +31,7 @@
 
   background-color: #F2E8CF; /* change to whatever color you want */
   width: 712px;
-  height: 456px;
+  min-height: 456px;
   max-width: 90%;
   padding: 20px 40px 40px 40px;
 
@@ -59,7 +59,8 @@
 }
 
 .input-group {
-  width: 493px;
+  width: 100%;
+  max-width: 493px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -73,7 +74,8 @@
 }
 
 .text-input {
-  width: 493px;
+  width: 100%;
+  max-width: 493px;
   height: 66px;
   padding: 0px 18px;
 
@@ -94,3 +96,39 @@
   margin-top: 25px;
 }
 
+.auth-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-message {
+  width: 100%;
+  max-width: 493px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 14px;
+}
+
+.auth-error {
+  color: #8b0000;
+}
+
+.auth-success {
+  color: #1f5130;
+}
+
+.auth-link {
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: #1f5130;
+  font-family: 'OpenDyslexic', sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-link:hover {
+  color: #2f6d43;
+  border: none;
+}
