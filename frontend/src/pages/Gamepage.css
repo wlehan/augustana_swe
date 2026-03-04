@@ -1,0 +1,166 @@
+
+.game-container {
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../assets/woodBackground.jpg');
+  background-size: cover;
+  display: grid;
+ /* makes grid areas */
+  grid-template-areas: 
+    ". top ."
+    "left center right"
+    ". bottom .";
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows:1fr 1.2fr 1fr;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.settings-gear { top: 20px; left: 20px; position: absolute; width: 60px; }
+.top-profile { top: 20px; right: 20px; position: absolute; width: 60px; }
+
+.jump-end-btn {
+  position: absolute;
+  top: 20px;
+  right: 80px;
+  background-color: #a7c957;
+  border: 2px solid #000;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.help-button {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: #386641;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.player-profile-img {
+  width: 40px;
+  height: 40px;
+  margin: 10px;
+  background: white;
+  border-radius: 50%;
+  border: 2px solid #000;
+}
+
+/* scoreboard placement */
+.scoreboard-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 280px;
+  height: 400px;
+  background-color: #F2E8CF;
+  border-top-left-radius: 40px;
+  border: 4px solid #000;
+  padding: 20px;
+  z-index: 50;
+  box-shadow: -5px -5px 15px rgba(0,0,0,0.3);
+}
+
+
+.scoreboard-title {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  border-bottom: 2px solid #000;
+  margin-bottom: 10px;
+}
+
+.ui-icon {
+  position: absolute;
+  width: 50px;
+  z-index: 20;
+}
+
+.settings-gear { top: 20px; left: 20px; }
+.top-profile { top: 20px; right: 20px; }
+
+/* player slots */
+.player-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.player-area.center .deck-stack {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+}
+
+.top { grid-area: top;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+}
+.bottom { 
+  grid-area: bottom;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 30px;
+}
+.left { 
+  grid-area: left; 
+  flex-direction: row; 
+  justify-content: flex-start; 
+  padding-left: 50px;}
+.right { 
+  grid-area: right; 
+  flex-direction: row-reverse; 
+  padding-right: 250px;
+  justify-content: flex-start;
+}
+.center { 
+  grid-area: center; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+  .left .card-grid, .right .card-grid{
+  transform: rotate(90deg);
+  margin: -20px;
+}
+
+/* 2x3 grid for each player's cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 70px); /* 3 cards wide */
+  grid-template-rows: repeat(2, 90px);    /* 2 rows deep */
+  gap: 12px;
+}
+
+/* slot where the card will go */
+.card-slot {
+  width: 70px;
+  height: 90px;
+  background-color: rgba(255, 255, 255, 0.1); /* Ghostly placeholder */
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+}
