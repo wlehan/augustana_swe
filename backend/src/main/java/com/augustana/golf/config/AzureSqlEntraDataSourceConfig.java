@@ -1,14 +1,16 @@
 package com.augustana.golf.config;
 
+import java.time.OffsetDateTime;
+
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenRequestContext;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import javax.sql.DataSource;
-import java.time.OffsetDateTime;
 
 @Configuration
 @org.springframework.context.annotation.Profile("!test & !local")
@@ -32,7 +34,6 @@ public class AzureSqlEntraDataSourceConfig {
         SQLServerDataSource ds = new SQLServerDataSource();
         ds.setServerName("golf-sql-server.database.windows.net");
         ds.setDatabaseName("golfdb");
-        ds.setEncrypt(true);
         ds.setHostNameInCertificate("*.database.windows.net");
         ds.setLoginTimeout(30);
 
