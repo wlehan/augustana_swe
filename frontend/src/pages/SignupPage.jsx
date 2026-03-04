@@ -9,6 +9,14 @@ function SignupPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const password = form.password
+  const passwordLength = password.length
+  const hasMinLength = passwordLength >= 12
+  const progressPercent = Math.min(passwordLength, 12) / 12 * 100
+  const strengthFillClass = hasMinLength
+    ? 'password-strength-fill is-strong'
+    : 'password-strength-fill is-progress'
+  const passwordGood = hasMinLength
 
   const onChange = (event) => {
     const { name, value } = event.target
@@ -82,10 +90,27 @@ function SignupPage() {
               id="password"
               name="password"
               className="text-input"
-              placeholder="At least 6 characters"
+              placeholder="At least 12 characters"
               value={form.password}
               onChange={onChange}
             />
+            <div className="password-quality-wrap">
+              <div className="password-strength-track" aria-hidden="true">
+                <div className={strengthFillClass} style={{ width: `${progressPercent}%` }} />
+              </div>
+              <p
+                className={`password-quality-text ${
+                  passwordGood ? 'password-quality-good' : 'password-quality-bad'
+                }`}
+              >
+                <span className="password-quality-icon" aria-hidden="true">
+                  {passwordGood ? '✓' : '✗'}
+                </span>
+                {passwordGood
+                  ? `Good password (${Math.min(passwordLength, 12)}/12)`
+                  : `${Math.min(passwordLength, 12)}/12 characters`}
+              </p>
+            </div>
           </div>
 
           {error && <p className="auth-message auth-error">{error}</p>}

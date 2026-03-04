@@ -21,7 +21,7 @@ public class AuthService {
 
     public AuthResponse signup(SignupRequest request) {
         String username = normalizeUsername(request.username());
-        String password = normalizePassword(request.password());
+        String password = normalizePassword(request.password(), true);
         String email = normalizeEmail(request.email());
 
         if (userRepository.existsByUsername(username)) {
@@ -40,7 +40,7 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         String username = normalizeUsername(request.username());
-        String password = normalizePassword(request.password());
+        String password = normalizePassword(request.password(), false);
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password."));
@@ -65,13 +65,13 @@ public class AuthService {
         return cleaned;
     }
 
-    private String normalizePassword(String password) {
+    private String normalizePassword(String password, boolean enforceMinLength) {
         if (password == null || password.isBlank()) {
             throw new IllegalArgumentException("Password is required.");
         }
 
-        if (password.length() < 6) {
-            throw new IllegalArgumentException("Password must be at least 6 characters.");
+        if (enforceMinLength && password.length() < 12) {
+            throw new IllegalArgumentException("Password must be at least 12 characters.");
         }
 
         return password;
