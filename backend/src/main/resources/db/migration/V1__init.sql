@@ -4,7 +4,7 @@ CREATE TABLE users (
     username NVARCHAR(100) NOT NULL UNIQUE,
     password_hash NVARCHAR(255) NOT NULL,
     email NVARCHAR(255),
-    created_at DATETIME2 DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME2 DEFAULT SYSDATETIME()
 );
 
 -- GAMES
@@ -15,7 +15,7 @@ CREATE TABLE games (
         CHECK (status IN ('WAITING','IN_PROGRESS','COMPLETED')),
     max_players INT NOT NULL,
     current_round INT DEFAULT 0,
-    created_at DATETIME2 DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME2 DEFAULT SYSDATETIME()
 );
 
 -- GAME PLAYERS (Join table)
