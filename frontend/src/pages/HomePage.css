@@ -17,7 +17,9 @@
   width: 100%;
   z-index: 0;
   height: 100vh;
-  background-color: #1a1a1a; 
+  background-image: url('../assets/woodBackground.jpg');
+  background-size: cover;
+  background-position: center;
   position: relative;
   overflow: hidden;
   display: flex;

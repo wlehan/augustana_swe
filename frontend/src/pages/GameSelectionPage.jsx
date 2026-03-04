@@ -25,6 +25,9 @@ function GameSelectionPage() {
         <button className="green-btn login-button" type="button" onClick={logout}>
           Log Out
         </button>
+        <button className="green-btn" onClick={() => navigate('/game')}>
+          Start a game
+        </button>
       </div>
     </div>
   )
