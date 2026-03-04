@@ -38,13 +38,35 @@ public class GamePlayer {
     @Column(name = "total_score")
     private Integer totalScore = 0;
 
-    public Long getGamePlayerId() { return gamePlayerId; }
-    public Game getGame() { return game; }
-    public void setGame(Game game) { this.game = game; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    public int getSeatNumber() { return seatNumber; }
-    public void setSeatNumber(int seatNumber) { this.seatNumber = seatNumber; }
-    public Integer getTotalScore() { return totalScore; }
-    public void setTotalScore(Integer totalScore) { this.totalScore = totalScore; }
+    public Long getGamePlayerId() { 
+        return gamePlayerId; 
+        }
+
+    public Game getGame() { 
+        return game; 
+        }
+    public void setGame(Game game) { 
+        this.game = game; 
+        }
+
+    public User getUser() { 
+        return user; 
+        } 
+    public void setUser(User user) { 
+        this.user = user; 
+        }
+
+    public int getSeatNumber() { 
+        return seatNumber; 
+        }
+    public void setSeatNumber(int seatNumber) { 
+        this.seatNumber = seatNumber; 
+        }
+        
+    public Integer getTotalScore() { 
+        return totalScore; 
+        }
+    public void setTotalScore(Integer totalScore) { 
+        this.totalScore = totalScore; 
+        }
 }

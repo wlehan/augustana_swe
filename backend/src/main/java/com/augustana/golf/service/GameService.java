@@ -34,8 +34,8 @@ public class GameService {
 
     @Transactional
     public GameResponse createGame(Long userId, int maxPlayers) {
-        if (maxPlayers < 2 || maxPlayers > 8) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "maxPlayers must be between 2 and 8");
+        if (maxPlayers < 2 || maxPlayers > 4) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "maxPlayers must be between 2 and 4");
         }
 
         User user = userRepository.findById(userId)

@@ -45,15 +45,45 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GamePlayer> players = new ArrayList<>();
 
-    public Long getGameId() { return gameId; }
-    public String getGameCode() { return gameCode; }
-    public void setGameCode(String gameCode) { this.gameCode = gameCode; }
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
-    public int getMaxPlayers() { return maxPlayers; }
-    public void setMaxPlayers(int maxPlayers) { this.maxPlayers = maxPlayers; }
-    public Integer getCurrentRound() { return currentRound; }
-    public void setCurrentRound(Integer currentRound) { this.currentRound = currentRound; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public List<GamePlayer> getPlayers() { return players; }
+    // Getters and Setters
+
+    public Long getGameId() { 
+        return gameId; 
+    }
+
+    public String getGameCode() { 
+        return gameCode; 
+    }
+    public void setGameCode(String gameCode) { 
+        this.gameCode = gameCode; 
+    }
+
+    public Status getStatus() { 
+        return status; 
+    }
+    public void setStatus(Status status) { 
+        this.status = status; 
+    }
+
+    public int getMaxPlayers() { 
+        return maxPlayers; 
+    }
+    public void setMaxPlayers(int maxPlayers) { 
+        this.maxPlayers = maxPlayers; 
+    }
+
+    public Integer getCurrentRound() { 
+        return currentRound; 
+    }
+    public void setCurrentRound(Integer currentRound) { 
+        this.currentRound = currentRound; 
+    }
+
+    public LocalDateTime getCreatedAt() { 
+        return createdAt; 
+    }
+    
+    public List<GamePlayer> getPlayers() { 
+        return players; 
+    }
 }
