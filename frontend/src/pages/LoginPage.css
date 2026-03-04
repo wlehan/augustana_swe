@@ -132,3 +132,56 @@
   color: #2f6d43;
   border: none;
 }
+
+.password-quality-wrap {
+  width: 100%;
+}
+
+.password-strength-track {
+  width: 100%;
+  height: 10px;
+  border: 2px solid #000;
+  background-color: #d9d9d9;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
+}
+
+.password-strength-fill {
+  height: 100%;
+  width: 0;
+  transition: width 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.password-strength-fill.is-progress {
+  background: linear-gradient(90deg, #b08900 0%, #d4a017 100%);
+}
+
+.password-strength-fill.is-medium {
+  background: linear-gradient(90deg, #b08900 0%, #d4a017 100%);
+}
+
+.password-strength-fill.is-strong {
+  background: linear-gradient(90deg, #2d6a4f 0%, #386641 100%);
+}
+
+.password-quality-text {
+  margin: 8px 0 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.password-quality-icon {
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.password-quality-bad {
+  color: #8b0000;
+}
+
+.password-quality-good {
+  color: #2d6a4f;
+}
