@@ -1,12 +1,13 @@
 package com.augustana.golf.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.augustana.golf.domain.dto.AuthResponse;
 import com.augustana.golf.domain.dto.LoginRequest;
 import com.augustana.golf.domain.dto.SignupRequest;
 import com.augustana.golf.domain.model.User;
 import com.augustana.golf.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
