@@ -5,9 +5,11 @@ import './GameSelection.css'
 import './Gamepage.css'
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
+import { createGame, joinGame } from '../services/gameApi'
 
 function GameSelection() {
   const navigate = useNavigate();
+  const [createdGame, setCreatedGame] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSfxEnabled, setIsSfxEnabled] = useState(() => localStorage.getItem('sfx_enabled') !== 'false');
@@ -59,6 +61,53 @@ function GameSelection() {
   const handleLogout = () => {
     localStorage.removeItem('demo_user');
     navigate('/login');
+  };
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const onStartGame = async () => {
+    setErrorMsg('');
+
+    if (!user?.userId) {
+      navigate('/login');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await createGame({ userId: user.userId, maxPlayers: 4 });
+      localStorage.setItem('active_game', JSON.stringify(data));
+      setCreatedGame(data);
+      navigate(`/play?gameId=${data.gameId}`);
+    } catch (e) {
+      setErrorMsg(e?.response?.data?.message || 'Failed to create game');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onJoinGame = async () => {
+    setErrorMsg('');
+
+    if (!user?.userId) {
+      navigate('/login');
+      return;
+    }
+
+    const code = window.prompt('Enter game code (6 characters):');
+    if (!code) return;
+
+    setLoading(true);
+    try {
+      const data = await joinGame({ userId: user.userId, gameCode: code.trim() });
+      localStorage.setItem('active_game', JSON.stringify(data));
+      navigate(`/play?gameId=${data.gameId}`);
+    } catch (e) {
+      setErrorMsg(e?.response?.data?.message || 'Failed to join game');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -121,14 +170,23 @@ function GameSelection() {
 
       <div className="content-wrapper selection-wrapper">
         <div className="selection-grid">
-          <button className="square-selection-btn" onClick={() => navigate('/play')}>
-            Start a game
+          <button
+            className="square-selection-btn"
+            onClick={onStartGame}
+            disabled={loading}
+          >
+            {loading ? 'Starting...' : 'Start a game'}
           </button>
-          
-          <button className="square-selection-btn" onClick={() => navigate('/play?mode=join')}>
-            Join a game
+
+          <button
+            className="square-selection-btn"
+            onClick={onJoinGame}
+            disabled={loading}
+          >
+            {loading ? 'Joining...' : 'Join a game'}
           </button>
         </div>
+          {errorMsg && <p className="error-text">{errorMsg}</p>}
       </div>
 
       {isProfileOpen && (
