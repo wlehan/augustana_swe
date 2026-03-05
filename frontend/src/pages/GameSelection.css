@@ -2,34 +2,237 @@
   top: 55%; 
 }
 
+.golf-decor-scene {
+  position: absolute;
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(940px, calc(100vw - 140px));
+  height: 150px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.selection-scene-copy {
+  justify-self: center;
+  text-align: center;
+  color: #f2e8cf;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+.selection-scene-kicker {
+  margin: 0 0 6px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.selection-scene-title {
+  margin: 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 66px;
+  line-height: 0.95;
+  color: #a7c957;
+  -webkit-text-stroke: 2.5px #000;
+  paint-order: stroke fill;
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.selection-scene-subtitle {
+  margin: 10px 0 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 22px;
+  color: #f2e8cf;
+}
+
+.golf-art-cluster {
+  position: relative;
+  width: 280px;
+  height: 132px;
+  justify-self: end;
+  --decor-scale: 1;
+  transform: scale(var(--decor-scale));
+  transform-origin: bottom right;
+}
+
+.golf-flag-group {
+  position: absolute;
+  right: 14px;
+  bottom: 8px;
+  width: 120px;
+  height: 130px;
+}
+
+.golf-flag-pole {
+  position: absolute;
+  left: 6px;
+  bottom: 12px;
+  width: 5px;
+  height: 92px;
+  background: linear-gradient(180deg, #f4f4f4 0%, #b4b4b4 100%);
+  border: 1px solid #111;
+  border-radius: 4px;
+}
+
+.golf-flag-cloth {
+  position: absolute;
+  left: 12px;
+  top: 18px;
+  width: 44px;
+  height: 30px;
+  background: #d62828;
+  border: 2px solid #111;
+  clip-path: polygon(0 0, 100% 20%, 70% 48%, 100% 78%, 0 100%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transform-origin: left center;
+  animation: flag-wave 2.2s ease-in-out infinite;
+}
+
+.golf-hole-cup {
+  position: absolute;
+  left: -8px;
+  bottom: 0;
+  width: 36px;
+  height: 12px;
+  background: radial-gradient(ellipse at center, #1a1a1a 0%, #000 70%);
+  border-radius: 50%;
+  animation: hole-pulse 2.2s ease-in-out infinite;
+}
+
+.golf-ball {
+  position: absolute;
+  right: 150px;
+  bottom: 14px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #111;
+  background:
+    radial-gradient(circle at 25% 25%, #fff 0%, #f5f5f5 60%, #dadada 100%),
+    radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-size: auto, 6px 6px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.24);
+  animation: ball-putt 2.2s cubic-bezier(.25, .62, .35, 1) infinite;
+}
+
+.golf-club {
+  position: absolute;
+  right: 146px;
+  bottom: 6px;
+  width: 88px;
+  height: 78px;
+  transform-origin: 70% 100%;
+  animation: club-strike 2.2s ease-in-out infinite;
+}
+
+.golf-club-shaft {
+  position: absolute;
+  left: 54px;
+  top: 0;
+  width: 5px;
+  height: 66px;
+  background: linear-gradient(180deg, #f1f1f1 0%, #9e9e9e 100%);
+  border-radius: 99px;
+  border: 1px solid #222;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.golf-club-head {
+  position: absolute;
+  left: 38px;
+  bottom: 2px;
+  width: 34px;
+  height: 18px;
+  border-radius: 11px 11px 8px 8px;
+  border: 2px solid #111;
+  background: linear-gradient(135deg, #dbdbdb 0%, #7b7b7b 65%, #5f5f5f 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes flag-wave {
+  0%,
+  100% { transform: skewY(0deg); }
+  50% { transform: skewY(-5deg); }
+}
+
+@keyframes club-strike {
+  0%,
+  26%,
+  100% { transform: rotate(-40deg); }
+  38% { transform: rotate(-14deg); }
+  54% { transform: rotate(-34deg); }
+}
+
+@keyframes ball-putt {
+  0%,
+  34% {
+    right: 150px;
+    bottom: 14px;
+    transform: scale(1);
+    opacity: 1;
+  }
+  60% {
+    right: 112px;
+    bottom: 10px;
+    transform: scale(1);
+    opacity: 1;
+  }
+  68% {
+    right: 106px;
+    bottom: 9px;
+    transform: scale(0.24);
+    opacity: 0.2;
+  }
+  69%,
+  100% {
+    right: 150px;
+    bottom: 14px;
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes hole-pulse {
+  0%,
+  60%,
+  100% { filter: none; }
+  68% { filter: brightness(1.15); }
+}
+
 .selection-grid {
   display: flex;
   flex-direction: row;
-  gap: 60px;
+  gap: 28px;
   justify-content: center;
   align-items: center;
   z-index: 10;
+  flex-wrap: wrap;
 }
 .square-selection-btn {
   /* Colors & Typography */
-  background-color: #a7c957; 
-  color: #F2E8CF; 
+  background-color: #92b74a; 
+  color: #fff8e6; 
   font-family: 'OpenDyslexic', sans-serif;
   font-weight: bold;
-  font-size: 28px; 
+  font-size: 24px; 
 
-  -webkit-text-stroke: 1.5px #000; 
+  -webkit-text-stroke: 1.8px #000; 
   paint-order: stroke fill;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
 
   white-space: nowrap; 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  width: 320px; 
-  height: 320px;
-  border: 3px solid #000;
-  border-radius: 20px;
+  width: 300px; 
+  height: 126px;
+  border: 2.5px solid #000;
+  border-radius: 16px;
   
 
   position: relative;
@@ -39,7 +242,7 @@
 }
 .square-selection-btn:hover {
   background-color: #bcda6f;
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
 
 
@@ -54,16 +257,26 @@
   z-index: 20;
 }
 
+.settings-wrap {
+  position: relative;
+}
 
 .icon-btn {
   background: none;
-  border: none;
+  border: 2px solid transparent;
+  border-radius: 12px;
   cursor: pointer;
   padding: 5px;
   transition: transform 0.2s ease;
 }
 .icon-btn:hover {
   transform: scale(1.1);
+}
+
+.icon-btn:focus-visible {
+  outline: none;
+  border-color: #a7c957;
+  box-shadow: 0 0 0 2px #000;
 }
 
 
@@ -73,4 +286,275 @@
   object-fit: contain;
 }
 
+.settings-menu {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  width: 250px;
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
 
+.settings-title {
+  margin: 0 0 10px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 18px;
+  color: #000;
+}
+
+.settings-item {
+  width: 100%;
+  border: 2px solid #000;
+  border-radius: 10px;
+  background: #fff9e9;
+  color: #000;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 15px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.settings-item:last-child {
+  margin-bottom: 0;
+}
+
+.settings-item.danger {
+  background: #f5d4cd;
+}
+
+.toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 2px solid #000;
+  background: #ddd;
+  font-size: 12px;
+}
+
+.toggle-pill.on {
+  background: #a7c957;
+}
+
+.profile-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.profile-modal-card {
+  position: relative;
+  width: min(92vw, 520px);
+  min-height: 520px;
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  padding: 24px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #fff9e9;
+  color: #000;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.profile-close-btn span {
+  font-family: Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.profile-close-btn:hover {
+  background: #f5d4cd;
+  transform: translateY(-1px);
+}
+
+.profile-close-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px #a7c957;
+}
+
+.profile-modal-title {
+  width: 100%;
+  margin: 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 36px;
+  color: #000;
+}
+
+.profile-avatar-large {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  margin-top: 8px;
+}
+
+.profile-name {
+  margin: 10px 0 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+}
+
+.stats-section {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.stats-section h3 {
+  margin: 0 0 14px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 42px;
+  color: #000;
+}
+
+.stat-row {
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #fff9e9;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-done-btn {
+  margin-top: auto;
+  width: min(100%, 320px);
+}
+
+@media (max-width: 780px) {
+  .golf-decor-scene {
+    top: 90px;
+    width: min(92vw, 620px);
+    height: 118px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .selection-scene-copy {
+    justify-self: center;
+    text-align: center;
+  }
+
+  .selection-scene-kicker {
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .selection-scene-title {
+    font-size: 40px;
+    -webkit-text-stroke: 1.5px #000;
+  }
+
+  .selection-scene-subtitle {
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  .golf-art-cluster {
+    width: 180px;
+    height: 66px;
+    justify-self: center;
+    margin-top: 4px;
+    --decor-scale: 0.72;
+  }
+
+  .golf-flag-group {
+    right: 8px;
+    bottom: -10px;
+  }
+
+  .golf-ball {
+    right: 105px;
+    bottom: -2px;
+  }
+
+  .golf-club {
+    right: 122px;
+    bottom: -2px;
+  }
+
+  .selection-wrapper {
+    top: 59%;
+  }
+
+  .selection-grid {
+    gap: 14px;
+  }
+
+  .square-selection-btn {
+    width: min(90vw, 290px);
+    height: 110px;
+    font-size: 22px;
+    border-radius: 14px;
+  }
+
+  .nav-image {
+    width: 48px;
+    height: 48px;
+  }
+
+  .settings-menu {
+    width: 220px;
+    top: 70px;
+  }
+
+  .profile-modal-title {
+    font-size: 30px;
+  }
+
+  .profile-name {
+    font-size: 20px;
+  }
+
+  .stats-section h3 {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 520px) {
+  .golf-art-cluster {
+    display: none;
+  }
+
+  .selection-wrapper {
+    top: 57%;
+  }
+}
