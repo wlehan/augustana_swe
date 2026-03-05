@@ -5,13 +5,12 @@ import './GameSelection.css'
 import './Gamepage.css'
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
-import JoinCode from './JoinCode';
+
 
 function GameSelection() {
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isJoinCodeOpen, setIsJoinCodeOpen] = useState(false);
   const [isSfxEnabled, setIsSfxEnabled] = useState(() => localStorage.getItem('sfx_enabled') !== 'false');
   const settingsRef = useRef(null);
 
@@ -127,7 +126,7 @@ function GameSelection() {
             Start a game
           </button>
           
-          <button className="square-selection-btn" onClick={() => setIsJoinCodeOpen(true)}>
+          <button className="square-selection-btn" onClick={() => navigate('/play?mode=join')}>
             Join a game
           </button>
         </div>
@@ -165,10 +164,6 @@ function GameSelection() {
             </button>
           </div>
         </div>
-      )}
-
-      {isJoinCodeOpen && (
-        <JoinCode onClose={() => setIsJoinCodeOpen(false)} />
       )}
     </div>
   );
