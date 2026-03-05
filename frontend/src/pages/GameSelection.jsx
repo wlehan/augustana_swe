@@ -7,6 +7,7 @@ import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
 import { createGame, joinGame } from '../services/gameApi'
 
+
 function GameSelection() {
   const navigate = useNavigate();
   const [createdGame, setCreatedGame] = useState(null);
