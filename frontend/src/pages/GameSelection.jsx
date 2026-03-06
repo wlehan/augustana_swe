@@ -5,7 +5,7 @@ import './GameSelection.css'
 import './Gamepage.css'
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
-import { createGame, joinGame } from '../services/gameApi'
+import { createGame } from '../services/gameApi'
 
 
 function GameSelection() {
@@ -88,28 +88,13 @@ function GameSelection() {
     }
   };
 
-  const onJoinGame = async () => {
-    setErrorMsg('');
-
-    if (!user?.userId) {
-      navigate('/login');
-      return;
-    }
-
-    const code = window.prompt('Enter game code (6 characters):');
-    if (!code) return;
-
-    setLoading(true);
-    try {
-      const data = await joinGame({ userId: user.userId, gameCode: code.trim() });
-      localStorage.setItem('active_game', JSON.stringify(data));
-      navigate(`/play?gameId=${data.gameId}`);
-    } catch (e) {
-      setErrorMsg(e?.response?.data?.message || 'Failed to join game');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const onJoinGame = () => {
+      if (!user?.userId) {
+        navigate('/login');
+        return;
+      }
+      navigate('/join');
+    };
 
   return (
     <div className="home-container">

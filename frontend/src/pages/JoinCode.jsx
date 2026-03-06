@@ -1,6 +1,7 @@
 import './JoinCode.css'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { joinGame } from '../services/gameApi'
 
 function JoinCode({ onClose }) {
     const navigate = useNavigate()
@@ -20,11 +21,25 @@ function JoinCode({ onClose }) {
                 return
             }
 
-            // TODO: Call API to join game with joinCode
-            // await joinGame({ code: joinCode })
-            
-            // For now, navigate to game page
-            navigate(`/game/${joinCode}`)
+            const raw = localStorage.getItem('demo_user')
+            let user = null
+            try {
+                user = raw ? JSON.parse(raw) : null
+            } catch {
+                user = null
+            }
+
+            if (!user?.userId) {
+                navigate('/login')
+                return
+            }
+
+            const code = joinCode.trim().toUpperCase()
+            const data = await joinGame({ userId: user.userId, gameCode: code })
+
+            localStorage.setItem('active_game', JSON.stringify(data))
+            navigate(`/play?gameId=${data.gameId}`)
+
         } catch (apiError) {
             setError(apiError.response?.data?.message || 'Failed to join game.')
         } finally {
@@ -36,6 +51,7 @@ function JoinCode({ onClose }) {
         setJoinCode('')
         setError('')
         if (onClose) onClose()
+        else navigate('/game-selection')
     }
 
     return (
