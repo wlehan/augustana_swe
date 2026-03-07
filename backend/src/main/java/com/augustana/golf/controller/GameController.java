@@ -13,15 +13,18 @@ import com.augustana.golf.domain.dto.CreateGameRequest;
 import com.augustana.golf.domain.dto.GameResponse;
 import com.augustana.golf.domain.dto.JoinGameRequest;
 import com.augustana.golf.service.GameService;
+import com.augustana.golf.service.RoundService;
 
 @RestController
 @RequestMapping("/api/games")
 public class GameController {
 
     private final GameService gameService;
+    private final RoundService roundService;
 
-    public GameController(GameService gameService) {
+    public GameController(GameService gameService, RoundService roundService) {
         this.gameService = gameService;
+        this.roundService = roundService;
     }
 
     // MVP until JWT/session auth exists
@@ -54,5 +57,11 @@ public class GameController {
     @GetMapping("/{gameId}")
     public ResponseEntity<GameResponse> getGame(@PathVariable Long gameId) {
         return ResponseEntity.ok(gameService.getGame(gameId));
+    }
+
+    @PostMapping("/{gameId}/start")
+    public ResponseEntity<Void> startRound(@PathVariable Long gameId) {
+        roundService.startRound(gameId);
+        return ResponseEntity.ok().build();
     }
 }
