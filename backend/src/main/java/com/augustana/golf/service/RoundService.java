@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.augustana.golf.domain.dto.GameStateResponse;
 import com.augustana.golf.domain.model.Game;
 import com.augustana.golf.domain.model.GamePlayer;
 import com.augustana.golf.domain.model.GolfCard;
@@ -27,11 +28,10 @@ public class RoundService {
     private final GolfCardRepository golfCardRepository;
 
     public RoundService(
-        GameRepository gameRepository,
-        GamePlayerRepository gamePlayerRepository,
-        RoundRepository roundRepository,
-        GolfCardRepository golfCardRepository
-    ) {
+            GameRepository gameRepository,
+            GamePlayerRepository gamePlayerRepository,
+            RoundRepository roundRepository,
+            GolfCardRepository golfCardRepository) {
         this.gameRepository = gameRepository;
         this.gamePlayerRepository = gamePlayerRepository;
         this.roundRepository = roundRepository;
@@ -41,7 +41,7 @@ public class RoundService {
     @Transactional
     public Round startRound(Long gameId) {
         Game game = gameRepository.findById(gameId)
-            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
 
         List<GamePlayer> players = gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(gameId);
 
@@ -50,20 +50,20 @@ public class RoundService {
         }
 
         boolean activeRoundExists = !roundRepository.findByGame_GameIdAndStatusIn(
-            gameId,
-            List.of(Round.Status.SETUP, Round.Status.ACTIVE, Round.Status.FINAL_TURNS)
-        ).isEmpty();
+                gameId,
+                List.of(Round.Status.SETUP, Round.Status.ACTIVE, Round.Status.FINAL_TURNS)).isEmpty();
 
         if (activeRoundExists) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "A round is already in progress");
         }
 
         int nextRoundNumber = roundRepository
-            .findTopByGame_GameIdOrderByRoundNumberDesc(gameId)
-            .map(r -> r.getRoundNumber() + 1)
-            .orElse(1);
+                .findTopByGame_GameIdOrderByRoundNumberDesc(gameId)
+                .map(r -> r.getRoundNumber() + 1)
+                .orElse(1);
 
-        // Sets the host to be the first player in the list - this is arbitrary; can be changed later if desire
+        // Sets the host to be the first player in the list - this is arbitrary; can be
+        // changed later if desire
         Round round = new Round();
         round.setGame(game);
         round.setRoundNumber(nextRoundNumber);
@@ -136,6 +136,107 @@ public class RoundService {
         gameRepository.save(game);
 
         return savedRound;
+    }
+
+    @Transactional(readOnly = true)
+    public GameStateResponse getGameState(Long gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
+
+        Round round = roundRepository.findTopByGame_GameIdOrderByRoundNumberDesc(gameId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "No round found for game"));
+
+        List<GamePlayer> players = gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(gameId);
+        List<GolfCard> allCards = golfCardRepository.findByRound_RoundId(round.getRoundId());
+
+        GameStateResponse response = new GameStateResponse();
+        response.gameId = game.getGameId();
+        response.gameCode = game.getGameCode();
+        response.gameStatus = game.getStatus().name();
+        response.currentRound = game.getCurrentRound();
+
+        GameStateResponse.RoundView roundView = new GameStateResponse.RoundView();
+        roundView.roundId = round.getRoundId();
+        roundView.status = round.getStatus().name();
+
+        if (round.getCurrentTurnGamePlayer() != null) {
+            roundView.currentTurnGamePlayerId = round.getCurrentTurnGamePlayer().getGamePlayerId();
+            if (round.getCurrentTurnGamePlayer().getUser() != null) {
+                roundView.currentTurnUserId = round.getCurrentTurnGamePlayer().getUser().getUserId();
+            }
+        }
+
+        GolfCard discardTop = allCards.stream()
+                .filter(card -> card.getPile() == GolfCard.Pile.DISCARD)
+                .max((a, b) -> {
+                    Integer aOrder = a.getDrawOrder() == null ? Integer.MIN_VALUE : a.getDrawOrder();
+                    Integer bOrder = b.getDrawOrder() == null ? Integer.MIN_VALUE : b.getDrawOrder();
+                    return Integer.compare(aOrder, bOrder);
+                })
+                .orElse(null);
+
+        long drawCount = allCards.stream()
+                .filter(card -> card.getPile() == GolfCard.Pile.DRAW)
+                .count();
+
+        roundView.drawPileCount = (int) drawCount;
+        roundView.discardTop = toVisibleCard(discardTop);
+
+        response.round = roundView;
+
+        response.players = players.stream().map(player -> {
+            GameStateResponse.PlayerBoardView playerView = new GameStateResponse.PlayerBoardView();
+            playerView.userId = player.getUser().getUserId();
+            playerView.username = player.getUser().getUsername();
+            playerView.gamePlayerId = player.getGamePlayerId();
+            playerView.seatNumber = player.getSeatNumber();
+            playerView.totalScore = player.getTotalScore();
+
+            playerView.cards = allCards.stream()
+                    .filter(card -> card.getPile() == GolfCard.Pile.GRID &&
+                            card.getOwnerGamePlayer() != null &&
+                            card.getOwnerGamePlayer().getGamePlayerId().equals(player.getGamePlayerId()))
+                    .sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition()))
+                    .map(this::toMaskedGridCard)
+                    .toList();
+
+            return playerView;
+        }).toList();
+
+        return response;
+    }
+
+    private GameStateResponse.CardView toVisibleCard(GolfCard card) {
+        if (card == null) {
+            return null;
+        }
+
+        GameStateResponse.CardView view = new GameStateResponse.CardView();
+        view.position = card.getPosition();
+        view.faceUp = card.isFaceUp();
+        view.suit = card.getSuit() == null ? null : card.getSuit().name();
+        view.rank = card.getRank() == null ? null : card.getRank().name();
+        return view;
+    }
+
+    private GameStateResponse.CardView toMaskedGridCard(GolfCard card) {
+        if (card == null) {
+            return null;
+        }
+
+        GameStateResponse.CardView view = new GameStateResponse.CardView();
+        view.position = card.getPosition();
+        view.faceUp = card.isFaceUp();
+
+        if (card.isFaceUp()) {
+            view.suit = card.getSuit() == null ? null : card.getSuit().name();
+            view.rank = card.getRank() == null ? null : card.getRank().name();
+        } else {
+            view.suit = null;
+            view.rank = null;
+        }
+
+        return view;
     }
 
     private List<GolfCard> buildShuffledDeck() {
