@@ -17,3 +17,8 @@ export async function getGame({ gameId }) {
   const resp = await axios.get(`${API_BASE_URL}/api/games/${gameId}`)
   return resp.data
 }
+
+export async function startGame({ gameId }) {
+  const resp = await axios.post(`${API_BASE_URL}/api/games/${gameId}/start`)
+  return resp.data
+}
