@@ -9,6 +9,23 @@ function JoinCode({ onClose }) {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
+    const extractJoinError = (apiError) => {
+        if (!apiError?.response) {
+            return 'Could not reach server (possible CORS/port mismatch).'
+        }
+
+        const { status, data } = apiError.response
+        const message =
+            data?.message ||
+            data?.error ||
+            (typeof data === 'string' ? data : '') ||
+            apiError.message
+
+        return message
+            ? `Join failed (${status}): ${message}`
+            : `Join failed (${status}).`
+    }
+
     const handleSubmit = async (event) => {
         event.preventDefault()
         setError('')
@@ -41,7 +58,7 @@ function JoinCode({ onClose }) {
             navigate(`/play?gameId=${data.gameId}`)
 
         } catch (apiError) {
-            setError(apiError.response?.data?.message || 'Failed to join game.')
+            setError(extractJoinError(apiError))
         } finally {
             setLoading(false)
         }
