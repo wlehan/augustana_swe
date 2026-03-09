@@ -102,8 +102,7 @@ export default function GamePage() {
     setStartError('');
     setStartingGame(true);
     try {
-      await startGame({ gameId });
-      const data = await getGame({ gameId });
+      const data = await startGame({ gameId, userId: user?.userId });
       setGame(data);
     } catch (e) {
       setStartError(e?.response?.data?.message || 'Could not start game.');
@@ -170,7 +169,7 @@ export default function GamePage() {
   );
   const showHostLobbyModal = isHost && game?.status === 'WAITING';
   const waitingPlayers = [...(game?.players || [])].sort((a, b) => (a?.seatNumber || 0) - (b?.seatNumber || 0));
-  const canStartGame = waitingPlayers.length >= 2;
+  const canStartGame = waitingPlayers.length >= 1;
 
   return (
     <div className="game-container">

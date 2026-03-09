@@ -18,7 +18,11 @@ export async function getGame({ gameId }) {
   return resp.data
 }
 
-export async function startGame({ gameId }) {
-  const resp = await axios.post(`${API_BASE_URL}/api/games/${gameId}/start`)
+export async function startGame({ gameId, userId }) {
+  const resp = await axios.post(
+    `${API_BASE_URL}/api/games/${gameId}/start`,
+    {},
+    headersFor(userId)
+  )
   return resp.data
 }
