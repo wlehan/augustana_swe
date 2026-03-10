@@ -725,3 +725,66 @@
     font-size: 22px;
   }
 }
+
+.playing-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+}
+
+.dealt-card {
+  border: none;
+  background: transparent;
+  opacity: 0;
+  transform: translateY(26px) scale(0.92);
+  animation: dealIn 420ms ease-out forwards;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.center-pile-card {
+  position: relative;
+}
+
+.pile-count-badge {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #f2e8cf;
+  color: #1f1f1f;
+  border: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.discard-placeholder {
+  color: #fff;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+}
+
+@keyframes dealIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.center-pile-card.discard-pile {
+  width: 96px;
+  height: 122px;
+}

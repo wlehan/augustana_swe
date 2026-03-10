@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.augustana.golf.domain.dto.CreateGameRequest;
 import com.augustana.golf.domain.dto.GameResponse;
+import com.augustana.golf.domain.dto.GameStateResponse;
 import com.augustana.golf.domain.dto.JoinGameRequest;
 import com.augustana.golf.service.GameService;
 import com.augustana.golf.service.RoundService;
@@ -59,9 +60,14 @@ public class GameController {
         return ResponseEntity.ok(gameService.getGame(gameId));
     }
 
-    @PostMapping("/{gameId}/start")
-    public ResponseEntity<Void> startRound(@PathVariable Long gameId) {
+   @PostMapping("/{gameId}/start")
+    public ResponseEntity<GameStateResponse> startRound(@PathVariable Long gameId) {
         roundService.startRound(gameId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(roundService.getGameState(gameId));
+    }
+
+    @GetMapping("/{gameId}/state")
+    public ResponseEntity<GameStateResponse> getGameState(@PathVariable Long gameId) {
+        return ResponseEntity.ok(roundService.getGameState(gameId));
     }
 }
