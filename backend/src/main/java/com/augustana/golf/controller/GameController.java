@@ -61,10 +61,10 @@ public class GameController {
     }
 
    @PostMapping("/{gameId}/start")
-public ResponseEntity<String> startRound(@PathVariable Long gameId) {
-    roundService.startRound(gameId);
-    return ResponseEntity.ok("started");
-}
+    public ResponseEntity<GameStateResponse> startRound(@PathVariable Long gameId) {
+        roundService.startRound(gameId);
+        return ResponseEntity.ok(roundService.getGameState(gameId));
+    }
 
     @GetMapping("/{gameId}/state")
     public ResponseEntity<GameStateResponse> getGameState(@PathVariable Long gameId) {
