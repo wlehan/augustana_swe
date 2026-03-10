@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import './Gamepage.css';
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
-import cardBack from '../assets/golfball.png';
+import cardBack from '../assets/cards/card_back.png';
 import { getGame, startGame } from '../services/gameApi';
 
 import aceclubs from '../assets/cards/clubs/aceclubs.png';
