@@ -18,6 +18,8 @@ FOREIGN KEY (final_turn_triggered_by_game_player_id) REFERENCES game_players(gam
 ALTER TABLE cards ALTER COLUMN owner_game_player_id BIGINT NULL;
 ALTER TABLE cards ALTER COLUMN position INT NULL;
 
+ALTER TABLE cards DROP CONSTRAINT uq_card_position;
+
 ALTER TABLE cards ADD pile NVARCHAR(20) NOT NULL DEFAULT 'GRID';
 ALTER TABLE cards ADD draw_order INT NULL;
 
