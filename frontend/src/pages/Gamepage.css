@@ -116,7 +116,7 @@
 .score-ledger {
   position: absolute;
   left: 50%;
-  bottom: 0;
+  bottom: 20px;
   transform: translateX(-50%);
   width: min(1200px, calc(100vw - 28px));
   z-index: 60;
@@ -727,8 +727,8 @@
 }
 
 .playing-card-img {
-  width: 100%;
-  height: 100%;
+  width: 140%;              /* Alter width and height to change all card size */
+  height: 140%;
   object-fit: contain;
   display: block;
   border-radius: 6px;
@@ -746,6 +746,8 @@
 
 .center-pile-card {
   position: relative;
+  width: 100px;
+  height: 100px;
 }
 
 .pile-count-badge {
@@ -785,6 +787,7 @@
 }
 
 .center-pile-card.discard-pile {
-  width: 96px;
-  height: 122px;
+  width: 120px;
+  height: 150px;
+  top: 5px;
 }
