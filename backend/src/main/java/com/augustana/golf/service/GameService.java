@@ -79,12 +79,16 @@ public class GameService {
             return toResponse(game.getGameId());
         }
 
-        long count = gamePlayerRepository.countByGame_GameId(game.getGameId());
-        if (count >= game.getMaxPlayers()) {
+        List<GamePlayer> existingPlayers = gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(game.getGameId());
+
+        if (existingPlayers.size() >= game.getMaxPlayers()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Game is full");
         }
 
-        int nextSeat = gamePlayerRepository.maxSeatNumber(game.getGameId()) + 1;
+        int nextSeat = existingPlayers.stream()
+                .mapToInt(GamePlayer::getSeatNumber)
+                .max()
+                .orElse(0) + 1;
 
         GamePlayer gp = new GamePlayer();
         gp.setGame(game);

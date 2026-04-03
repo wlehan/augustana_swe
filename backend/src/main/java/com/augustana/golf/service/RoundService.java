@@ -139,7 +139,7 @@ public class RoundService {
     }
 
     @Transactional(readOnly = true)
-    public GameStateResponse getGameState(Long gameId) {
+    public GameStateResponse getGameState(Long gameId, Long requestingUserId) {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
 
@@ -197,7 +197,7 @@ public class RoundService {
                             card.getOwnerGamePlayer() != null &&
                             card.getOwnerGamePlayer().getGamePlayerId().equals(player.getGamePlayerId()))
                     .sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition()))
-                    .map(this::toMaskedGridCard)
+                    .map(card -> toGridCardForViewer(card, requestingUserId))
                     .toList();
 
             return playerView;
@@ -214,21 +214,28 @@ public class RoundService {
         GameStateResponse.CardView view = new GameStateResponse.CardView();
         view.position = card.getPosition();
         view.faceUp = card.isFaceUp();
+        view.revealedToViewer = true;
         view.suit = card.getSuit() == null ? null : card.getSuit().name();
         view.rank = card.getRank() == null ? null : card.getRank().name();
         return view;
     }
 
-    private GameStateResponse.CardView toMaskedGridCard(GolfCard card) {
+    private GameStateResponse.CardView toGridCardForViewer(GolfCard card, Long requestingUserId) {
         if (card == null) {
             return null;
         }
 
+        boolean isOwnerView = requestingUserId != null
+                && card.getOwnerGamePlayer() != null
+                && card.getOwnerGamePlayer().getUser() != null
+                && requestingUserId.equals(card.getOwnerGamePlayer().getUser().getUserId());
+
         GameStateResponse.CardView view = new GameStateResponse.CardView();
         view.position = card.getPosition();
         view.faceUp = card.isFaceUp();
+        view.revealedToViewer = card.isFaceUp() || isOwnerView;
 
-        if (card.isFaceUp()) {
+        if (card.isFaceUp() || isOwnerView) {
             view.suit = card.getSuit() == null ? null : card.getSuit().name();
             view.rank = card.getRank() == null ? null : card.getRank().name();
         } else {
