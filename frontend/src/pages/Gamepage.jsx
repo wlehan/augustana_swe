@@ -4,7 +4,7 @@ import './Gamepage.css';
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
 import cardBack from '../assets/cards/card_back.png';
-import { getGame, startGame } from '../services/gameApi';
+import { getGame, getGameState, startGame } from '../services/gameApi';
 
 import aceclubs from '../assets/cards/clubs/aceclubs.png';
 import twoclubs from '../assets/cards/clubs/2clubs.png';
@@ -127,13 +127,13 @@ const CARD_IMAGES = {
 
 function getCardImage(card) {
   if (!card) return null;
-  if (!card.faceUp) return cardBack;
+  if (!card.faceUp && !card.revealedToViewer) return cardBack;
   return CARD_IMAGES?.[card.suit]?.[card.rank] || null;
 }
 
 function getCardAlt(card) {
   if (!card) return 'Card slot';
-  if (!card.faceUp) return 'Face-down card';
+  if (!card.faceUp && !card.revealedToViewer) return 'Face-down card';
   return `${card.rank} of ${card.suit}`;
 }
 
@@ -206,54 +206,58 @@ export default function GamePage() {
   const effectiveStatus = game?.status ?? game?.gameStatus ?? null;
 
 
-  /*For a more complete solution, you’ll probably want a new frontend API function like getGameState({ gameId }) that calls:
-
-GET /api/games/{gameId}/state
-
-Then after the game starts, you can poll /state instead of /games/{gameId}.
-
-But for now, the fix above should make the dealt cards appear.*/
   useEffect(() => {
-  if (!gameId) {
-    setErrorMsg('Missing gameId in URL.');
-    return;
-  }
-
-  // Once the game has started, do not call getGame() anymore,
-  // because it returns the simpler lobby response and overwrites
-  // the richer start/state response that contains cards.
-  if (effectiveStatus && effectiveStatus !== 'WAITING') {
-    return;
-  }
-
-  let cancelled = false;
-
-  const loadGame = async () => {
-    try {
-      const data = await getGame({ gameId });
-      if (!cancelled) {
-        setGame(data);
-        setErrorMsg('');
-      }
-    } catch (e) {
-      if (!cancelled) {
-        setErrorMsg(
-          e?.response?.data?.message ||
-            e?.response?.data?.error ||
-            'Could not load game.'
-        );
-      }
+    if (!gameId) {
+      setErrorMsg('Missing gameId in URL.');
+      return;
     }
-  };
 
-  loadGame();
-  const intervalId = setInterval(loadGame, 2000);
+    let cancelled = false;
 
-  return () => {
-    cancelled = true;
-    clearInterval(intervalId);
-  };
-}, [gameId, effectiveStatus]);
+    const loadGame = async () => {
+      try {
+        if (effectiveStatus && effectiveStatus !== 'WAITING') {
+          const data = await getGameState({ gameId, userId: user?.userId });
+          if (!cancelled) {
+            setGame(data);
+            setErrorMsg('');
+          }
+          return;
+        }
+
+        const lobbyData = await getGame({ gameId });
+        if (cancelled) return;
+
+        if (lobbyData?.status && lobbyData.status !== 'WAITING') {
+          const stateData = await getGameState({ gameId, userId: user?.userId });
+          if (!cancelled) {
+            setGame(stateData);
+            setErrorMsg('');
+          }
+          return;
+        }
+
+        setGame(lobbyData);
+        setErrorMsg('');
+      } catch (e) {
+        if (!cancelled) {
+          setErrorMsg(
+            e?.response?.data?.message ||
+              e?.response?.data?.error ||
+              'Could not load game.'
+          );
+        }
+      }
+    };
+
+    loadGame();
+    const intervalId = setInterval(loadGame, 1500);
+
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+    };
+  }, [gameId, effectiveStatus, user?.userId]);
 
   const onCopyCode = async () => {
     if (!game?.gameCode) return;
@@ -381,7 +385,7 @@ But for now, the fix above should make the dealt cards appear.*/
     (a, b) => (a?.seatNumber || 0) - (b?.seatNumber || 0)
   );
 
-  const canStartGame = waitingPlayers.length >= 1;
+  const canStartGame = waitingPlayers.length >= 2;
 
   const discardImage = getCardImage(game?.round?.discardTop);
 

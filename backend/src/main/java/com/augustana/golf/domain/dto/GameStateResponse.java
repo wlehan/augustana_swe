@@ -32,6 +32,7 @@ public class GameStateResponse {
     public static class CardView {
         public Integer position;
         public Boolean faceUp;
+        public Boolean revealedToViewer;
         public String suit;
         public String rank;
     }

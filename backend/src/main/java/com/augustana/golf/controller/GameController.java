@@ -61,13 +61,21 @@ public class GameController {
     }
 
    @PostMapping("/{gameId}/start")
-    public ResponseEntity<GameStateResponse> startRound(@PathVariable Long gameId) {
+    public ResponseEntity<GameStateResponse> startRound(
+            @PathVariable Long gameId,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader
+    ) {
+        Long userId = (userIdHeader == null || userIdHeader.isBlank()) ? null : Long.parseLong(userIdHeader);
         roundService.startRound(gameId);
-        return ResponseEntity.ok(roundService.getGameState(gameId));
+        return ResponseEntity.ok(roundService.getGameState(gameId, userId));
     }
 
     @GetMapping("/{gameId}/state")
-    public ResponseEntity<GameStateResponse> getGameState(@PathVariable Long gameId) {
-        return ResponseEntity.ok(roundService.getGameState(gameId));
+    public ResponseEntity<GameStateResponse> getGameState(
+            @PathVariable Long gameId,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader
+    ) {
+        Long userId = (userIdHeader == null || userIdHeader.isBlank()) ? null : Long.parseLong(userIdHeader);
+        return ResponseEntity.ok(roundService.getGameState(gameId, userId));
     }
 }
