@@ -10,7 +10,6 @@ import { createGame } from '../services/gameApi'
 
 function GameSelection() {
   const navigate = useNavigate();
-  const [createdGame, setCreatedGame] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSfxEnabled, setIsSfxEnabled] = useState(() => localStorage.getItem('sfx_enabled') !== 'false');
@@ -79,7 +78,6 @@ function GameSelection() {
     try {
       const data = await createGame({ userId: user.userId, maxPlayers: 4 });
       localStorage.setItem('active_game', JSON.stringify(data));
-      setCreatedGame(data);
       navigate(`/play?gameId=${data.gameId}`);
     } catch (e) {
       setErrorMsg(e?.response?.data?.message || 'Failed to create game');

@@ -3,6 +3,8 @@ package com.augustana.golf.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,11 +15,13 @@ import com.augustana.golf.domain.model.Game;
 import com.augustana.golf.domain.model.GamePlayer;
 import com.augustana.golf.domain.model.GolfCard;
 import com.augustana.golf.domain.model.Round;
+import com.augustana.golf.domain.model.RoundScore;
 import com.augustana.golf.exception.ApiException;
 import com.augustana.golf.repository.GamePlayerRepository;
 import com.augustana.golf.repository.GameRepository;
 import com.augustana.golf.repository.GolfCardRepository;
 import com.augustana.golf.repository.RoundRepository;
+import com.augustana.golf.repository.RoundScoreRepository;
 
 @Service
 public class RoundService {
@@ -26,16 +30,19 @@ public class RoundService {
     private final GamePlayerRepository gamePlayerRepository;
     private final RoundRepository roundRepository;
     private final GolfCardRepository golfCardRepository;
+    private final RoundScoreRepository roundScoreRepository;
 
     public RoundService(
             GameRepository gameRepository,
             GamePlayerRepository gamePlayerRepository,
             RoundRepository roundRepository,
-            GolfCardRepository golfCardRepository) {
+            GolfCardRepository golfCardRepository,
+            RoundScoreRepository roundScoreRepository) {
         this.gameRepository = gameRepository;
         this.gamePlayerRepository = gamePlayerRepository;
         this.roundRepository = roundRepository;
         this.golfCardRepository = golfCardRepository;
+        this.roundScoreRepository = roundScoreRepository;
     }
 
     @Transactional
@@ -62,12 +69,10 @@ public class RoundService {
                 .map(r -> r.getRoundNumber() + 1)
                 .orElse(1);
 
-        // Sets the host to be the first player in the list - this is arbitrary; can be
-        // changed later if desire
         Round round = new Round();
         round.setGame(game);
         round.setRoundNumber(nextRoundNumber);
-        round.setStatus(Round.Status.ACTIVE);
+        round.setStatus(Round.Status.SETUP);
         round.setDealerSeat(1);
         round.setCurrentTurnGamePlayer(players.get(0));
 
@@ -78,7 +83,6 @@ public class RoundService {
 
         int deckIndex = 0;
 
-        // Deal 6 cards to each player into positions 1..6
         for (GamePlayer player : players) {
             for (int position = 1; position <= 6; position++) {
                 GolfCard card = deck.get(deckIndex++);
@@ -92,7 +96,6 @@ public class RoundService {
             }
         }
 
-        // Remaining cards go to draw pile
         int drawOrder = 1;
         while (deckIndex < deck.size()) {
             GolfCard card = deck.get(deckIndex++);
@@ -105,7 +108,6 @@ public class RoundService {
             cardsToSave.add(card);
         }
 
-        // Flip top draw card into discard pile
         GolfCard topDraw = null;
         for (GolfCard card : cardsToSave) {
             if (card.getPile() == GolfCard.Pile.DRAW && card.getDrawOrder() == 1) {
@@ -122,7 +124,6 @@ public class RoundService {
         topDraw.setFaceUp(true);
         topDraw.setDrawOrder(1);
 
-        // Shift remaining draw pile order down by 1
         for (GolfCard card : cardsToSave) {
             if (card.getPile() == GolfCard.Pile.DRAW && card.getDrawOrder() != null) {
                 card.setDrawOrder(card.getDrawOrder() - 1);
@@ -158,6 +159,7 @@ public class RoundService {
         GameStateResponse.RoundView roundView = new GameStateResponse.RoundView();
         roundView.roundId = round.getRoundId();
         roundView.status = round.getStatus().name();
+        roundView.currentDrawSource = round.getCurrentDrawSource();
 
         if (round.getCurrentTurnGamePlayer() != null) {
             roundView.currentTurnGamePlayerId = round.getCurrentTurnGamePlayer().getGamePlayerId();
@@ -166,51 +168,99 @@ public class RoundService {
             }
         }
 
+        if (round.getFinalTurnTriggeredByGamePlayer() != null) {
+            roundView.finalTurnTriggeredByGamePlayerId =
+                    round.getFinalTurnTriggeredByGamePlayer().getGamePlayerId();
+        }
+
         GolfCard discardTop = allCards.stream()
-                .filter(card -> card.getPile() == GolfCard.Pile.DISCARD)
+                .filter(c -> c.getPile() == GolfCard.Pile.DISCARD)
                 .max((a, b) -> {
-                    Integer aOrder = a.getDrawOrder() == null ? Integer.MIN_VALUE : a.getDrawOrder();
-                    Integer bOrder = b.getDrawOrder() == null ? Integer.MIN_VALUE : b.getDrawOrder();
-                    return Integer.compare(aOrder, bOrder);
+                    int ao = a.getDrawOrder() == null ? Integer.MIN_VALUE : a.getDrawOrder();
+                    int bo = b.getDrawOrder() == null ? Integer.MIN_VALUE : b.getDrawOrder();
+                    return Integer.compare(ao, bo);
                 })
                 .orElse(null);
 
-        long drawCount = allCards.stream()
-                .filter(card -> card.getPile() == GolfCard.Pile.DRAW)
-                .count();
-
-        roundView.drawPileCount = (int) drawCount;
+        roundView.drawPileCount = (int) allCards.stream()
+                .filter(c -> c.getPile() == GolfCard.Pile.DRAW).count();
         roundView.discardTop = toVisibleCard(discardTop);
 
         response.round = roundView;
 
-        response.players = players.stream().map(player -> {
-            GameStateResponse.PlayerBoardView playerView = new GameStateResponse.PlayerBoardView();
-            playerView.userId = player.getUser().getUserId();
-            playerView.username = player.getUser().getUsername();
-            playerView.gamePlayerId = player.getGamePlayerId();
-            playerView.seatNumber = player.getSeatNumber();
-            playerView.totalScore = player.getTotalScore();
+        List<RoundScore> allScores = roundScoreRepository.findByRound_Game_GameIdOrderByRound_RoundNumberAsc(gameId);
+        Map<Long, List<RoundScore>> scoresByRound = allScores.stream()
+                .collect(Collectors.groupingBy(rs -> rs.getRound().getRoundId()));
 
-            playerView.cards = allCards.stream()
-                    .filter(card -> card.getPile() == GolfCard.Pile.GRID &&
-                            card.getOwnerGamePlayer() != null &&
-                            card.getOwnerGamePlayer().getGamePlayerId().equals(player.getGamePlayerId()))
+        List<Round> allRounds = roundRepository.findByGame_GameIdOrderByRoundNumberAsc(gameId);
+        response.allRoundScores = allRounds.stream()
+                .filter(r -> !scoresByRound.getOrDefault(r.getRoundId(), List.of()).isEmpty())
+                .map(r -> {
+                    GameStateResponse.RoundScoreSummary summary = new GameStateResponse.RoundScoreSummary();
+                    summary.roundNumber = r.getRoundNumber();
+                    summary.perPlayerScores = scoresByRound.get(r.getRoundId()).stream()
+                            .map(rs -> {
+                                GameStateResponse.PerPlayerRoundScore prs = new GameStateResponse.PerPlayerRoundScore();
+                                prs.gamePlayerId = rs.getGamePlayer().getGamePlayerId();
+                                prs.score = rs.getScore();
+                                return prs;
+                            })
+                            .toList();
+                    return summary;
+                })
+                .toList();
+
+        Map<Long, Integer> currentRoundScoreMap = roundScoreRepository
+                .findByRound_RoundId(round.getRoundId()).stream()
+                .collect(Collectors.toMap(
+                        rs -> rs.getGamePlayer().getGamePlayerId(),
+                        RoundScore::getScore));
+
+        response.players = players.stream().map(player -> {
+            GameStateResponse.PlayerBoardView view = new GameStateResponse.PlayerBoardView();
+            view.userId = player.getUser().getUserId();
+            view.username = player.getUser().getUsername();
+            view.gamePlayerId = player.getGamePlayerId();
+            view.seatNumber = player.getSeatNumber();
+            view.totalScore = player.getTotalScore();
+            view.roundScore = currentRoundScoreMap.getOrDefault(player.getGamePlayerId(), null);
+
+            view.initialFlipsCount = (int) allCards.stream()
+                    .filter(c -> c.getPile() == GolfCard.Pile.GRID
+                            && c.getOwnerGamePlayer() != null
+                            && c.getOwnerGamePlayer().getGamePlayerId().equals(player.getGamePlayerId())
+                            && c.isFaceUp())
+                    .count();
+
+            boolean isRequestingPlayer = requestingUserId != null
+                    && requestingUserId.equals(player.getUser().getUserId());
+
+            if (isRequestingPlayer) {
+                view.heldCard = allCards.stream()
+                        .filter(c -> c.getPile() == GolfCard.Pile.HAND
+                                && c.getOwnerGamePlayer() != null
+                                && c.getOwnerGamePlayer().getGamePlayerId().equals(player.getGamePlayerId()))
+                        .findFirst()
+                        .map(this::toVisibleCard)
+                        .orElse(null);
+            }
+
+            view.cards = allCards.stream()
+                    .filter(c -> c.getPile() == GolfCard.Pile.GRID
+                            && c.getOwnerGamePlayer() != null
+                            && c.getOwnerGamePlayer().getGamePlayerId().equals(player.getGamePlayerId()))
                     .sorted((a, b) -> Integer.compare(a.getPosition(), b.getPosition()))
-                    .map(card -> toGridCardForViewer(card, requestingUserId))
+                    .map(c -> toGridCardForViewer(c, requestingUserId))
                     .toList();
 
-            return playerView;
+            return view;
         }).toList();
 
         return response;
     }
 
     private GameStateResponse.CardView toVisibleCard(GolfCard card) {
-        if (card == null) {
-            return null;
-        }
-
+        if (card == null) return null;
         GameStateResponse.CardView view = new GameStateResponse.CardView();
         view.position = card.getPosition();
         view.faceUp = card.isFaceUp();
@@ -221,34 +271,19 @@ public class RoundService {
     }
 
     private GameStateResponse.CardView toGridCardForViewer(GolfCard card, Long requestingUserId) {
-        if (card == null) {
-            return null;
-        }
-
-        boolean isOwnerView = requestingUserId != null
-                && card.getOwnerGamePlayer() != null
-                && card.getOwnerGamePlayer().getUser() != null
-                && requestingUserId.equals(card.getOwnerGamePlayer().getUser().getUserId());
+        if (card == null) return null;
 
         GameStateResponse.CardView view = new GameStateResponse.CardView();
         view.position = card.getPosition();
         view.faceUp = card.isFaceUp();
-        view.revealedToViewer = card.isFaceUp() || isOwnerView;
-
-        if (card.isFaceUp() || isOwnerView) {
-            view.suit = card.getSuit() == null ? null : card.getSuit().name();
-            view.rank = card.getRank() == null ? null : card.getRank().name();
-        } else {
-            view.suit = null;
-            view.rank = null;
-        }
-
+        view.revealedToViewer = card.isFaceUp();
+        view.suit = view.revealedToViewer && card.getSuit() != null ? card.getSuit().name() : null;
+        view.rank = view.revealedToViewer && card.getRank() != null ? card.getRank().name() : null;
         return view;
     }
 
     private List<GolfCard> buildShuffledDeck() {
         List<GolfCard> deck = new ArrayList<>();
-
         for (GolfCard.Suit suit : GolfCard.Suit.values()) {
             for (GolfCard.Rank rank : GolfCard.Rank.values()) {
                 GolfCard card = new GolfCard();
@@ -257,7 +292,6 @@ public class RoundService {
                 deck.add(card);
             }
         }
-
         Collections.shuffle(deck);
         return deck;
     }

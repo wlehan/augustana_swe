@@ -62,6 +62,10 @@ public class Round {
     @Column(name = "ended_at")
     private LocalDateTime endedAt;
 
+    
+    @Column(name = "current_draw_source", length = 10)
+    private String currentDrawSource;
+
     public Long getRoundId() {
         return roundId;
     }
@@ -120,5 +124,13 @@ public class Round {
 
     public void setEndedAt(LocalDateTime endedAt) {
         this.endedAt = endedAt;
+    }
+
+    public String getCurrentDrawSource() {
+        return currentDrawSource;
+    }
+
+    public void setCurrentDrawSource(String currentDrawSource) {
+        this.currentDrawSource = currentDrawSource;
     }
 }

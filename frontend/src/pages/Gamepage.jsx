@@ -1,10 +1,18 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './Gamepage.css';
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
 import cardBack from '../assets/cards/card_back.png';
-import { getGame, getGameState, startGame } from '../services/gameApi';
+import {
+  discardCard,
+  drawCard,
+  flipInitialCard,
+  getGame,
+  getGameState,
+  startGame,
+  swapCard,
+} from '../services/gameApi';
 
 import aceclubs from '../assets/cards/clubs/aceclubs.png';
 import twoclubs from '../assets/cards/clubs/2clubs.png';
@@ -63,66 +71,10 @@ import queenspades from '../assets/cards/spades/queenspades.png';
 import kingspades from '../assets/cards/spades/kingspades.png';
 
 const CARD_IMAGES = {
-  CLUBS: {
-    ACE: aceclubs,
-    TWO: twoclubs,
-    THREE: threeclubs,
-    FOUR: fourclubs,
-    FIVE: fiveclubs,
-    SIX: sixclubs,
-    SEVEN: sevenclubs,
-    EIGHT: eightclubs,
-    NINE: nineclubs,
-    TEN: tenclubs,
-    JACK: jackclubs,
-    QUEEN: queenclubs,
-    KING: kingclubs,
-  },
-  DIAMONDS: {
-    ACE: acediamonds,
-    TWO: twodiamonds,
-    THREE: threediamonds,
-    FOUR: fourdiamonds,
-    FIVE: fivediamonds,
-    SIX: sixdiamonds,
-    SEVEN: sevendiamonds,
-    EIGHT: eightdiamonds,
-    NINE: ninediamonds,
-    TEN: tendiamonds,
-    JACK: jackdiamonds,
-    QUEEN: queendiamonds,
-    KING: kingdiamonds,
-  },
-  HEARTS: {
-    ACE: acehearts,
-    TWO: twohearts,
-    THREE: threehearts,
-    FOUR: fourhearts,
-    FIVE: fivehearts,
-    SIX: sixhearts,
-    SEVEN: sevenhearts,
-    EIGHT: eighthearts,
-    NINE: ninehearts,
-    TEN: tenhearts,
-    JACK: jackhearts,
-    QUEEN: queenhearts,
-    KING: kinghearts,
-  },
-  SPADES: {
-    ACE: acespades,
-    TWO: twospades,
-    THREE: threespades,
-    FOUR: fourspades,
-    FIVE: fivespades,
-    SIX: sixspades,
-    SEVEN: sevenspades,
-    EIGHT: eightspades,
-    NINE: ninespades,
-    TEN: tenspades,
-    JACK: jackspades,
-    QUEEN: queenspades,
-    KING: kingspades,
-  },
+  CLUBS:    { ACE: aceclubs, TWO: twoclubs, THREE: threeclubs, FOUR: fourclubs, FIVE: fiveclubs, SIX: sixclubs, SEVEN: sevenclubs, EIGHT: eightclubs, NINE: nineclubs, TEN: tenclubs, JACK: jackclubs, QUEEN: queenclubs, KING: kingclubs },
+  DIAMONDS: { ACE: acediamonds, TWO: twodiamonds, THREE: threediamonds, FOUR: fourdiamonds, FIVE: fivediamonds, SIX: sixdiamonds, SEVEN: sevendiamonds, EIGHT: eightdiamonds, NINE: ninediamonds, TEN: tendiamonds, JACK: jackdiamonds, QUEEN: queendiamonds, KING: kingdiamonds },
+  HEARTS:   { ACE: acehearts, TWO: twohearts, THREE: threehearts, FOUR: fourhearts, FIVE: fivehearts, SIX: sixhearts, SEVEN: sevenhearts, EIGHT: eighthearts, NINE: ninehearts, TEN: tenhearts, JACK: jackhearts, QUEEN: queenhearts, KING: kinghearts },
+  SPADES:   { ACE: acespades, TWO: twospades, THREE: threespades, FOUR: fourspades, FIVE: fivespades, SIX: sixspades, SEVEN: sevenspades, EIGHT: eightspades, NINE: ninespades, TEN: tenspades, JACK: jackspades, QUEEN: queenspades, KING: kingspades },
 };
 
 function getCardImage(card) {
@@ -137,11 +89,42 @@ function getCardAlt(card) {
   return `${card.rank} of ${card.suit}`;
 }
 
-function PlayerHand({ position, playerMeta }) {
-  const slots = [1, 2, 3, 4, 5, 6];
-  const cardsByPosition = new Map(
-    (playerMeta?.cards || []).map((card) => [card.position, card])
+
+const PLAYER_HAND_SLOTS = [1, 2, 3, 4, 5, 6];
+
+function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
+  const cardsByPosition = useMemo(
+    () => new Map((playerMeta?.cards || []).map((c) => [c.position, c])),
+    [playerMeta?.cards]
   );
+  const isClickable = Boolean(onCardClick);
+
+  const prevFaceUpRef = useRef({});
+  const [flippingSlots, setFlippingSlots] = useState(new Set());
+
+  useEffect(() => {
+    const prev = prevFaceUpRef.current;
+    const newlyFlipped = [];
+    PLAYER_HAND_SLOTS.forEach((slot) => {
+      const card = cardsByPosition.get(slot);
+      if (card && card.faceUp && !prev[slot]) {
+        newlyFlipped.push(slot);
+      }
+      prev[slot] = card?.faceUp ?? false;
+    });
+    if (newlyFlipped.length > 0) {
+      const start = setTimeout(() => {
+        setFlippingSlots(new Set(newlyFlipped));
+      }, 0);
+      const end = setTimeout(() => {
+        setFlippingSlots(new Set());
+      }, 320);
+      return () => {
+        clearTimeout(start);
+        clearTimeout(end);
+      };
+    }
+  }, [cardsByPosition]);
 
   return (
     <div className={`player-area ${position}`}>
@@ -157,21 +140,24 @@ function PlayerHand({ position, playerMeta }) {
       )}
 
       <div className="card-grid">
-        {slots.map((slot, index) => {
+        {PLAYER_HAND_SLOTS.map((slot, index) => {
           const card = cardsByPosition.get(slot);
           const imageSrc = getCardImage(card);
+          const hl = cardHighlight?.(slot, card);
+          const isFlipping = flippingSlots.has(slot);
 
           return (
             <div
               key={slot}
-              className={`card-slot ${card ? 'dealt-card' : ''}`}
+              className={`card-slot ${card ? 'dealt-card' : ''} ${isClickable ? 'card-clickable' : ''} ${hl ? `card-hl-${hl}` : ''}`}
               style={card ? { animationDelay: `${index * 90}ms` } : undefined}
+              onClick={onCardClick ? () => onCardClick(slot, card) : undefined}
             >
               {imageSrc && (
                 <img
                   src={imageSrc}
                   alt={getCardAlt(card)}
-                  className="playing-card-img"
+                  className={`playing-card-img ${isFlipping ? 'card-flip-anim' : ''}`}
                 />
               )}
             </div>
@@ -181,6 +167,7 @@ function PlayerHand({ position, playerMeta }) {
     </div>
   );
 }
+
 
 export default function GamePage() {
   const [params] = useSearchParams();
@@ -193,24 +180,24 @@ export default function GamePage() {
   const [startError, setStartError] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
 
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [pendingDiscard, setPendingDiscard] = useState(false);
+
+  const prevRoundRef = useRef(null);
+  const [showRoundSummary, setShowRoundSummary] = useState(false);
+  const [roundSummaryData, setRoundSummaryData] = useState(null);
+
   const user = useMemo(() => {
     const raw = localStorage.getItem('demo_user');
     if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
+    try { return JSON.parse(raw); } catch { return null; }
   }, []);
 
   const effectiveStatus = game?.status ?? game?.gameStatus ?? null;
 
-
   useEffect(() => {
-    if (!gameId) {
-      setErrorMsg('Missing gameId in URL.');
-      return;
-    }
+    if (!gameId) { setErrorMsg('Missing gameId in URL.'); return; }
 
     let cancelled = false;
 
@@ -219,6 +206,17 @@ export default function GamePage() {
         if (effectiveStatus && effectiveStatus !== 'WAITING') {
           const data = await getGameState({ gameId, userId: user?.userId });
           if (!cancelled) {
+            const newRound = data.currentRound;
+            if (prevRoundRef.current !== null && newRound !== prevRoundRef.current) {
+              const prevScores = data.allRoundScores?.find(
+                (r) => r.roundNumber === prevRoundRef.current
+              );
+              if (prevScores) {
+                setRoundSummaryData({ roundNumber: prevRoundRef.current, scores: prevScores.perPlayerScores, players: data.players });
+                setShowRoundSummary(true);
+              }
+            }
+            prevRoundRef.current = newRound;
             setGame(data);
             setErrorMsg('');
           }
@@ -231,6 +229,7 @@ export default function GamePage() {
         if (lobbyData?.status && lobbyData.status !== 'WAITING') {
           const stateData = await getGameState({ gameId, userId: user?.userId });
           if (!cancelled) {
+            prevRoundRef.current = stateData.currentRound;
             setGame(stateData);
             setErrorMsg('');
           }
@@ -242,9 +241,7 @@ export default function GamePage() {
       } catch (e) {
         if (!cancelled) {
           setErrorMsg(
-            e?.response?.data?.message ||
-              e?.response?.data?.error ||
-              'Could not load game.'
+            e?.response?.data?.message || e?.response?.data?.error || 'Could not load game.'
           );
         }
       }
@@ -252,142 +249,187 @@ export default function GamePage() {
 
     loadGame();
     const intervalId = setInterval(loadGame, 1500);
-
-    return () => {
-      cancelled = true;
-      clearInterval(intervalId);
-    };
+    return () => { cancelled = true; clearInterval(intervalId); };
   }, [gameId, effectiveStatus, user?.userId]);
+
+  const playerScores = useMemo(() => {
+    if (Array.isArray(game?.players) && game.players.length > 0) {
+      return [...game.players]
+        .sort((a, b) => (a?.seatNumber || 0) - (b?.seatNumber || 0))
+        .map((player, index) => ({
+          id: player?.gamePlayerId || player?.userId || `${index}`,
+          userId: player?.userId || null,
+          gamePlayerId: player?.gamePlayerId || null,
+          name: player?.displayName || player?.username || player?.name || `Player ${index + 1}`,
+          seatNumber: player?.seatNumber || index + 1,
+          roundScore: player?.roundScore ?? null,
+          total: player?.totalScore ?? player?.score ?? '-',
+          cards: player?.cards || [],
+          heldCard: player?.heldCard || null,
+          initialFlipsCount: player?.initialFlipsCount ?? 0,
+        }));
+    }
+    return Array.from({ length: game?.maxPlayers || 4 }, (_, i) => ({
+      id: `${i + 1}`, userId: null, gamePlayerId: null,
+      name: i === 0 ? 'You' : `Player ${i + 1}`,
+      seatNumber: i + 1, roundScore: null, total: '-', cards: [], heldCard: null, initialFlipsCount: 0,
+    }));
+  }, [game]);
+
+  const normalizeId = (v) => (v === null || v === undefined ? '' : String(v));
+
+  const currentUserPlayer = useMemo(() => {
+    const normalizedUsername = (user?.username || '').trim().toLowerCase();
+    return playerScores.find((p) => {
+      if (normalizeId(p.userId) && normalizeId(user?.userId) && normalizeId(p.userId) === normalizeId(user?.userId)) return true;
+      return Boolean(normalizedUsername) && (p.name || '').trim().toLowerCase() === normalizedUsername;
+    }) || null;
+  }, [playerScores, user]);
+
+  const isSamePlayer = (a, b) => {
+    if (!a || !b) return false;
+    const aId = normalizeId(a.userId), bId = normalizeId(b.userId);
+    if (aId && bId) return aId === bId;
+    return Boolean(a.name) && (a.name || '').trim().toLowerCase() === (b.name || '').trim().toLowerCase();
+  };
+
+  const otherPlayers = currentUserPlayer
+    ? playerScores.filter((p) => !isSamePlayer(p, currentUserPlayer))
+    : [...playerScores];
+
+  const playersByPosition = { top: null, left: null, right: null, bottom: null };
+  if (currentUserPlayer) {
+    playersByPosition.bottom = currentUserPlayer;
+    ['top', 'left', 'right'].forEach((pos, i) => { playersByPosition[pos] = otherPlayers[i] || null; });
+  } else {
+    ['top', 'left', 'right', 'bottom'].forEach((pos, i) => { playersByPosition[pos] = otherPlayers[i] || null; });
+  }
+
+  const isHost = Boolean(
+    game?.players?.some((p) => normalizeId(p?.userId) === normalizeId(user?.userId) && p?.seatNumber === 1)
+  );
+
+  const waitingPlayers = [...(game?.players || [])].sort((a, b) => (a?.seatNumber || 0) - (b?.seatNumber || 0));
+  const canStartGame = waitingPlayers.length >= 2;
+  const showHostLobbyModal = isHost && effectiveStatus === 'WAITING';
+
+  const roundStatus = game?.round?.status;
+  const isSetupPhase = roundStatus === 'SETUP';
+  const isActivePlaying = roundStatus === 'ACTIVE' || roundStatus === 'FINAL_TURNS';
+  const isGameComplete = effectiveStatus === 'COMPLETED';
+
+  const isMyTurn = isActivePlaying && Boolean(
+    game?.round?.currentTurnUserId && String(game.round.currentTurnUserId) === String(user?.userId)
+  );
+  const myHeldCard = currentUserPlayer?.heldCard || null;
+  const myInitialFlips = currentUserPlayer?.initialFlipsCount ?? 0;
+  const currentDrawSource = game?.round?.currentDrawSource;
+
+  const currentTurnPlayer = useMemo(() => {
+    if (!isActivePlaying) return null;
+    return playerScores.find(
+      (p) => String(p.gamePlayerId) === String(game?.round?.currentTurnGamePlayerId)
+    ) || null;
+  }, [playerScores, game?.round?.currentTurnGamePlayerId, isActivePlaying]);
+
+  const finalTriggerPlayer = useMemo(() => {
+    if (roundStatus !== 'FINAL_TURNS') return null;
+    return playerScores.find(
+      (p) => String(p.gamePlayerId) === String(game?.round?.finalTurnTriggeredByGamePlayerId)
+    ) || null;
+  }, [playerScores, game?.round?.finalTurnTriggeredByGamePlayerId, roundStatus]);
+
+  const doAction = useCallback(async (fn) => {
+    if (actionBusy) return;
+    setActionBusy(true);
+    setActionError('');
+    try {
+      const data = await fn();
+      setGame(data);
+      setPendingDiscard(false);
+    } catch (e) {
+      setActionError(
+        e?.response?.data?.message || e?.response?.data?.error || 'Action failed.'
+      );
+    } finally {
+      setActionBusy(false);
+    }
+  }, [actionBusy]);
 
   const onCopyCode = async () => {
     if (!game?.gameCode) return;
-    try {
-      await navigator.clipboard.writeText(game.gameCode);
-      setCopyNotice('Copied to clipboard');
-    } catch {
-      window.prompt('Copy this code:', game.gameCode);
-      setCopyNotice('Copy the code from the prompt');
-    }
-
-    window.setTimeout(() => {
-      setCopyNotice('');
-    }, 1600);
+    try { await navigator.clipboard.writeText(game.gameCode); } catch { window.prompt('Copy:', game.gameCode); }
+    setCopyNotice('Copied!');
+    setTimeout(() => setCopyNotice(''), 1600);
   };
 
   const onStartGame = async () => {
     if (!gameId || startingGame) return;
-
-    setStartError('');
-    setStartingGame(true);
-
+    setStartError(''); setStartingGame(true);
     try {
       const data = await startGame({ gameId, userId: user?.userId });
       setGame(data);
-      setErrorMsg('');
     } catch (e) {
-      console.error('Start game failed:', e?.response?.data || e);
-      setStartError(
-        e?.response?.data?.message ||
-          e?.response?.data?.error ||
-          `Could not start game (${e?.response?.status || 'network error'}).`
-      );
-    } finally {
-      setStartingGame(false);
+      setStartError(e?.response?.data?.message || e?.response?.data?.error || `Could not start game.`);
+    } finally { setStartingGame(false); }
+  };
+
+
+  const handleFlipInitial = (position) => {
+    if (myInitialFlips >= 2) return;
+    doAction(() => flipInitialCard({ gameId, userId: user?.userId, position }));
+  };
+
+  const handleDrawFromStock = () => {
+    if (!isMyTurn || myHeldCard) return;
+    doAction(() => drawCard({ gameId, userId: user?.userId, source: 'STOCK' }));
+  };
+
+  const handleDrawFromDiscard = () => {
+    if (!isMyTurn || myHeldCard) return;
+    doAction(() => drawCard({ gameId, userId: user?.userId, source: 'DISCARD' }));
+  };
+
+  const handleSwap = (position) => {
+    if (!isMyTurn || !myHeldCard) return;
+    doAction(() => swapCard({ gameId, userId: user?.userId, position }));
+  };
+
+  const handleDiscardClick = () => {
+    if (!isMyTurn || !myHeldCard || currentDrawSource !== 'STOCK') return;
+    const hasFaceDown = currentUserPlayer?.cards?.some((c) => !c.faceUp);
+    if (!hasFaceDown) {
+      doAction(() => discardCard({ gameId, userId: user?.userId, flipPosition: null }));
+    } else {
+      setPendingDiscard(true);
+      setActionError('');
     }
   };
 
-  const playerScores =
-    Array.isArray(game?.players) && game.players.length > 0
-      ? [...game.players]
-          .sort((a, b) => (a?.seatNumber || 0) - (b?.seatNumber || 0))
-          .map((player, index) => ({
-            id: player?.gamePlayerId || player?.userId || `${index}`,
-            userId: player?.userId || null,
-            name:
-              player?.displayName ||
-              player?.username ||
-              player?.name ||
-              `Player ${index + 1}`,
-            seatNumber: player?.seatNumber || index + 1,
-            round: player?.roundScore ?? null,
-            total: player?.totalScore ?? player?.score ?? '-',
-            cards: player?.cards || [],
-          }))
-      : Array.from({ length: game?.maxPlayers || 4 }, (_, i) => ({
-          id: `${i + 1}`,
-          userId: null,
-          name: i === 0 ? 'You' : `Player ${i + 1}`,
-          seatNumber: i + 1,
-          round: null,
-          total: '-',
-          cards: [],
-        }));
-
-  const normalizeId = (value) =>
-    value === null || value === undefined ? '' : String(value);
-
-  const normalizedUsername = (user?.username || '').trim().toLowerCase();
-
-  const currentUserPlayer =
-    playerScores.find((player) => {
-      if (
-        normalizeId(player.userId) &&
-        normalizeId(user?.userId) &&
-        normalizeId(player.userId) === normalizeId(user.userId)
-      ) {
-        return true;
-      }
-
-      const playerName = (player.name || '').trim().toLowerCase();
-      return Boolean(normalizedUsername) && playerName === normalizedUsername;
-    }) || null;
-
-  const isSamePlayer = (a, b) => {
-    if (!a || !b) return false;
-
-    const aId = normalizeId(a.userId);
-    const bId = normalizeId(b.userId);
-
-    if (aId && bId) return aId === bId;
-
-    const aName = (a.name || '').trim().toLowerCase();
-    const bName = (b.name || '').trim().toLowerCase();
-
-    return Boolean(aName) && aName === bName;
+  const handleSelectFlip = (position, card) => {
+    if (!pendingDiscard) return;
+    if (card?.faceUp) {
+      setActionError('Pick a face-down card to flip.');
+      return;
+    }
+    doAction(() => discardCard({ gameId, userId: user?.userId, flipPosition: position }));
   };
 
-  const otherPlayers = currentUserPlayer
-    ? playerScores.filter((player) => !isSamePlayer(player, currentUserPlayer))
-    : [...playerScores];
-
-  const playersByPosition = { top: null, left: null, right: null, bottom: null };
-
-  if (currentUserPlayer) {
-    playersByPosition.bottom = currentUserPlayer;
-    ['top', 'left', 'right'].forEach((position, index) => {
-      playersByPosition[position] = otherPlayers[index] || null;
-    });
-  } else {
-    ['top', 'left', 'right', 'bottom'].forEach((position, index) => {
-      playersByPosition[position] = otherPlayers[index] || null;
-    });
-  }
-
-  const isHost = Boolean(
-    game?.players?.some(
-      (player) => player?.userId === user?.userId && player?.seatNumber === 1
-    )
-  );
-
-  const showHostLobbyModal = isHost && effectiveStatus === 'WAITING';
-
-  const waitingPlayers = [...(game?.players || [])].sort(
-    (a, b) => (a?.seatNumber || 0) - (b?.seatNumber || 0)
-  );
-
-  const canStartGame = waitingPlayers.length >= 2;
+  const myCardHighlight = (slot, card) => {
+    if (isSetupPhase && myInitialFlips < 2 && card && !card.faceUp) return 'setup';
+    if (isMyTurn && myHeldCard && !pendingDiscard) return 'swap';
+    if (isMyTurn && myHeldCard && pendingDiscard && card && !card.faceUp) return 'flip';
+    return null;
+  };
 
   const discardImage = getCardImage(game?.round?.discardTop);
+
+  const allRoundScores = game?.allRoundScores || [];
+  const ledgerRounds = allRoundScores.map((rs) => {
+    const perPlayer = {};
+    (rs.perPlayerScores || []).forEach((s) => { perPlayer[s.gamePlayerId] = s.score; });
+    return { roundNumber: rs.roundNumber, perPlayer };
+  });
 
   return (
     <div className="game-container">
@@ -409,29 +451,57 @@ export default function GamePage() {
       )}
 
       <img src={gearIcon} className="ui-icon settings-gear" alt="settings" />
-      <div className="jump-end-btn">Jump to end</div>
       <img src={profileIcon} className="ui-icon top-profile" alt="my profile" />
+      {isActivePlaying && (
+        <div className={`turn-banner ${isMyTurn ? 'my-turn' : ''}`}>
+          {roundStatus === 'FINAL_TURNS' && (
+            <span className="final-turns-tag">Final Turns</span>
+          )}
+          {isMyTurn ? (
+            myHeldCard
+              ? pendingDiscard
+                ? '🃏 Click a face-down card in your grid to flip'
+                : '🃏 Swap a card — or discard below'
+              : '📥 Your turn — draw from the stock or discard pile'
+          ) : (
+            roundStatus === 'FINAL_TURNS' && finalTriggerPlayer
+              ? `Final turns after ${finalTriggerPlayer.name}. Waiting for ${currentTurnPlayer?.name || 'player'}…`
+              : `Waiting for ${currentTurnPlayer?.name || 'player'}…`
+          )}
+        </div>
+      )}
+
+      {isSetupPhase && (
+        <div className="turn-banner setup-banner">
+          Round {game?.currentRound} — Flip 2 cards to start &nbsp;
+          {isActivePlaying ? null : (
+            <span className="setup-progress">{myInitialFlips}/2 flipped</span>
+          )}
+        </div>
+      )}
 
       <div className="table-layout">
-        <PlayerHand position="top" playerMeta={playersByPosition.top} />
-        <PlayerHand position="left" playerMeta={playersByPosition.left} />
-
+        <PlayerHand position="top"    playerMeta={playersByPosition.top} />
+        <PlayerHand position="left"   playerMeta={playersByPosition.left} />
         <div className="player-area center">
           <div className="deck-stack">
-            <div className="card-slot dealt-card center-pile-card">
+            <div
+              className={`card-slot dealt-card center-pile-card ${isMyTurn && !myHeldCard ? 'pile-active' : ''}`}
+              onClick={isMyTurn && !myHeldCard ? handleDrawFromStock : undefined}
+              title={isMyTurn && !myHeldCard ? 'Draw from stock' : ''}
+            >
               <img src={cardBack} alt="Draw pile" className="playing-card-img" />
               {game?.round?.drawPileCount !== undefined && (
                 <div className="pile-count-badge">{game.round.drawPileCount}</div>
               )}
             </div>
-
-            <div className="card-slot dealt-card center-pile-card discard-pile">
+            <div
+              className={`card-slot dealt-card center-pile-card discard-pile ${isMyTurn && !myHeldCard ? 'pile-active' : ''}`}
+              onClick={isMyTurn && !myHeldCard ? handleDrawFromDiscard : undefined}
+              title={isMyTurn && !myHeldCard ? 'Draw from discard' : ''}
+            >
               {discardImage ? (
-                <img
-                  src={discardImage}
-                  alt={getCardAlt(game?.round?.discardTop)}
-                  className="playing-card-img"
-                />
+                <img src={discardImage} alt={getCardAlt(game?.round?.discardTop)} className="playing-card-img" />
               ) : (
                 <span className="discard-placeholder">Discard</span>
               )}
@@ -439,18 +509,74 @@ export default function GamePage() {
           </div>
         </div>
 
-        <PlayerHand position="right" playerMeta={playersByPosition.right} />
-        <PlayerHand position="bottom" playerMeta={playersByPosition.bottom} />
+        <PlayerHand position="right"  playerMeta={playersByPosition.right} />
+        <PlayerHand
+          position="bottom"
+          playerMeta={playersByPosition.bottom}
+          onCardClick={
+            (isSetupPhase && myInitialFlips < 2)
+              ? (slot) => handleFlipInitial(slot)
+              : (isMyTurn && myHeldCard && !pendingDiscard)
+              ? (slot) => handleSwap(slot)
+              : (isMyTurn && myHeldCard && pendingDiscard)
+              ? handleSelectFlip
+              : null
+          }
+          cardHighlight={myCardHighlight}
+        />
       </div>
-
-      <div className="help-button">?</div>
-
+      {isMyTurn && myHeldCard && (
+        <div className="held-card-bar">
+          <div className="held-card-label">In hand</div>
+          <div className="held-card-preview">
+            <div className="card-slot dealt-card held-card-slot">
+              <img
+                src={getCardImage({ ...myHeldCard, revealedToViewer: true, faceUp: true })}
+                alt={getCardAlt({ ...myHeldCard, revealedToViewer: true, faceUp: true })}
+                className="playing-card-img"
+              />
+            </div>
+          </div>
+          <div className="held-card-instructions">
+            {pendingDiscard
+              ? 'Click a face-down card in your grid to flip'
+              : 'Click any card in your grid to swap'}
+          </div>
+          {currentDrawSource === 'STOCK' && !pendingDiscard && (
+            <button
+              type="button"
+              className="discard-btn"
+              onClick={handleDiscardClick}
+              disabled={actionBusy}
+            >
+              Discard &amp; Flip
+            </button>
+          )}
+          {pendingDiscard && (
+            <button
+              type="button"
+              className="discard-cancel-btn"
+              onClick={() => setPendingDiscard(false)}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
+      {isSetupPhase && myInitialFlips < 2 && (
+        <div className="setup-hint">
+          Click {2 - myInitialFlips} more card{2 - myInitialFlips > 1 ? 's' : ''} in your grid to flip
+        </div>
+      )}
+      {actionError && (
+        <div className="action-error" onClick={() => setActionError('')}>{actionError}</div>
+      )}
       {!showHostLobbyModal && (
         <div className={`score-ledger ${isLedgerOpen ? 'open' : ''}`}>
           <button
             type="button"
             className="ledger-toggle"
-            onClick={() => setIsLedgerOpen((open) => !open)}
+            onClick={() => setIsLedgerOpen((o) => !o)}
           >
             {isLedgerOpen ? 'Hide Ledger' : 'Show Ledger'}
           </button>
@@ -458,34 +584,39 @@ export default function GamePage() {
           <div className="scoreboard-container">
             <div className="scoreboard-header">
               <h2 className="scoreboard-title">Score Ledger</h2>
-              <span className="scoreboard-status">
-                Round {game?.currentRound || 0}
-              </span>
+              <span className="scoreboard-status">Round {game?.currentRound || 0} / 9</span>
             </div>
 
             <div className="scoreboard-table">
               <div className="scoreboard-row scoreboard-row-head">
                 <span>Player</span>
-                <span>Round</span>
+                {ledgerRounds.map((r) => (
+                  <span key={r.roundNumber}>R{r.roundNumber}</span>
+                ))}
                 <span>Total</span>
               </div>
 
               {playerScores.map((player) => (
                 <div key={player.id} className="scoreboard-row">
                   <span>{player.name}</span>
-                  <span>{player.round ?? 'Pending'}</span>
+                  {ledgerRounds.map((r) => (
+                    <span key={r.roundNumber}>
+                      {r.perPlayer[player.gamePlayerId] !== undefined
+                        ? r.perPlayer[player.gamePlayerId]
+                        : '-'}
+                    </span>
+                  ))}
                   <span>{player.total}</span>
                 </div>
               ))}
             </div>
 
             <p className="scoreboard-footnote">
-              6-card golf: keep totals low. Round points post after full reveal.
+              Lowest total after 9 rounds wins. Pair in a column = 0 pts. King = 0, Two = −2.
             </p>
           </div>
         </div>
       )}
-
       {showHostLobbyModal && (
         <div className="host-lobby-overlay">
           <div className="host-lobby-card">
@@ -525,13 +656,71 @@ export default function GamePage() {
               onClick={onStartGame}
               disabled={!canStartGame || startingGame}
             >
-              {startingGame ? 'Starting...' : 'Start Game'}
+              {startingGame ? 'Starting…' : 'Start Game'}
+            </button>
+          </div>
+        </div>
+      )}
+      {showRoundSummary && roundSummaryData && (
+        <div className="round-summary-overlay">
+          <div className="round-summary-card">
+            <h2 className="round-summary-title">Round {roundSummaryData.roundNumber} Complete!</h2>
+
+            <div className="round-summary-scores">
+              {(roundSummaryData.scores || []).map((s) => {
+                const p = (roundSummaryData.players || []).find(
+                  (pl) => String(pl.gamePlayerId) === String(s.gamePlayerId)
+                );
+                return (
+                  <div key={s.gamePlayerId} className="round-summary-row">
+                    <span>{p?.username || `Player ${s.gamePlayerId}`}</span>
+                    <span className="round-summary-score">{s.score > 0 ? `+${s.score}` : s.score}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              className="round-summary-close"
+              onClick={() => setShowRoundSummary(false)}
+            >
+              Continue →
+            </button>
+          </div>
+        </div>
+      )}
+      {isGameComplete && (
+        <div className="game-over-overlay">
+          <div className="game-over-card">
+            <h2 className="game-over-title">Game Over!</h2>
+            <p className="game-over-subtitle">Final Scores</p>
+
+            <div className="game-over-scores">
+              {[...playerScores]
+                .sort((a, b) => (a.total ?? 999) - (b.total ?? 999))
+                .map((p, i) => (
+                  <div key={p.id} className={`game-over-row ${i === 0 ? 'winner' : ''}`}>
+                    <span className="game-over-rank">{i === 0 ? '🏆' : `#${i + 1}`}</span>
+                    <span className="game-over-name">{p.name}</span>
+                    <span className="game-over-total">{p.total}</span>
+                  </div>
+                ))}
+            </div>
+
+            <button
+              type="button"
+              className="game-over-play-again"
+              onClick={() => (window.location.href = '/game-selection')}
+            >
+              Play Again
             </button>
           </div>
         </div>
       )}
 
       {copyNotice && <div className="copy-toast">{copyNotice}</div>}
+      <div className="help-button">?</div>
     </div>
   );
 }

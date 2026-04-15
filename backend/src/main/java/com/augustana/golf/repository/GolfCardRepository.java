@@ -21,6 +21,30 @@ public interface GolfCardRepository extends JpaRepository<GolfCard, Long> {
         GolfCard.Pile pile
     );
 
+    List<GolfCard> findByRound_RoundIdAndPile(
+        Long roundId,
+        GolfCard.Pile pile
+    );
+
+    List<GolfCard> findByRound_RoundIdAndOwnerGamePlayer_GamePlayerIdAndPile(
+        Long roundId,
+        Long gamePlayerId,
+        GolfCard.Pile pile
+    );
+
+    Optional<GolfCard> findFirstByRound_RoundIdAndOwnerGamePlayer_GamePlayerIdAndPile(
+        Long roundId,
+        Long gamePlayerId,
+        GolfCard.Pile pile
+    );
+
+    Optional<GolfCard> findByRound_RoundIdAndOwnerGamePlayer_GamePlayerIdAndPositionAndPile(
+        Long roundId,
+        Long gamePlayerId,
+        Integer position,
+        GolfCard.Pile pile
+    );
+
     Optional<GolfCard> findTopByRound_RoundIdAndPileOrderByDrawOrderAsc(
         Long roundId,
         GolfCard.Pile pile
@@ -29,5 +53,18 @@ public interface GolfCardRepository extends JpaRepository<GolfCard, Long> {
     Optional<GolfCard> findTopByRound_RoundIdAndPileOrderByDrawOrderDesc(
         Long roundId,
         GolfCard.Pile pile
+    );
+
+    long countByRound_RoundIdAndOwnerGamePlayer_GamePlayerIdAndPile(
+        Long roundId,
+        Long gamePlayerId,
+        GolfCard.Pile pile
+    );
+
+    long countByRound_RoundIdAndOwnerGamePlayer_GamePlayerIdAndPileAndFaceUp(
+        Long roundId,
+        Long gamePlayerId,
+        GolfCard.Pile pile,
+        boolean faceUp
     );
 }
