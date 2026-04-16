@@ -154,3 +154,32 @@ Flyway migration `V1__init.sql` creates:
 - CORS allowed origin: `http://localhost:3000`
 - CORS allowed origin: `http://127.0.0.1:3000`
 - Backend tests run with `test` profile and Flyway disabled.
+
+## Testing
+
+Frontend testing done using vitest and Playwright
+
+To run vitest:
+  In terminal, from directory /frontend use command:
+    npm run test:run
+To run Playwright:
+  In terminal, from directory /backend use command:
+    SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
+  Keep this backend terminal open
+  In new terminal, from directory /frontend use command:
+    npx playwright test
+Don't forget to close backend using ctrl C
+
+To view frontend testing code coverage:
+  In terminal, from directory /frontend use command:
+    npm run test:coverage
+
+Backend testing done using Java SpringBoot
+
+To run backend tests:
+  In terminal, from directory /backend use command:
+  ./mvnw clean test
+
+To view backend testing code coverage:
+  In terminal, from directory /backend use command:
+    open target/site/jacoco/index.html
