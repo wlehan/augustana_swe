@@ -14,4 +14,6 @@ public interface RoundRepository extends JpaRepository<Round, Long> {
     Optional<Round> findByGame_GameIdAndStatus(Long gameId, Round.Status status);
 
     List<Round> findByGame_GameIdAndStatusIn(Long gameId, List<Round.Status> statuses);
+
+    List<Round> findByGame_GameIdOrderByRoundNumberAsc(Long gameId);
 }

@@ -34,3 +34,44 @@ export async function startGame({ gameId, userId }) {
   )
   return resp.data
 }
+
+
+
+export async function flipInitialCard({ gameId, userId, position }) {
+  const resp = await axios.post(
+    `${API_BASE_URL}/api/games/${gameId}/actions/flip-initial`,
+    { position },
+    headersFor(userId)
+  )
+  return resp.data
+}
+
+
+export async function drawCard({ gameId, userId, source }) {
+  const resp = await axios.post(
+    `${API_BASE_URL}/api/games/${gameId}/actions/draw`,
+    { source },
+    headersFor(userId)
+  )
+  return resp.data
+}
+
+
+export async function swapCard({ gameId, userId, position }) {
+  const resp = await axios.post(
+    `${API_BASE_URL}/api/games/${gameId}/actions/swap`,
+    { position },
+    headersFor(userId)
+  )
+  return resp.data
+}
+
+
+export async function discardCard({ gameId, userId, flipPosition = null }) {
+  const resp = await axios.post(
+    `${API_BASE_URL}/api/games/${gameId}/actions/discard`,
+    { flipPosition },
+    headersFor(userId)
+  )
+  return resp.data
+}
