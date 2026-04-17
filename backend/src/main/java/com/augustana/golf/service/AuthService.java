@@ -8,16 +8,21 @@ import com.augustana.golf.domain.dto.LoginRequest;
 import com.augustana.golf.domain.dto.SignupRequest;
 import com.augustana.golf.domain.model.User;
 import com.augustana.golf.repository.UserRepository;
+import com.augustana.golf.security.JwtService;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public AuthResponse signup(SignupRequest request) {
@@ -35,8 +40,15 @@ public class AuthService {
         user.setEmail(email);
 
         User saved = userRepository.save(user);
+        String token = jwtService.generateToken(saved);
 
-        return new AuthResponse(saved.getUserId(), saved.getUsername(), saved.getEmail(), "Signup successful.");
+        return new AuthResponse(
+                saved.getUserId(),
+                saved.getUsername(),
+                saved.getEmail(),
+                token,
+                "Signup successful."
+        );
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -50,7 +62,15 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid username or password.");
         }
 
-        return new AuthResponse(user.getUserId(), user.getUsername(), user.getEmail(), "Login successful.");
+        String token = jwtService.generateToken(user);
+
+        return new AuthResponse(
+                user.getUserId(),
+                user.getUsername(),
+                user.getEmail(),
+                token,
+                "Login successful."
+        );
     }
 
     private String normalizeUsername(String username) {

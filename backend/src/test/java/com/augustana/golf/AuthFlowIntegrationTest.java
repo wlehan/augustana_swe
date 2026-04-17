@@ -1,6 +1,12 @@
 package com.augustana.golf;
 
 import com.augustana.golf.domain.model.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.augustana.golf.repository.GamePlayerRepository;
+import com.augustana.golf.repository.GameRepository;
+import com.augustana.golf.repository.GolfCardRepository;
+import com.augustana.golf.repository.RoundRepository;
+import com.augustana.golf.repository.RoundScoreRepository;
 import com.augustana.golf.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,10 +38,33 @@ class AuthFlowIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private RoundScoreRepository roundScoreRepository;
+
+    @Autowired
+    private GolfCardRepository golfCardRepository;
+
+    @Autowired
+    private RoundRepository roundRepository;
+
+    @Autowired
+    private GamePlayerRepository gamePlayerRepository;
+
+    @Autowired
+    private GameRepository gameRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
+        roundScoreRepository.deleteAll();
+        golfCardRepository.deleteAll();
+        roundRepository.deleteAll();
+        gamePlayerRepository.deleteAll();
+        gameRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -55,6 +86,7 @@ class AuthFlowIntegrationTest {
                 .andExpect(jsonPath("$.userId").exists())
                 .andExpect(jsonPath("$.username").value("alice"))
                 .andExpect(jsonPath("$.email").value("alice@example.com"))
+                .andExpect(jsonPath("$.token").isString())
                 .andExpect(jsonPath("$.message").value("Signup successful."));
 
         Optional<User> savedUserOptional = userRepository.findByUsername("alice");
@@ -82,6 +114,7 @@ class AuthFlowIntegrationTest {
                 .andExpect(jsonPath("$.userId").value(savedUser.getUserId()))
                 .andExpect(jsonPath("$.username").value("alice"))
                 .andExpect(jsonPath("$.email").value("alice@example.com"))
+                .andExpect(jsonPath("$.token").isString())
                 .andExpect(jsonPath("$.message").value("Login successful."));
     }
 
@@ -189,6 +222,7 @@ class AuthFlowIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(savedUser.getUserId()))
                 .andExpect(jsonPath("$.username").value("alice"))
+                .andExpect(jsonPath("$.token").isString())
                 .andExpect(jsonPath("$.message").value("Login successful."));
     }
 
@@ -263,5 +297,58 @@ class AuthFlowIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("Invalid username or password."));
+    }
+
+    @Test
+    void createGame_withoutJwt_returnsUnauthorized() throws Exception {
+        mockMvc.perform(post("/api/games")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "maxPlayers": 4
+                                }
+                                """))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Unauthorized"));
+    }
+
+    @Test
+    void createGame_withJwt_returnsOk() throws Exception {
+        String signupRequestBody = """
+                {
+                  "username": "alice",
+                  "password": "verysecure123",
+                  "email": "alice@example.com"
+                }
+                """;
+
+        MvcResult signupResult = mockMvc.perform(post("/api/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupRequestBody))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> signupResponse = objectMapper.readValue(
+                signupResult.getResponse().getContentAsString(),
+                Map.class
+        );
+
+        String token = (String) signupResponse.get("token");
+        assertNotNull(token);
+        assertFalse(token.isBlank());
+
+        mockMvc.perform(post("/api/games")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content("""
+                                {
+                                  "maxPlayers": 4
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gameId").exists())
+                .andExpect(jsonPath("$.gameCode").isString())
+                .andExpect(jsonPath("$.players[0].username").value("alice"));
     }
 }
