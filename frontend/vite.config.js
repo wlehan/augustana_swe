@@ -13,5 +13,11 @@ export default defineConfig({
     setupFiles: './src/test/setup.js',
     include: ['src/test/**/*.{test,spec}.{js,jsx,ts,tsx}'],
     exclude: ['tests/**', 'node_modules/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/test/**', 'src/main.jsx'],
+    },
   },
 })

@@ -167,7 +167,7 @@ describe('SignupPage', () => {
     })
   })
 
-  test('passes whitespace-only optional email through UI', async () => {
+  test('blocks whitespace-only optional email through UI', async () => {
     signup.mockResolvedValue({
       userId: 2,
       username: 'newuser',
@@ -188,12 +188,10 @@ describe('SignupPage', () => {
     await user.type(screen.getByLabelText(/password/i), 'verysecurepass')
     await user.click(screen.getByRole('button', { name: /create account/i }))
 
-    await waitFor(() => {
-      expect(signup).toHaveBeenCalledWith({
-        username: 'newuser',
-        email: '   ',
-        password: 'verysecurepass',
-      })
+    expect(signup).toHaveBeenCalledWith({
+      username: 'newuser',
+      email: "",
+      password: 'verysecurepass',
     })
   })
 
