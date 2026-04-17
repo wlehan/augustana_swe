@@ -2,6 +2,7 @@ import './LoginPage.css'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/authApi'
+import { saveStoredSession } from '../services/session'
 
 function LoginPage() {
     const navigate = useNavigate()
@@ -19,10 +20,7 @@ function LoginPage() {
 
         try {
             const data = await login({ username, password })
-            localStorage.setItem(
-                'demo_user',
-                JSON.stringify({ userId: data.userId, username: data.username, email: data.email }),
-            )
+            saveStoredSession(data)
             setSuccess(data.message || 'Login successful.')
             setTimeout(() => navigate('/game-selection'), 400)
         } catch (apiError) {

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signup } from '../services/authApi'
+import { saveStoredSession } from '../services/session'
 import './LoginPage.css'
 
 function SignupPage() {
@@ -33,10 +34,7 @@ function SignupPage() {
       const data = await signup(form)
       setSuccess(data.message || 'Account created.')
 
-      localStorage.setItem(
-        'demo_user',
-        JSON.stringify({ userId: data.userId, username: data.username, email: data.email }),
-      )
+      saveStoredSession(data)
 
       setTimeout(() => navigate('/game-selection'), 400)
     } catch (apiError) {
