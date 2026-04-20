@@ -83,10 +83,20 @@ function getCardImage(card) {
   return CARD_IMAGES?.[card.suit]?.[card.rank] || null;
 }
 
+function formatCardPart(value) {
+  if (!value) return '';
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function getCardName(card) {
+  if (!card) return 'Card';
+  if (!card.faceUp && !card.revealedToViewer) return 'Face-down card';
+  return `${formatCardPart(card.rank)} of ${formatCardPart(card.suit)}`;
+}
+
 function getCardAlt(card) {
   if (!card) return 'Card slot';
-  if (!card.faceUp && !card.revealedToViewer) return 'Face-down card';
-  return `${card.rank} of ${card.suit}`;
+  return getCardName(card);
 }
 
 
@@ -424,6 +434,9 @@ export default function GamePage() {
   };
 
   const discardImage = getCardImage(game?.round?.discardTop);
+  const heldCardImage = getCardImage(myHeldCard);
+  const heldCardName = getCardName(myHeldCard);
+  const canDiscardHeldCard = isMyTurn && myHeldCard && currentDrawSource === 'STOCK';
 
   const allRoundScores = game?.allRoundScores || [];
   const ledgerRounds = allRoundScores.map((rs) => {
@@ -526,6 +539,53 @@ export default function GamePage() {
           cardHighlight={myCardHighlight}
         />
       </div>
+
+      {myHeldCard && (
+        <div className="held-card-bar" aria-live="polite">
+          <div className="held-card-preview">
+            <div className="card-slot dealt-card held-card-slot">
+              {heldCardImage && (
+                <img
+                  src={heldCardImage}
+                  alt={`Held card: ${heldCardName}`}
+                  className="playing-card-img"
+                />
+              )}
+            </div>
+          </div>
+          <div className="held-card-copy">
+            <div className="held-card-label">Card in hand</div>
+            <div className="held-card-name">{heldCardName}</div>
+            <div className="held-card-instructions">
+              {pendingDiscard
+                ? 'Choose a face-down card to flip.'
+                : canDiscardHeldCard
+                ? 'Swap it with one of your cards, or discard it.'
+                : 'Swap it with one of your cards.'}
+            </div>
+          </div>
+          {canDiscardHeldCard && !pendingDiscard && (
+            <button
+              type="button"
+              className="discard-btn"
+              onClick={handleDiscardClick}
+              disabled={actionBusy}
+            >
+              Discard
+            </button>
+          )}
+          {pendingDiscard && (
+            <button
+              type="button"
+              className="discard-cancel-btn"
+              onClick={() => setPendingDiscard(false)}
+              disabled={actionBusy}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
 
     <button
       type="button"
