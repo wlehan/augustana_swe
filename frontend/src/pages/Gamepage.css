@@ -1030,6 +1030,13 @@
   flex-shrink: 0;
 }
 
+.held-card-copy {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
 .held-card-slot {
   width: 56px !important;
   height: 72px !important;
@@ -1037,8 +1044,14 @@
   border-radius: 6px;
 }
 
+.held-card-name {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
 .held-card-instructions {
-  flex: 1;
   font-family: 'OpenDyslexic', sans-serif;
   font-size: 13px;
   color: #333;
