@@ -176,6 +176,7 @@ export default function GamePage() {
   const [game, setGame] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLedgerOpen, setIsLedgerOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
   const [startError, setStartError] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
@@ -525,52 +526,64 @@ export default function GamePage() {
           cardHighlight={myCardHighlight}
         />
       </div>
-      {isMyTurn && myHeldCard && (
-        <div className="held-card-bar">
-          <div className="held-card-label">In hand</div>
-          <div className="held-card-preview">
-            <div className="card-slot dealt-card held-card-slot">
-              <img
-                src={getCardImage({ ...myHeldCard, revealedToViewer: true, faceUp: true })}
-                alt={getCardAlt({ ...myHeldCard, revealedToViewer: true, faceUp: true })}
-                className="playing-card-img"
-              />
-            </div>
-          </div>
-          <div className="held-card-instructions">
-            {pendingDiscard
-              ? 'Click a face-down card in your grid to flip'
-              : 'Click any card in your grid to swap'}
-          </div>
-          {currentDrawSource === 'STOCK' && !pendingDiscard && (
-            <button
-              type="button"
-              className="discard-btn"
-              onClick={handleDiscardClick}
-              disabled={actionBusy}
-            >
-              Discard &amp; Flip
-            </button>
-          )}
-          {pendingDiscard && (
-            <button
-              type="button"
-              className="discard-cancel-btn"
-              onClick={() => setPendingDiscard(false)}
-            >
-              Cancel
-            </button>
-          )}
+
+    <button
+      type="button"
+      className="help-button"
+      onClick={() => setIsHelpOpen(true)}
+    >
+      ?
+    </button>
+
+    {isHelpOpen && (
+      <div className="help-overlay" onClick={() => setIsHelpOpen(false)}>
+        <div
+          className="help-popup"
+          onClick={(e) => e.stopPropagation()}
+        >
+        <h2>How to Play</h2>
+
+        <p><strong>Goal:</strong> Finish with the lowest total score.</p>
+
+        <h3>Setup</h3>
+        <ul>
+          <li>Each player has 6 cards (2 rows of 3).</li>
+          <li>2 cards start face-up, 4 face-down.</li>
+        </ul>
+
+        <h3>Your Turn</h3>
+        <ul>
+          <li>Draw a card from the deck or discard pile.</li>
+          <li>Swap it with one of your 6 cards <em>or</em> discard it.</li>
+          <li>You can look at a face-down card only when swapping it.</li>
+        </ul>
+
+        <h3>Ending a Round</h3>
+        <ul>
+          <li>When all your cards are face-up, the round ends.</li>
+          <li>Everyone else gets one final turn.</li>
+        </ul>
+
+        <h3>Scoring</h3>
+        <ul>
+          <li>Number cards = face value</li>
+          <li>Ace = 1 point</li>
+          <li>King = 0 points</li>
+          <li>Pairs in a column = 0 points</li>
+        </ul>
+
+        <p><strong>Tip:</strong> Try to match columns and keep high cards out.</p>
+          <button
+            type="button"
+            className="help-close-btn"
+            onClick={() => setIsHelpOpen(false)}
+          >
+            Close
+          </button>
         </div>
-      )}
-      {isSetupPhase && myInitialFlips < 2 && (
-        <div className="setup-hint">
-          Click {2 - myInitialFlips} more card{2 - myInitialFlips > 1 ? 's' : ''} in your grid to flip
-        </div>
-      )}
-      {actionError && (
-        <div className="action-error" onClick={() => setActionError('')}>{actionError}</div>
-      )}
+      </div>
+    )}
+
       {!showHostLobbyModal && (
         <div className={`score-ledger ${isLedgerOpen ? 'open' : ''}`}>
           <button
