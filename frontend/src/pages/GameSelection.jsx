@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css'; 
 import './GameSelection.css'
@@ -6,14 +6,12 @@ import './Gamepage.css'
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
 import { createGame } from '../services/gameApi'
+import AudioSettingsButton from '../components/AudioSettingsButton';
 
 
 function GameSelection() {
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isSfxEnabled, setIsSfxEnabled] = useState(() => localStorage.getItem('sfx_enabled') !== 'false');
-  const settingsRef = useRef(null);
 
   const user = useMemo(() => {
     const raw = localStorage.getItem('demo_user');
@@ -29,34 +27,21 @@ function GameSelection() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('sfx_enabled', isSfxEnabled ? 'true' : 'false');
-  }, [isSfxEnabled]);
-
-  useEffect(() => {
-    if (!isSettingsOpen && !isProfileOpen) {
+    if (!isProfileOpen) {
       return undefined;
     }
 
-    const handleClickOutside = (event) => {
-      if (isSettingsOpen && settingsRef.current && !settingsRef.current.contains(event.target)) {
-        setIsSettingsOpen(false);
-      }
-    };
-
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
-        setIsSettingsOpen(false);
         setIsProfileOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleEscape);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isSettingsOpen, isProfileOpen]);
+  }, [isProfileOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem('demo_user');
@@ -117,35 +102,11 @@ function GameSelection() {
       </div>
 
       <div className="top-nav">
-        <div className="settings-wrap" ref={settingsRef}>
-          <button
-            className="icon-btn"
-            onClick={() => setIsSettingsOpen((prev) => !prev)}
-            aria-label="Open settings"
-            aria-expanded={isSettingsOpen}
-          >
-            <img src={gearIcon} className="nav-image" alt="Settings" />
+        <AudioSettingsButton iconSrc={gearIcon} iconAlt="Settings">
+          <button className="settings-item danger" type="button" onClick={handleLogout}>
+            Log out
           </button>
-
-          {isSettingsOpen && (
-            <div className="settings-menu">
-              <p className="settings-title">Settings</p>
-              <button
-                className="settings-item"
-                type="button"
-                onClick={() => setIsSfxEnabled((prev) => !prev)}
-              >
-                <span>Sound effects</span>
-                <span className={`toggle-pill ${isSfxEnabled ? 'on' : ''}`}>
-                  {isSfxEnabled ? 'On' : 'Off'}
-                </span>
-              </button>
-              <button className="settings-item danger" type="button" onClick={handleLogout}>
-                Log out
-              </button>
-            </div>
-          )}
-        </div>
+        </AudioSettingsButton>
 
         <button className="icon-btn" onClick={() => setIsProfileOpen(true)} aria-label="Open profile">
           <img src={profileIcon} className="nav-image" alt="Profile" />

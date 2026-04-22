@@ -4,6 +4,8 @@ import './Gamepage.css';
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
 import cardBack from '../assets/cards/card_back.png';
+import AudioSettingsButton from '../components/AudioSettingsButton';
+import { useAudio } from '../audio/AudioContext';
 import {
   discardCard,
   drawCard,
@@ -180,6 +182,7 @@ function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
 
 
 export default function GamePage() {
+  const { playSound } = useAudio();
   const [params] = useSearchParams();
   const gameId = params.get('gameId');
 
@@ -332,6 +335,7 @@ export default function GamePage() {
   const isMyTurn = isActivePlaying && Boolean(
     game?.round?.currentTurnUserId && String(game.round.currentTurnUserId) === String(user?.userId)
   );
+  const previousIsMyTurnRef = useRef(false);
   const myHeldCard = currentUserPlayer?.heldCard || null;
   const myInitialFlips = currentUserPlayer?.initialFlipsCount ?? 0;
   const currentDrawSource = game?.round?.currentDrawSource;
@@ -445,6 +449,14 @@ export default function GamePage() {
     return { roundNumber: rs.roundNumber, perPlayer };
   });
 
+  useEffect(() => {
+    if (isMyTurn && !previousIsMyTurnRef.current) {
+      playSound('turn-chime');
+    }
+
+    previousIsMyTurnRef.current = isMyTurn;
+  }, [isMyTurn, playSound]);
+
   return (
     <div className="game-container">
       {errorMsg && <div className="lobby-error">{errorMsg}</div>}
@@ -464,7 +476,11 @@ export default function GamePage() {
         </div>
       )}
 
-      <img src={gearIcon} className="ui-icon settings-gear" alt="settings" />
+      <AudioSettingsButton
+        iconSrc={gearIcon}
+        iconAlt="Settings"
+        className="settings-gear"
+      />
       <img src={profileIcon} className="ui-icon top-profile" alt="my profile" />
       {isActivePlaying && (
         <div className={`turn-banner ${isMyTurn ? 'my-turn' : ''}`}>
@@ -586,6 +602,8 @@ export default function GamePage() {
           )}
         </div>
       )}
+
+      {actionError && <div className="lobby-error action-error">{actionError}</div>}
 
     <button
       type="button"
