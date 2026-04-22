@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GameResponseTest {
+class RequestDtosGameResponseTest {
 
     @Test
     void gameResponse_gettersAndSetters_work() {
@@ -115,7 +115,7 @@ class GameResponseTest {
     }
 }
 
-class AuthResponseTest {
+class RequestDtosAuthResponseTest {
 
     @Test
     void authResponse_record_hasAllFields() {
@@ -152,7 +152,7 @@ class AuthResponseTest {
     }
 }
 
-class GameStateResponseTest {
+class RequestDtosGameStateResponseTest {
 
     @Test
     void gameStateResponse_cardView_gettersAndSetters() {
