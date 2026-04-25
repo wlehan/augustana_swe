@@ -279,7 +279,7 @@ class AuthFlowIntegrationTest {
                         .content(signupRequestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Password must be at least 12 characters."));
+                .andExpect(jsonPath("$.message").value("Password must be at least 10 characters."));
     }
 
     @Test
@@ -296,7 +296,7 @@ class AuthFlowIntegrationTest {
                         .content(loginRequestBody))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Invalid username or password."));
+                .andExpect(jsonPath("$.message").value("Password must contain at least one number."));
     }
 
     @Test

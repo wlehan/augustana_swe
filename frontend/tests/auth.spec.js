@@ -62,10 +62,10 @@ test('short password signup shows error', async ({ page }) => {
   await page.goto('/signup')
   await page.getByLabel('Username').fill(uniqueUser)
   await page.getByLabel('Email (optional)').fill(`${uniqueUser}@test.com`)
-  await page.getByLabel('Password').fill('short')
+  await page.getByLabel('Password').fill('short123')
   await page.getByRole('button', { name: /create account/i }).click()
 
-  await expect(page.getByText(/password must be at least 12 characters/i)).toBeVisible()
+  await expect(page.getByText(/password must be at least 10 characters/i)).toBeVisible()
 })
 
 test('blank username login shows error', async ({ page }) => {

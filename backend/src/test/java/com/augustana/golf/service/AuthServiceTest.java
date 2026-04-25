@@ -177,7 +177,7 @@ class AuthServiceTest {
                 () -> authService.signup(request)
         );
 
-        assertEquals("Password must be at least 12 characters.", exception.getMessage());
+        assertEquals("Password must be at least 10 characters.", exception.getMessage());
         verify(userRepository, never()).save(any());
     }
 
@@ -335,16 +335,16 @@ class AuthServiceTest {
 
     @Test
     void login_wrongPassword_throwsException() {
-        LoginRequest request = new LoginRequest("alice", "wrongpassword");
+        LoginRequest request = new LoginRequest("alice", "wrongpassword1");
 
         User user = new User();
         user.setUserId(1L);
         user.setUsername("alice");
-        user.setPasswordHash("hashed-password");
+        user.setPasswordHash("hashed-password1");
         user.setEmail("alice@example.com");
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("wrongpassword", "hashed-password")).thenReturn(false);
+        when(passwordEncoder.matches("wrongpassword1", "hashed-password1")).thenReturn(false);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,

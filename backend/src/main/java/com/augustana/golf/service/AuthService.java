@@ -90,9 +90,19 @@ public class AuthService {
         if (password == null || password.isBlank()) {
             throw new IllegalArgumentException("Password is required.");
         }
+        boolean hasNumber = false;
 
-        if (enforceMinLength && password.length() < 12) {
-            throw new IllegalArgumentException("Password must be at least 12 characters.");
+        for (char c : password.toCharArray()) {
+            if (Character.isDigit(c)) {
+                hasNumber = true;
+            }
+        }
+
+        if (enforceMinLength && password.length() < 10) {
+            throw new IllegalArgumentException("Password must be at least 10 characters.");
+        }
+        if (!hasNumber) {
+            throw new IllegalArgumentException("Password must contain at least one number.");
         }
 
         return password;

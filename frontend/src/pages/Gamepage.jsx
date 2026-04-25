@@ -4,6 +4,8 @@ import './Gamepage.css';
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
 import cardBack from '../assets/cards/card_back.png';
+import AudioSettingsButton from '../components/AudioSettingsButton';
+import { useAudio } from '../audio/AudioContext';
 import {
   discardCard,
   drawCard,
@@ -89,10 +91,20 @@ function getCardImage(card) {
   return CARD_IMAGES?.[card.suit]?.[card.rank] || null;
 }
 
+function formatCardPart(value) {
+  if (!value) return '';
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function getCardName(card) {
+  if (!card) return 'Card';
+  if (!card.faceUp && !card.revealedToViewer) return 'Face-down card';
+  return `${formatCardPart(card.rank)} of ${formatCardPart(card.suit)}`;
+}
+
 function getCardAlt(card) {
   if (!card) return 'Card slot';
-  if (!card.faceUp && !card.revealedToViewer) return 'Face-down card';
-  return `${card.rank} of ${card.suit}`;
+  return getCardName(card);
 }
 
 
@@ -177,12 +189,14 @@ function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
 
 export default function GamePage() {
   const navigate = useNavigate();
+  const { playSound } = useAudio();
   const [params] = useSearchParams();
   const gameId = params.get('gameId');
 
   const [game, setGame] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLedgerOpen, setIsLedgerOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
   const [startError, setStartError] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
@@ -345,6 +359,7 @@ export default function GamePage() {
   const isMyTurn = isActivePlaying && Boolean(
     game?.round?.currentTurnUserId && String(game.round.currentTurnUserId) === String(user?.userId)
   );
+  const previousIsMyTurnRef = useRef(false);
   const myHeldCard = currentUserPlayer?.heldCard || null;
   const myInitialFlips = currentUserPlayer?.initialFlipsCount ?? 0;
   const currentDrawSource = game?.round?.currentDrawSource;
@@ -459,6 +474,9 @@ export default function GamePage() {
   };
 
   const discardImage = getCardImage(game?.round?.discardTop);
+  const heldCardImage = getCardImage(myHeldCard);
+  const heldCardName = getCardName(myHeldCard);
+  const canDiscardHeldCard = isMyTurn && myHeldCard && currentDrawSource === 'STOCK';
 
   const allRoundScores = game?.allRoundScores || [];
   const ledgerRounds = allRoundScores.map((rs) => {
@@ -466,6 +484,14 @@ export default function GamePage() {
     (rs.perPlayerScores || []).forEach((s) => { perPlayer[s.gamePlayerId] = s.score; });
     return { roundNumber: rs.roundNumber, perPlayer };
   });
+
+  useEffect(() => {
+    if (isMyTurn && !previousIsMyTurnRef.current) {
+      playSound('turn-chime');
+    }
+
+    previousIsMyTurnRef.current = isMyTurn;
+  }, [isMyTurn, playSound]);
 
   return (
     <div className="game-container">
@@ -486,7 +512,11 @@ export default function GamePage() {
         </div>
       )}
 
-      <img src={gearIcon} className="ui-icon settings-gear" alt="settings" />
+      <AudioSettingsButton
+        iconSrc={gearIcon}
+        iconAlt="Settings"
+        className="settings-gear"
+      />
       <img src={profileIcon} className="ui-icon top-profile" alt="my profile" />
       {isActivePlaying && (
         <div className={`turn-banner ${isMyTurn ? 'my-turn' : ''}`}>
@@ -561,31 +591,39 @@ export default function GamePage() {
           cardHighlight={myCardHighlight}
         />
       </div>
-      {isMyTurn && myHeldCard && (
-        <div className="held-card-bar">
-          <div className="held-card-label">In hand</div>
+
+      {myHeldCard && (
+        <div className="held-card-bar" aria-live="polite">
           <div className="held-card-preview">
             <div className="card-slot dealt-card held-card-slot">
-              <img
-                src={getCardImage({ ...myHeldCard, revealedToViewer: true, faceUp: true })}
-                alt={getCardAlt({ ...myHeldCard, revealedToViewer: true, faceUp: true })}
-                className="playing-card-img"
-              />
+              {heldCardImage && (
+                <img
+                  src={heldCardImage}
+                  alt={`Held card: ${heldCardName}`}
+                  className="playing-card-img"
+                />
+              )}
             </div>
           </div>
-          <div className="held-card-instructions">
-            {pendingDiscard
-              ? 'Click a face-down card in your grid to flip'
-              : 'Click any card in your grid to swap'}
+          <div className="held-card-copy">
+            <div className="held-card-label">Card in hand</div>
+            <div className="held-card-name">{heldCardName}</div>
+            <div className="held-card-instructions">
+              {pendingDiscard
+                ? 'Choose a face-down card to flip.'
+                : canDiscardHeldCard
+                ? 'Swap it with one of your cards, or discard it.'
+                : 'Swap it with one of your cards.'}
+            </div>
           </div>
-          {currentDrawSource === 'STOCK' && !pendingDiscard && (
+          {canDiscardHeldCard && !pendingDiscard && (
             <button
               type="button"
               className="discard-btn"
               onClick={handleDiscardClick}
               disabled={actionBusy}
             >
-              Discard &amp; Flip
+              Discard
             </button>
           )}
           {pendingDiscard && (
@@ -593,20 +631,81 @@ export default function GamePage() {
               type="button"
               className="discard-cancel-btn"
               onClick={() => setPendingDiscard(false)}
+              disabled={actionBusy}
             >
               Cancel
             </button>
           )}
         </div>
       )}
-      {isSetupPhase && myInitialFlips < 2 && (
-        <div className="setup-hint">
-          Click {2 - myInitialFlips} more card{2 - myInitialFlips > 1 ? 's' : ''} in your grid to flip
+
+      {actionError && <div className="lobby-error action-error">{actionError}</div>}
+
+    <button
+      type="button"
+      className="help-button"
+      onClick={() => setIsHelpOpen(true)}
+    >
+      ?
+    </button>
+
+    {isHelpOpen && (
+      <div className="help-overlay" onClick={() => setIsHelpOpen(false)}>
+        <div
+          className="help-popup"
+          onClick={(e) => e.stopPropagation()}
+        >
+        <h2>How to Play</h2>
+
+        <p><strong>Goal:</strong> Finish with the lowest total score.</p>
+
+        <h3>Setup</h3>
+        <ul>
+          <li>Each player has 6 cards (2 rows of 3).</li>
+          <li>2 cards start face-up, 4 face-down.</li>
+        </ul>
+
+        <h3>Your Turn</h3>
+        <ul>
+          <li>Draw a card from the deck or discard pile.</li>
+          <li>Swap it with one of your 6 cards <em>or</em> discard it.</li>
+          <li>If you choose to discard, you must select a face down card from your hand and flip it.</li>
+        </ul>
+
+        <h3>Ending a Round</h3>
+        <ul>
+          <li>When someone's hand is fully face-up, the round ends.</li>
+          <li>Everyone else gets one final turn.</li>
+        </ul>
+
+        <h3>Scoring</h3>
+        <ul>
+          <li>Number cards = face value</li>
+          <li>Ace = 1 point</li>
+          <li>King = 0 points</li>
+          <li>Other face cards = 10 points</li>
+          <li>Pairs in a column = 0 points</li>
+          <li>Two = -2 points</li>
+          <li>Pair of 2s in a column = 0 points</li>
+        </ul>
+
+        <h4>Ending the Game</h4>
+        <ul>
+          <li>After 9 rounds, the player with the lowest total score wins.</li>
+        </ul>
+
+        <p><strong>Tip:</strong> Try to match columns and keep high cards out.</p>
+          <button
+            type="button"
+            className="help-close-btn"
+            onClick={() => setIsHelpOpen(false)}
+          >
+            Close
+          </button>
         </div>
-      )}
-      {actionError && (
-        <div className="action-error" onClick={() => setActionError('')}>{actionError}</div>
-      )}
+      </div>
+    )}
+
       {!showHostLobbyModal && (
         <div className={`score-ledger ${isLedgerOpen ? 'open' : ''}`}>
           <button
@@ -756,7 +855,6 @@ export default function GamePage() {
       )}
 
       {copyNotice && <div className="copy-toast">{copyNotice}</div>}
-      <div className="help-button">?</div>
     </div>
   );
 }
