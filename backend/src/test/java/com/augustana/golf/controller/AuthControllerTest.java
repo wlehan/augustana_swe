@@ -3,10 +3,12 @@ package com.augustana.golf.controller;
 import com.augustana.golf.domain.dto.AuthResponse;
 import com.augustana.golf.domain.dto.LoginRequest;
 import com.augustana.golf.domain.dto.SignupRequest;
+import com.augustana.golf.security.JwtAuthenticationFilter;
 import com.augustana.golf.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
 
     @Autowired
@@ -30,6 +33,9 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    @MockitoBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Test
     void signup_validRequest_returnsCreatedAndResponseBody() throws Exception {
         SignupRequest request = new SignupRequest("alice", "verysecure123", "alice@example.com");
@@ -37,6 +43,7 @@ class AuthControllerTest {
                 1L,
                 "alice",
                 "alice@example.com",
+                "test-jwt-token",
                 "Signup successful."
         );
 
@@ -105,6 +112,7 @@ class AuthControllerTest {
                 1L,
                 "alice",
                 "alice@example.com",
+                "test-jwt-token",
                 "Login successful."
         );
 

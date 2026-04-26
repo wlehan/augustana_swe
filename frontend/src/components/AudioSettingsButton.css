@@ -1,0 +1,102 @@
+.audio-settings-wrap {
+  position: relative;
+}
+
+.icon-btn {
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.2s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+.icon-btn:focus-visible {
+  outline: none;
+  border-color: #a7c957;
+  box-shadow: 0 0 0 2px #000;
+}
+
+.nav-image {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.audio-settings-trigger {
+  position: relative;
+  z-index: 2;
+}
+
+.settings-menu {
+  position: absolute;
+  top: 80px;
+  width: 250px;
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  z-index: 50;
+}
+
+.settings-title {
+  margin: 0 0 10px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 18px;
+  color: #000;
+}
+
+.settings-item {
+  width: 100%;
+  border: 2px solid #000;
+  border-radius: 10px;
+  background: #fff9e9;
+  color: #000;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 15px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.settings-item:last-child {
+  margin-bottom: 0;
+}
+
+.settings-item.danger {
+  background: #f5d4cd;
+}
+
+.toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 2px solid #000;
+  background: #ddd;
+  font-size: 12px;
+}
+
+.toggle-pill.on {
+  background: #a7c957;
+}
+
+.settings-menu-left {
+  left: 0;
+  right: auto;
+}
+
+.settings-menu-right {
+  right: 0;
+  left: auto;
+}

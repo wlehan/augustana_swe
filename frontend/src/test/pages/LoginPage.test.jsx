@@ -72,6 +72,7 @@ describe('LoginPage', () => {
       userId: 1,
       username: 'testuser',
       email: 'test@example.com',
+      token: 'jwt-token',
       message: 'Login successful.',
     })
 
@@ -98,6 +99,7 @@ describe('LoginPage', () => {
       userId: 1,
       username: 'testuser',
       email: 'test@example.com',
+      token: 'jwt-token',
     })
   })
 
@@ -129,6 +131,7 @@ describe('LoginPage', () => {
       userId: 1,
       username: 'testuser',
       email: 'test@example.com',
+      token: 'jwt-token',
       message: 'Login successful.',
     })
 
@@ -184,6 +187,7 @@ describe('LoginPage', () => {
       userId: 1,
       username: 'testuser',
       email: 'test@example.com',
+      token: 'jwt-token',
       message: 'Login successful.',
     })
 
@@ -211,6 +215,7 @@ describe('LoginPage', () => {
       userId: 1,
       username: 'testuser',
       email: 'test@example.com',
+      token: 'jwt-token',
       message: 'Login successful.',
     })
 

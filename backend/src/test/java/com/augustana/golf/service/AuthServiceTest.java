@@ -5,6 +5,7 @@ import com.augustana.golf.domain.dto.LoginRequest;
 import com.augustana.golf.domain.dto.SignupRequest;
 import com.augustana.golf.domain.model.User;
 import com.augustana.golf.repository.UserRepository;
+import com.augustana.golf.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +29,9 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private JwtService jwtService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -37,6 +41,7 @@ class AuthServiceTest {
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
+        when(jwtService.generateToken(any(User.class))).thenReturn("test-jwt-token");
 
         User savedUser = new User();
         savedUser.setUserId(1L);
@@ -51,6 +56,7 @@ class AuthServiceTest {
         assertEquals(1L, response.userId());
         assertEquals("alice", response.username());
         assertEquals("alice@example.com", response.email());
+        assertEquals("test-jwt-token", response.token());
         assertEquals("Signup successful.", response.message());
     }
 
@@ -60,6 +66,7 @@ class AuthServiceTest {
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
+        when(jwtService.generateToken(any(User.class))).thenReturn("test-jwt-token");
 
         User savedUser = new User();
         savedUser.setUserId(1L);
@@ -86,6 +93,7 @@ class AuthServiceTest {
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
+        when(jwtService.generateToken(any(User.class))).thenReturn("test-jwt-token");
 
         User savedUser = new User();
         savedUser.setUserId(1L);
@@ -194,6 +202,7 @@ class AuthServiceTest {
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
+        when(jwtService.generateToken(any(User.class))).thenReturn("test-jwt-token");
 
         User savedUser = new User();
         savedUser.setUserId(1L);
@@ -227,12 +236,14 @@ class AuthServiceTest {
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("verysecure123", "hashed-password")).thenReturn(true);
+        when(jwtService.generateToken(user)).thenReturn("test-jwt-token");
 
         AuthResponse response = authService.login(request);
 
         assertEquals(1L, response.userId());
         assertEquals("alice", response.username());
         assertEquals("alice@example.com", response.email());
+        assertEquals("test-jwt-token", response.token());
         assertEquals("Login successful.", response.message());
     }
 
@@ -248,6 +259,7 @@ class AuthServiceTest {
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("verysecure123", "hashed-password")).thenReturn(true);
+        when(jwtService.generateToken(user)).thenReturn("test-jwt-token");
 
         authService.login(request);
 

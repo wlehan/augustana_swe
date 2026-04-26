@@ -1,4 +1,7 @@
 package com.augustana.golf.domain.dto;
 
-public record AuthResponse(Long userId, String username, String email, String message) {
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record AuthResponse(Long userId, String username, String email, String token, String message) {
 }

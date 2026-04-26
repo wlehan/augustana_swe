@@ -1,14 +1,16 @@
 package com.augustana.golf.domain.dto;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AuthResponseTest {
 
     @Test
     void authResponse_record_hasAllFields() {
-        AuthResponse response = new AuthResponse(100L, "testuser", "test@example.com", "Login successful");
+        AuthResponse response = new AuthResponse(100L, "testuser", "test@example.com", "fake-token", "Login successful");
         
         assertEquals(100L, response.userId());
         assertEquals("testuser", response.username());
@@ -18,22 +20,22 @@ class AuthResponseTest {
 
     @Test
     void authResponse_withNullMessage() {
-        AuthResponse response = new AuthResponse(100L, "testuser", "test@example.com", null);
+        AuthResponse response = new AuthResponse(100L, "testuser", "test@example.com", "fake-token", null);
         
         assertNull(response.message());
     }
 
     @Test
     void authResponse_multipleInstances_areEqual() {
-        AuthResponse response1 = new AuthResponse(100L, "testuser", "test@example.com", "Success");
-        AuthResponse response2 = new AuthResponse(100L, "testuser", "test@example.com", "Success");
+        AuthResponse response1 = new AuthResponse(100L, "testuser", "test@example.com", "fake-token", "Success");
+        AuthResponse response2 = new AuthResponse(100L, "testuser", "test@example.com", "fake-token", "Success");
         
         assertEquals(response1, response2);
     }
 
     @Test
     void authResponse_toString_works() {
-        AuthResponse response = new AuthResponse(100L, "testuser", "test@example.com", "Success");
+        AuthResponse response = new AuthResponse(100L, "testuser", "test@example.com", "fake-token", "Success");
         String str = response.toString();
         
         assertNotNull(str);

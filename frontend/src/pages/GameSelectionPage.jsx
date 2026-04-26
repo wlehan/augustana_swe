@@ -1,17 +1,17 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './LoginPage.css'
+import { clearStoredSession, readStoredSession } from '../services/session'
 
 function GameSelectionPage() {
   const navigate = useNavigate()
 
   const user = useMemo(() => {
-    const saved = localStorage.getItem('demo_user')
-    return saved ? JSON.parse(saved) : null
+    return readStoredSession()
   }, [])
 
   const logout = () => {
-    localStorage.removeItem('demo_user')
+    clearStoredSession()
     navigate('/')
   }
 
