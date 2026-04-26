@@ -3,8 +3,8 @@
   position: fixed;
   top: 50%;
   left: 28px;
+  right: auto;
   bottom: auto;
-  left: auto;
   transform: translateY(-50%);
   width: min(360px, calc(100vw - 40px));
   z-index: 120;

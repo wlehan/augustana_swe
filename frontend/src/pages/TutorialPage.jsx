@@ -19,6 +19,12 @@ import {
   botTurn,
 } from '../services/tutorialApi';
 
+import {
+  clearStoredSession,
+  hasAuthenticatedSession,
+  readStoredSession,
+} from '../services/session';
+
 // ── Card image imports (same as Gamepage) ────────────────────────────────────
 import aceclubs from '../assets/cards/clubs/aceclubs.png';
 import twoclubs from '../assets/cards/clubs/2clubs.png';
@@ -218,11 +224,18 @@ function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
 export default function TutorialPage() {
   const navigate = useNavigate();
 
-  const user = useMemo(() => {
-    const raw = localStorage.getItem('demo_user');
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch { return null; }
-  }, []);
+  const user = useMemo(() => readStoredSession(), []);
+
+  const redirectToLogin = useCallback(() => {
+    clearStoredSession();
+    navigate('/login', { replace: true });
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!hasAuthenticatedSession(user)) {
+      redirectToLogin();
+    }
+  }, [redirectToLogin, user]);
 
   // Tutorial state from the backend
   const [tutState, setTutState] = useState(null);   // full TutorialStateResponse
@@ -253,7 +266,7 @@ export default function TutorialPage() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await startTutorial({ userId: user.userId });
+        const data = await startTutorial();
         if (cancelled) return;
         setTutState(data);
         setGameId(data.gameId);
@@ -272,7 +285,7 @@ export default function TutorialPage() {
     const id = gId ?? gameId;
     if (!id || !user?.userId) return;
     try {
-      const data = await getTutorialState({ gameId: id, userId: user.userId });
+      const data = await getTutorialState({ gameId: id });
       setTutState(data);
       if (data.currentStep === 'TUTORIAL_COMPLETE') setShowSpecialRules(true);
     } catch (e) {
@@ -291,7 +304,7 @@ export default function TutorialPage() {
       if (cancelled) return;
       setBotThinking(true);
       try {
-        const data = await botTurn({ gameId, userId: user.userId });
+        const data = await botTurn({ gameId });
         if (!cancelled) {
           setTutState(data);
           setPendingDiscard(false);
@@ -316,7 +329,7 @@ export default function TutorialPage() {
       if (cancelled) return;
       setBotThinking(true);
       try {
-        const data = await botFlip({ gameId, userId: user.userId });
+        const data = await botFlip({ gameId });
         if (!cancelled) setTutState(data);
       } catch (e) {
         if (!cancelled) setActionError(e?.response?.data?.message || 'Bot flip failed.');

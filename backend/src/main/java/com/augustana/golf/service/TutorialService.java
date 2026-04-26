@@ -536,16 +536,16 @@ public class TutorialService {
                 .orElse(null);
     }
 
-    private User getOrCreateBotUser() {
-        return userRepository.findByUsername(BOT_USERNAME).orElseGet(() -> {
+private User getOrCreateBotUser() {
+    return userRepository.findByUsername("tutorial_bot")
+        .orElseGet(() -> {
             User bot = new User();
-            bot.setUsername(BOT_USERNAME);
-            // Unusable password hash — the bot never logs in
-            bot.setPasswordHash("$2a$10$TUTORIAL_BOT_PLACEHOLDER_HASH_THAT_NEVER_MATCHES");
-            bot.setEmail(null);
+            bot.setUsername("tutorial_bot");
+            bot.setEmail("tutorial_bot@game.local");
+            bot.setPasswordHash("noop"); // or any dummy value
             return userRepository.save(bot);
         });
-    }
+}
 
     private void joinAsBot(Game game, User bot) {
         GamePlayer gp = new GamePlayer();

@@ -4,9 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.augustana.golf.security.CustomUserPrincipal;
 import com.augustana.golf.domain.dto.TutorialStateResponse;
 import com.augustana.golf.service.TutorialService;
 
@@ -44,11 +45,10 @@ public class TutorialController {
      */
     @PostMapping("/start")
     public ResponseEntity<TutorialStateResponse> startTutorial(
-            @RequestHeader(value = "X-User-Id", required = true) String userIdHeader) {
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
 
-        Long userId = parseUserId(userIdHeader);
-        TutorialStateResponse response = tutorialService.startTutorial(userId);
-        return ResponseEntity.ok(response);
+        Long userId = principal.getUserId();
+        return ResponseEntity.ok(tutorialService.startTutorial(userId));
     }
 
     /**
@@ -62,11 +62,10 @@ public class TutorialController {
     @GetMapping("/{gameId}/state")
     public ResponseEntity<TutorialStateResponse> getState(
             @PathVariable Long gameId,
-            @RequestHeader(value = "X-User-Id", required = true) String userIdHeader) {
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
 
-        Long userId = parseUserId(userIdHeader);
-        TutorialStateResponse response = tutorialService.getCurrentState(gameId, userId);
-        return ResponseEntity.ok(response);
+        Long userId = principal.getUserId();
+        return ResponseEntity.ok(tutorialService.getCurrentState(gameId, userId));
     }
 
     /**
@@ -78,11 +77,10 @@ public class TutorialController {
     @PostMapping("/{gameId}/bot-flip")
     public ResponseEntity<TutorialStateResponse> botFlip(
             @PathVariable Long gameId,
-            @RequestHeader(value = "X-User-Id", required = true) String userIdHeader) {
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
 
-        Long userId = parseUserId(userIdHeader);
-        TutorialStateResponse response = tutorialService.botFlipInitial(gameId, userId);
-        return ResponseEntity.ok(response);
+        Long userId = principal.getUserId();
+        return ResponseEntity.ok(tutorialService.botFlipInitial(gameId, userId));
     }
 
     /**
@@ -94,21 +92,9 @@ public class TutorialController {
     @PostMapping("/{gameId}/bot-turn")
     public ResponseEntity<TutorialStateResponse> botTurn(
             @PathVariable Long gameId,
-            @RequestHeader(value = "X-User-Id", required = true) String userIdHeader) {
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
 
-        Long userId = parseUserId(userIdHeader);
-        TutorialStateResponse response = tutorialService.executeBotTurn(gameId, userId);
-        return ResponseEntity.ok(response);
-    }
-
-    private Long parseUserId(String headerValue) {
-        if (headerValue == null || headerValue.isBlank()) {
-            throw new IllegalArgumentException("Missing X-User-Id header");
-        }
-        try {
-            return Long.parseLong(headerValue.trim());
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid X-User-Id: " + headerValue);
-        }
+        Long userId = principal.getUserId();
+        return ResponseEntity.ok(tutorialService.executeBotTurn(gameId, userId));
     }
 }
