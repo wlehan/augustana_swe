@@ -6,6 +6,12 @@ import './Gamepage.css'
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
 import { createGame } from '../services/gameApi'
+import {
+  clearStoredSession,
+  hasAuthenticatedSession,
+  isUnauthorizedError,
+  readStoredSession,
+} from '../services/session'
 import AudioSettingsButton from '../components/AudioSettingsButton';
 
 
@@ -14,16 +20,11 @@ function GameSelection() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const user = useMemo(() => {
-    const raw = localStorage.getItem('demo_user');
-    if (!raw) {
+    const session = readStoredSession();
+    if (!session) {
       return { username: 'Guest' };
     }
-
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return { username: 'Guest' };
-    }
+    return session;
   }, []);
 
   useEffect(() => {
@@ -44,7 +45,7 @@ function GameSelection() {
   }, [isProfileOpen]);
 
   const handleLogout = () => {
-    localStorage.removeItem('demo_user');
+    clearStoredSession();
     navigate('/login');
   };
 
@@ -54,7 +55,8 @@ function GameSelection() {
   const onStartGame = async () => {
     setErrorMsg('');
 
-    if (!user?.userId) {
+    if (!hasAuthenticatedSession(user)) {
+      clearStoredSession();
       navigate('/login');
       return;
     }
@@ -65,6 +67,11 @@ function GameSelection() {
       localStorage.setItem('active_game', JSON.stringify(data));
       navigate(`/play?gameId=${data.gameId}`);
     } catch (e) {
+      if (isUnauthorizedError(e)) {
+        clearStoredSession();
+        navigate('/login');
+        return;
+      }
       setErrorMsg(e?.response?.data?.message || 'Failed to create game');
     } finally {
       setLoading(false);
@@ -72,7 +79,8 @@ function GameSelection() {
   };
 
   const onJoinGame = () => {
-      if (!user?.userId) {
+      if (!hasAuthenticatedSession(user)) {
+        clearStoredSession();
         navigate('/login');
         return;
       }

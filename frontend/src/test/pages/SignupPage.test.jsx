@@ -71,6 +71,7 @@ describe('SignupPage', () => {
       userId: 2,
       username: 'newuser',
       email: 'newuser@test.com',
+      token: 'jwt-token',
       message: 'Signup successful.',
     })
 
@@ -98,6 +99,7 @@ describe('SignupPage', () => {
       userId: 2,
       username: 'newuser',
       email: 'newuser@test.com',
+      token: 'jwt-token',
     })
   })
 
@@ -130,6 +132,7 @@ describe('SignupPage', () => {
       userId: 2,
       username: 'newuser',
       email: 'newuser@test.com',
+      token: 'jwt-token',
       message: 'Signup successful.',
     })
 
@@ -143,6 +146,7 @@ describe('SignupPage', () => {
       userId: 2,
       username: 'newuser',
       email: null,
+      token: 'jwt-token',
       message: 'Signup successful.',
     })
 
@@ -172,6 +176,7 @@ describe('SignupPage', () => {
       userId: 2,
       username: 'newuser',
       email: null,
+      token: 'jwt-token',
       message: 'Signup successful.',
     })
 
@@ -222,6 +227,7 @@ describe('SignupPage', () => {
       userId: 2,
       username: 'newuser',
       email: 'newuser@test.com',
+      token: 'jwt-token',
       message: 'Signup successful.',
     })
 

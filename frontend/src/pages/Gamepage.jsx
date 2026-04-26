@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import './Gamepage.css';
 import gearIcon from '../assets/Icon.png';
 import profileIcon from '../assets/profile.png';
@@ -15,6 +15,12 @@ import {
   startGame,
   swapCard,
 } from '../services/gameApi';
+import {
+  clearStoredSession,
+  hasAuthenticatedSession,
+  isUnauthorizedError,
+  readStoredSession,
+} from '../services/session';
 
 import aceclubs from '../assets/cards/clubs/aceclubs.png';
 import twoclubs from '../assets/cards/clubs/2clubs.png';
@@ -182,6 +188,7 @@ function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
 
 
 export default function GamePage() {
+  const navigate = useNavigate();
   const { playSound } = useAudio();
   const [params] = useSearchParams();
   const gameId = params.get('gameId');
@@ -203,14 +210,27 @@ export default function GamePage() {
   const [roundSummaryData, setRoundSummaryData] = useState(null);
 
   const user = useMemo(() => {
-    const raw = localStorage.getItem('demo_user');
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch { return null; }
+    return readStoredSession();
   }, []);
+
+  const redirectToLogin = useCallback(() => {
+    clearStoredSession();
+    navigate('/login', { replace: true });
+  }, [navigate]);
 
   const effectiveStatus = game?.status ?? game?.gameStatus ?? null;
 
   useEffect(() => {
+    if (!hasAuthenticatedSession(user)) {
+      redirectToLogin();
+    }
+  }, [redirectToLogin, user]);
+
+  useEffect(() => {
+    if (!hasAuthenticatedSession(user)) {
+      return undefined;
+    }
+
     if (!gameId) { setErrorMsg('Missing gameId in URL.'); return; }
 
     let cancelled = false;
@@ -253,6 +273,10 @@ export default function GamePage() {
         setGame(lobbyData);
         setErrorMsg('');
       } catch (e) {
+        if (!cancelled && isUnauthorizedError(e)) {
+          redirectToLogin();
+          return;
+        }
         if (!cancelled) {
           setErrorMsg(
             e?.response?.data?.message || e?.response?.data?.error || 'Could not load game.'
@@ -264,7 +288,7 @@ export default function GamePage() {
     loadGame();
     const intervalId = setInterval(loadGame, 1500);
     return () => { cancelled = true; clearInterval(intervalId); };
-  }, [gameId, effectiveStatus, user?.userId]);
+  }, [effectiveStatus, gameId, redirectToLogin, user]);
 
   const playerScores = useMemo(() => {
     if (Array.isArray(game?.players) && game.players.length > 0) {
@@ -363,6 +387,10 @@ export default function GamePage() {
       setGame(data);
       setPendingDiscard(false);
     } catch (e) {
+      if (isUnauthorizedError(e)) {
+        redirectToLogin();
+        return;
+      }
       setActionError(
         e?.response?.data?.message || e?.response?.data?.error || 'Action failed.'
       );
@@ -380,11 +408,19 @@ export default function GamePage() {
 
   const onStartGame = async () => {
     if (!gameId || startingGame) return;
+    if (!hasAuthenticatedSession(user)) {
+      redirectToLogin();
+      return;
+    }
     setStartError(''); setStartingGame(true);
     try {
       const data = await startGame({ gameId, userId: user?.userId });
       setGame(data);
     } catch (e) {
+      if (isUnauthorizedError(e)) {
+        redirectToLogin();
+        return;
+      }
       setStartError(e?.response?.data?.message || e?.response?.data?.error || `Could not start game.`);
     } finally { setStartingGame(false); }
   };

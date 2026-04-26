@@ -2,6 +2,12 @@ import './JoinCode.css'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { joinGame } from '../services/gameApi'
+import {
+    clearStoredSession,
+    hasAuthenticatedSession,
+    isUnauthorizedError,
+    readStoredSession,
+} from '../services/session'
 
 function JoinCode({ onClose }) {
     const navigate = useNavigate()
@@ -38,15 +44,10 @@ function JoinCode({ onClose }) {
                 return
             }
 
-            const raw = localStorage.getItem('demo_user')
-            let user = null
-            try {
-                user = raw ? JSON.parse(raw) : null
-            } catch {
-                user = null
-            }
+            const user = readStoredSession()
 
-            if (!user?.userId) {
+            if (!hasAuthenticatedSession(user)) {
+                clearStoredSession()
                 navigate('/login')
                 return
             }
@@ -58,6 +59,11 @@ function JoinCode({ onClose }) {
             navigate(`/play?gameId=${data.gameId}`)
 
         } catch (apiError) {
+            if (isUnauthorizedError(apiError)) {
+                clearStoredSession()
+                navigate('/login')
+                return
+            }
             setError(extractJoinError(apiError))
         } finally {
             setLoading(false)
