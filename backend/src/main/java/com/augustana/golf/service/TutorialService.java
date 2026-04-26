@@ -536,17 +536,14 @@ public class TutorialService {
                 .orElse(null);
     }
 
-private User getOrCreateBotUser() {
-    return userRepository.findByUsername("tutorial_bot")
-        .orElseGet(() -> {
-            User bot = new User();
-            bot.setUsername("tutorial_bot");
-            bot.setEmail("tutorial_bot@game.local");
-            bot.setPasswordHash("noop"); // or any dummy value
-            return userRepository.save(bot);
-        });
-}
-
+    private User getOrCreateBotUser() {
+        return userRepository.findByUsername(BOT_USERNAME)
+                .orElseThrow(() -> new ApiException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Tutorial bot user not found in database"
+                ));
+    }
+    
     private void joinAsBot(Game game, User bot) {
         GamePlayer gp = new GamePlayer();
         gp.setGame(game);
