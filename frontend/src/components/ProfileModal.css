@@ -1,0 +1,181 @@
+.profile-image {
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff9e9;
+}
+
+.profile-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.profile-modal-card {
+  position: relative;
+  width: min(92vw, 520px);
+  min-height: 520px;
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  padding: 24px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #fff9e9;
+  color: #000;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.profile-close-btn span {
+  font-family: Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.profile-close-btn:hover {
+  background: #f5d4cd;
+  transform: translateY(-1px);
+}
+
+.profile-close-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px #a7c957;
+}
+
+.profile-modal-title {
+  width: 100%;
+  margin: 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 36px;
+  color: #000;
+}
+
+.profile-avatar-large {
+  width: 92px;
+  height: 92px;
+  margin-top: 8px;
+  border: 2px solid #000;
+}
+
+.profile-upload-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.profile-upload-btn,
+.profile-remove-btn {
+  border: 2px solid #000;
+  border-radius: 10px;
+  background: #fff9e9;
+  color: #000;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.profile-upload-btn:hover,
+.profile-remove-btn:hover {
+  background: #a7c957;
+}
+
+.profile-upload-btn input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.profile-remove-btn {
+  background: #f5d4cd;
+}
+
+.profile-upload-error {
+  margin: 8px 0 0;
+  color: #8f1e12;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+  text-align: center;
+}
+
+.profile-name {
+  margin: 10px 0 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+}
+
+.stats-section {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.stats-section h3 {
+  margin: 0 0 14px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 42px;
+  color: #000;
+}
+
+.stat-row {
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #fff9e9;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-done-btn {
+  margin-top: auto;
+  width: min(100%, 320px);
+}
+
+@media (max-width: 780px) {
+  .profile-modal-title {
+    font-size: 30px;
+  }
+
+  .profile-name {
+    font-size: 20px;
+  }
+
+  .stats-section h3 {
+    font-size: 34px;
+  }
+}

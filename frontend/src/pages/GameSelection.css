@@ -286,6 +286,12 @@
   object-fit: contain;
 }
 
+.profile-image {
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff9e9;
+}
+
 .settings-menu {
   position: absolute;
   top: 80px;
@@ -417,8 +423,56 @@
 .profile-avatar-large {
   width: 92px;
   height: 92px;
-  object-fit: contain;
   margin-top: 8px;
+  border: 2px solid #000;
+}
+
+.profile-upload-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.profile-upload-btn,
+.profile-remove-btn {
+  border: 2px solid #000;
+  border-radius: 10px;
+  background: #fff9e9;
+  color: #000;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.profile-upload-btn:hover,
+.profile-remove-btn:hover {
+  background: #a7c957;
+}
+
+.profile-upload-btn input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.profile-remove-btn {
+  background: #f5d4cd;
+}
+
+.profile-upload-error {
+  margin: 8px 0 0;
+  color: #8f1e12;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+  text-align: center;
 }
 
 .profile-name {
