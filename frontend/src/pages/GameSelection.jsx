@@ -94,6 +94,11 @@ function GameSelection() {
       navigate('/join');
     };
 
+  const onPlayTutorial = () => {
+    if (!user?.userId) { navigate('/login'); return; }
+    navigate('/tutorial');
+  };
+
   return (
     <div className="home-container">
       <div className="golf-decor-scene">
@@ -169,6 +174,15 @@ function GameSelection() {
           >
             {loading ? 'Joining...' : 'Join a game'}
           </button>
+
+          <button
+            className="square-selection-btn tutorial-selection-btn"
+            onClick={onPlayTutorial}
+            disabled={loading}
+          >
+            Play Tutorial
+          </button>
+
         </div>
           {errorMsg && <p className="error-text">{errorMsg}</p>}
       </div>

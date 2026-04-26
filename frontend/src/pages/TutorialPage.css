@@ -1,0 +1,377 @@
+
+.tutorial-hint-panel {
+  position: fixed;
+  top: 50%;
+  left: 28px;
+  bottom: auto;
+  left: auto;
+  transform: translateY(-50%);
+  width: min(360px, calc(100vw - 40px));
+  z-index: 120;
+
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 18px;
+
+  padding: 18px 22px 20px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  animation: hint-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes hint-slide-up {
+  from { transform: translateY(-50%) translateX(-120%); opacity: 0; }
+  to   { transform: translateY(-50%) translateX(0); opacity: 1; }
+}
+
+.hint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hint-step-badge {
+  display: inline-block;
+  background: #386641;
+  color: #f2e8cf;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 2px solid #000;
+  white-space: nowrap;
+}
+
+.hint-title {
+  margin: 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+  flex: 1;
+  line-height: 1.2;
+}
+
+.hint-dismiss-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: #fff9e9;
+  color: #000;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+  padding: 0;
+  line-height: 1;
+}
+.hint-dismiss-btn:hover { background: #e8dfc8; }
+
+.hint-description {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 15px;
+  color: #222;
+  line-height: 1.65;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.hint-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hint-progress-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.hint-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: #d6ccb4;
+  transition: background 0.2s ease;
+}
+.hint-dot.active { background: #386641; }
+.hint-dot.done   { background: #a7c957; }
+
+.hint-ok-btn {
+  background: #a7c957;
+  color: #fff8e6;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 8px 22px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-text-stroke: 1px #000;
+  paint-order: stroke fill;
+  transition: background 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+.hint-ok-btn:hover {
+  background: #bcda6f;
+  transform: translateY(-2px);
+}
+.hint-ok-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---- Bot thinking indicator ---- */
+.bot-thinking-banner {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 130;
+  background: #386641;
+  color: #f2e8cf;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 10px 24px;
+  border: 2px solid #000;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: bot-thinking-pulse 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes bot-thinking-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* ---- Tutorial exit button (top-left) ---- */
+.tutorial-exit-btn {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 130;
+  background: #f2e8cf;
+  color: #000;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 8px 16px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.tutorial-exit-btn:hover {
+  background: #e2d8c0;
+  transform: translateY(-1px);
+}
+
+/* ---- "Show Hint" re-open button (when panel is dismissed) ---- */
+.hint-reopen-btn {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  background: #386641;
+  color: #f2e8cf;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 22px;
+  border: 2px solid #000;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  transition: background 0.15s ease, transform 0.15s ease;
+  -webkit-text-stroke: 0.5px #000;
+  paint-order: stroke fill;
+}
+.hint-reopen-btn:hover {
+  background: #2d5535;
+  transform: translateY(-2px) translateX(-50%);
+}
+
+/* ---- Tutorial complete overlay ---- */
+.tutorial-complete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.tutorial-complete-card {
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
+  padding: 36px 32px 28px;
+  width: min(92vw, 480px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.tutorial-complete-trophy {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.tutorial-complete-title {
+  margin: 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #000;
+  -webkit-text-stroke: 1px #000;
+}
+
+.tutorial-complete-subtitle {
+  margin: 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+.tutorial-complete-scores {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.tutorial-complete-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff9e9;
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 16px;
+  color: #000;
+}
+
+.tutorial-complete-score-row.winner {
+  background: #e8f4d0;
+  border-color: #386641;
+}
+
+.tutorial-complete-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.tutorial-complete-lobby-btn {
+  background: #a7c957;
+  color: #fff8e6;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 28px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-text-stroke: 1px #000;
+  paint-order: stroke fill;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.tutorial-complete-lobby-btn:hover {
+  background: #bcda6f;
+  transform: translateY(-2px);
+}
+
+.tutorial-complete-replay-btn {
+  background: #fff9e9;
+  color: #000;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 28px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.tutorial-complete-replay-btn:hover {
+  background: #e8dfc8;
+  transform: translateY(-2px);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .tutorial-hint-panel {
+    padding: 14px 14px 16px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .hint-title { font-size: 17px; }
+  .hint-description { font-size: 13px; }
+  .hint-ok-btn { font-size: 13px; padding: 7px 16px; }
+
+  .tutorial-complete-title { font-size: 26px; }
+}
+
+.tutorial-special-rules {
+  width: 100%;
+  background: #fff9e9;
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  font-family: 'OpenDyslexic', sans-serif;
+  color: #000;
+}
+
+.tutorial-special-rules h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #000;
+}
+
+.tutorial-special-rules p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.tutorial-special-rules ul {
+  margin: 0;
+  padding-left: 22px;
+  font-size: 14px;
+  line-height: 1.5;
+}

@@ -5,6 +5,7 @@ import SignupPage from './pages/SignupPage'
 import GameSelection from './pages/GameSelection'
 import JoinCode from './pages/JoinCode'
 import GamePage from './pages/Gamepage'
+import TutorialPage from './pages/TutorialPage'
 import './App.css'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/game-selection" element={<GameSelection />} />
         <Route path="/join" element={<JoinCode />} />
         <Route path="/play" element={<GamePage />} />
+        <Route path="/tutorial" element={<TutorialPage />} />
       </Routes>
     </BrowserRouter>
   )
