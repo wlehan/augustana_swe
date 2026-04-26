@@ -21,6 +21,12 @@ import {
   isUnauthorizedError,
   readStoredSession,
 } from '../services/session';
+import {
+  readStoredUserProfile,
+  readStoredUserProfiles,
+  recordCompletedGameStats,
+} from '../services/profile';
+import ProfileModal from '../components/ProfileModal';
 
 import aceclubs from '../assets/cards/clubs/aceclubs.png';
 import twoclubs from '../assets/cards/clubs/2clubs.png';
@@ -107,6 +113,10 @@ function getCardAlt(card) {
   return getCardName(card);
 }
 
+function normalizeId(v) {
+  return v === null || v === undefined ? '' : String(v);
+}
+
 
 const PLAYER_HAND_SLOTS = [1, 2, 3, 4, 5, 6];
 
@@ -153,8 +163,12 @@ function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
         </div>
       )}
 
-      {position !== 'bottom' && (
-        <img src={profileIcon} className="player-profile-img" alt="player" />
+      {playerMeta && (
+        <img
+          src={playerMeta.profileImage || profileIcon}
+          className="player-profile-img"
+          alt={`${playerMeta.name} profile`}
+        />
       )}
 
       <div className="card-grid">
@@ -196,6 +210,7 @@ export default function GamePage() {
   const [game, setGame] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLedgerOpen, setIsLedgerOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
   const [startError, setStartError] = useState('');
@@ -206,11 +221,19 @@ export default function GamePage() {
   const [pendingDiscard, setPendingDiscard] = useState(false);
 
   const prevRoundRef = useRef(null);
+  const completedStatsRecordedRef = useRef(false);
   const [showRoundSummary, setShowRoundSummary] = useState(false);
   const [roundSummaryData, setRoundSummaryData] = useState(null);
 
   const user = useMemo(() => {
     return readStoredSession();
+  }, []);
+  const [userProfile, setUserProfile] = useState(() => readStoredUserProfile(user));
+  const [storedProfiles, setStoredProfiles] = useState(() => readStoredUserProfiles());
+
+  const handleProfileChange = useCallback((updatedProfile) => {
+    setUserProfile(updatedProfile);
+    setStoredProfiles(readStoredUserProfiles());
   }, []);
 
   const redirectToLogin = useCallback(() => {
@@ -290,6 +313,50 @@ export default function GamePage() {
     return () => { cancelled = true; clearInterval(intervalId); };
   }, [effectiveStatus, gameId, redirectToLogin, user]);
 
+  useEffect(() => {
+    if (!isProfileOpen) {
+      return undefined;
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isProfileOpen]);
+
+  const findProfileImageForPlayer = useCallback((player) => {
+    if (player?.profileImage) {
+      return player.profileImage;
+    }
+
+    const playerUserId = normalizeId(player?.userId);
+    const sessionUserId = normalizeId(user?.userId);
+    const playerUsername = (player?.username || player?.displayName || player?.name || '').trim().toLowerCase();
+    const sessionUsername = (user?.username || '').trim().toLowerCase();
+
+    if (
+      (playerUserId && sessionUserId && playerUserId === sessionUserId) ||
+      (playerUsername && sessionUsername && playerUsername === sessionUsername)
+    ) {
+      return userProfile.profileImage || null;
+    }
+
+    return storedProfiles.find((profile) => {
+      const profileUserId = normalizeId(profile?.userId);
+      const profileUsername = (profile?.username || '').trim().toLowerCase();
+      return (
+        (playerUserId && profileUserId && playerUserId === profileUserId) ||
+        (playerUsername && profileUsername && playerUsername === profileUsername)
+      );
+    })?.profileImage || null;
+  }, [storedProfiles, user, userProfile.profileImage]);
+
   const playerScores = useMemo(() => {
     if (Array.isArray(game?.players) && game.players.length > 0) {
       return [...game.players]
@@ -305,16 +372,16 @@ export default function GamePage() {
           cards: player?.cards || [],
           heldCard: player?.heldCard || null,
           initialFlipsCount: player?.initialFlipsCount ?? 0,
+          profileImage: findProfileImageForPlayer(player),
         }));
     }
     return Array.from({ length: game?.maxPlayers || 4 }, (_, i) => ({
       id: `${i + 1}`, userId: null, gamePlayerId: null,
       name: i === 0 ? 'You' : `Player ${i + 1}`,
       seatNumber: i + 1, roundScore: null, total: '-', cards: [], heldCard: null, initialFlipsCount: 0,
+      profileImage: i === 0 ? userProfile.profileImage : null,
     }));
-  }, [game]);
-
-  const normalizeId = (v) => (v === null || v === undefined ? '' : String(v));
+  }, [findProfileImageForPlayer, game, userProfile.profileImage]);
 
   const currentUserPlayer = useMemo(() => {
     const normalizedUsername = (user?.username || '').trim().toLowerCase();
@@ -355,6 +422,21 @@ export default function GamePage() {
   const isSetupPhase = roundStatus === 'SETUP';
   const isActivePlaying = roundStatus === 'ACTIVE' || roundStatus === 'FINAL_TURNS';
   const isGameComplete = effectiveStatus === 'COMPLETED';
+
+  useEffect(() => {
+    if (!isGameComplete || completedStatsRecordedRef.current) {
+      return;
+    }
+
+    const updatedProfile = recordCompletedGameStats({
+      session: user,
+      gameId,
+      players: playerScores,
+    });
+
+    completedStatsRecordedRef.current = true;
+    handleProfileChange(updatedProfile);
+  }, [gameId, handleProfileChange, isGameComplete, playerScores, user]);
 
   const isMyTurn = isActivePlaying && Boolean(
     game?.round?.currentTurnUserId && String(game.round.currentTurnUserId) === String(user?.userId)
@@ -397,7 +479,7 @@ export default function GamePage() {
     } finally {
       setActionBusy(false);
     }
-  }, [actionBusy]);
+  }, [actionBusy, redirectToLogin]);
 
   const onCopyCode = async () => {
     if (!game?.gameCode) return;
@@ -517,7 +599,18 @@ export default function GamePage() {
         iconAlt="Settings"
         className="settings-gear"
       />
-      <img src={profileIcon} className="ui-icon top-profile" alt="my profile" />
+      <button
+        type="button"
+        className="top-profile top-profile-btn"
+        onClick={() => setIsProfileOpen(true)}
+        aria-label="Open profile"
+      >
+        <img
+          src={userProfile.profileImage || profileIcon}
+          className="top-profile-img profile-image"
+          alt="my profile"
+        />
+      </button>
       {isActivePlaying && (
         <div className={`turn-banner ${isMyTurn ? 'my-turn' : ''}`}>
           {roundStatus === 'FINAL_TURNS' && (
@@ -777,7 +870,14 @@ export default function GamePage() {
                   key={player.userId ?? player.gamePlayerId ?? `${player.username}-${player.seatNumber}`}
                   className="host-lobby-player-row"
                 >
-                  <span>{player.username || player.name}</span>
+                  <span className="host-lobby-player-name">
+                    <img
+                      src={findProfileImageForPlayer(player) || profileIcon}
+                      className="host-lobby-player-img"
+                      alt=""
+                    />
+                    <span>{player.username || player.name}</span>
+                  </span>
                   <span>Seat {player.seatNumber}</span>
                 </div>
               ))}
@@ -855,6 +955,16 @@ export default function GamePage() {
       )}
 
       {copyNotice && <div className="copy-toast">{copyNotice}</div>}
+
+      {isProfileOpen && (
+        <ProfileModal
+          user={user}
+          userProfile={userProfile}
+          fallbackImage={profileIcon}
+          onClose={() => setIsProfileOpen(false)}
+          onProfileChange={handleProfileChange}
+        />
+      )}
     </div>
   );
 }

@@ -12,8 +12,9 @@ import {
   isUnauthorizedError,
   readStoredSession,
 } from '../services/session'
+import { readStoredUserProfile } from '../services/profile'
 import AudioSettingsButton from '../components/AudioSettingsButton';
-
+import ProfileModal from '../components/ProfileModal';
 
 function GameSelection() {
   const navigate = useNavigate();
@@ -26,6 +27,9 @@ function GameSelection() {
     }
     return session;
   }, []);
+  const [userProfile, setUserProfile] = useState(() => readStoredUserProfile(user));
+
+  const profileImage = userProfile.profileImage || profileIcon;
 
   useEffect(() => {
     if (!isProfileOpen) {
@@ -117,7 +121,7 @@ function GameSelection() {
         </AudioSettingsButton>
 
         <button className="icon-btn" onClick={() => setIsProfileOpen(true)} aria-label="Open profile">
-          <img src={profileIcon} className="nav-image" alt="Profile" />
+          <img src={profileImage} className="nav-image profile-image" alt="Profile" />
         </button>
       </div>
 
@@ -143,37 +147,13 @@ function GameSelection() {
       </div>
 
       {isProfileOpen && (
-        <div className="profile-modal-overlay" onClick={() => setIsProfileOpen(false)}>
-          <div className="profile-modal-card" onClick={(event) => event.stopPropagation()}>
-            <button
-              className="profile-close-btn"
-              type="button"
-              onClick={() => setIsProfileOpen(false)}
-              aria-label="Close profile"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-            <h2 className="profile-modal-title">Profile</h2>
-            <img className="profile-avatar-large" src={profileIcon} alt="Profile avatar" />
-            <p className="profile-name">{user.username || 'Guest'}</p>
-
-            <div className="stats-section">
-              <h3>Stats</h3>
-              <div className="stat-row">
-                <span>Games played</span>
-                <strong>{Number(user.gamesPlayed || 0)}</strong>
-              </div>
-              <div className="stat-row">
-                <span>Wins</span>
-                <strong>{Number(user.wins || 0)}</strong>
-              </div>
-            </div>
-
-            <button className="green-btn profile-done-btn" type="button" onClick={() => setIsProfileOpen(false)}>
-              Done
-            </button>
-          </div>
-        </div>
+        <ProfileModal
+          user={user}
+          userProfile={userProfile}
+          fallbackImage={profileIcon}
+          onClose={() => setIsProfileOpen(false)}
+          onProfileChange={setUserProfile}
+        />
       )}
     </div>
   );
