@@ -31,7 +31,6 @@ export function saveStoredSession(authResponse) {
   const session = {
     userId: authResponse.userId ?? null,
     username: authResponse.username ?? '',
-    email: authResponse.email ?? null,
     token: authResponse.token ?? null,
   }
 

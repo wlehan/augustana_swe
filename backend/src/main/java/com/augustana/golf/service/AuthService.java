@@ -28,7 +28,6 @@ public class AuthService {
     public AuthResponse signup(SignupRequest request) {
         String username = normalizeUsername(request.username());
         String password = normalizePassword(request.password(), true);
-        String email = normalizeEmail(request.email());
 
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists.");
@@ -37,7 +36,6 @@ public class AuthService {
         User user = new User();
         user.setUsername(username);
         user.setPasswordHash(passwordEncoder.encode(password));
-        user.setEmail(email);
 
         User saved = userRepository.save(user);
         String token = jwtService.generateToken(saved);
@@ -45,7 +43,6 @@ public class AuthService {
         return new AuthResponse(
                 saved.getUserId(),
                 saved.getUsername(),
-                saved.getEmail(),
                 token,
                 "Signup successful."
         );
@@ -67,7 +64,6 @@ public class AuthService {
         return new AuthResponse(
                 user.getUserId(),
                 user.getUsername(),
-                user.getEmail(),
                 token,
                 "Login successful."
         );
@@ -106,14 +102,5 @@ public class AuthService {
         }
 
         return password;
-    }
-
-    private String normalizeEmail(String email) {
-        if (email == null) {
-            return null;
-        }
-
-        String cleaned = email.trim();
-        return cleaned.isEmpty() ? null : cleaned;
     }
 }

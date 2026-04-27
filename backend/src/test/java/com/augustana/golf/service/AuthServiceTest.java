@@ -37,7 +37,7 @@ class AuthServiceTest {
 
     @Test
     void signup_successfulRequest_returnsAuthResponse() {
-        SignupRequest request = new SignupRequest("alice", "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "verysecure123");
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
@@ -47,7 +47,6 @@ class AuthServiceTest {
         savedUser.setUserId(1L);
         savedUser.setUsername("alice");
         savedUser.setPasswordHash("hashed-password");
-        savedUser.setEmail("alice@example.com");
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
@@ -55,14 +54,13 @@ class AuthServiceTest {
 
         assertEquals(1L, response.userId());
         assertEquals("alice", response.username());
-        assertEquals("alice@example.com", response.email());
         assertEquals("test-jwt-token", response.token());
         assertEquals("Signup successful.", response.message());
     }
 
     @Test
     void signup_trimsUsernameBeforeCheckingAndSaving() {
-        SignupRequest request = new SignupRequest("  alice  ", "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest("  alice  ", "verysecure123");
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
@@ -72,7 +70,6 @@ class AuthServiceTest {
         savedUser.setUserId(1L);
         savedUser.setUsername("alice");
         savedUser.setPasswordHash("hashed-password");
-        savedUser.setEmail("alice@example.com");
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
@@ -88,35 +85,8 @@ class AuthServiceTest {
     }
 
     @Test
-    void signup_blankEmail_becomesNull() {
-        SignupRequest request = new SignupRequest("alice", "verysecure123", "   ");
-
-        when(userRepository.existsByUsername("alice")).thenReturn(false);
-        when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
-        when(jwtService.generateToken(any(User.class))).thenReturn("test-jwt-token");
-
-        User savedUser = new User();
-        savedUser.setUserId(1L);
-        savedUser.setUsername("alice");
-        savedUser.setPasswordHash("hashed-password");
-        savedUser.setEmail(null);
-
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-
-        AuthResponse response = authService.signup(request);
-
-        assertNull(response.email());
-
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-
-        User userToSave = userCaptor.getValue();
-        assertNull(userToSave.getEmail());
-    }
-
-    @Test
     void signup_nullUsername_throwsException() {
-        SignupRequest request = new SignupRequest(null, "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest(null, "verysecure123");
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -130,7 +100,7 @@ class AuthServiceTest {
 
     @Test
     void signup_blankUsername_throwsException() {
-        SignupRequest request = new SignupRequest("   ", "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest("   ", "verysecure123");
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -144,7 +114,7 @@ class AuthServiceTest {
 
     @Test
     void signup_nullPassword_throwsException() {
-        SignupRequest request = new SignupRequest("alice", null, "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", null);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -157,7 +127,7 @@ class AuthServiceTest {
 
     @Test
     void signup_blankPassword_throwsException() {
-        SignupRequest request = new SignupRequest("alice", "   ", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "   ");
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -170,7 +140,7 @@ class AuthServiceTest {
 
     @Test
     void signup_shortPassword_throwsException() {
-        SignupRequest request = new SignupRequest("alice", "short", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "short");
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -183,7 +153,7 @@ class AuthServiceTest {
 
     @Test
     void signup_duplicateUsername_throwsException() {
-        SignupRequest request = new SignupRequest("alice", "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "verysecure123");
 
         when(userRepository.existsByUsername("alice")).thenReturn(true);
 
@@ -198,7 +168,7 @@ class AuthServiceTest {
 
     @Test
     void signup_hashesPasswordBeforeSaving() {
-        SignupRequest request = new SignupRequest("alice", "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "verysecure123");
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(passwordEncoder.encode("verysecure123")).thenReturn("hashed-password");
@@ -208,7 +178,6 @@ class AuthServiceTest {
         savedUser.setUserId(1L);
         savedUser.setUsername("alice");
         savedUser.setPasswordHash("hashed-password");
-        savedUser.setEmail("alice@example.com");
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
@@ -232,7 +201,6 @@ class AuthServiceTest {
         user.setUserId(1L);
         user.setUsername("alice");
         user.setPasswordHash("hashed-password");
-        user.setEmail("alice@example.com");
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("verysecure123", "hashed-password")).thenReturn(true);
@@ -242,7 +210,6 @@ class AuthServiceTest {
 
         assertEquals(1L, response.userId());
         assertEquals("alice", response.username());
-        assertEquals("alice@example.com", response.email());
         assertEquals("test-jwt-token", response.token());
         assertEquals("Login successful.", response.message());
     }
@@ -255,7 +222,6 @@ class AuthServiceTest {
         user.setUserId(1L);
         user.setUsername("alice");
         user.setPasswordHash("hashed-password");
-        user.setEmail("alice@example.com");
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("verysecure123", "hashed-password")).thenReturn(true);
@@ -341,7 +307,6 @@ class AuthServiceTest {
         user.setUserId(1L);
         user.setUsername("alice");
         user.setPasswordHash("hashed-password1");
-        user.setEmail("alice@example.com");
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongpassword1", "hashed-password1")).thenReturn(false);
