@@ -1,4 +1,5 @@
 import React from 'react';
+import './GameOverOverlay.css';
 
 export default function GameOverOverlay({ isGameComplete, playerScores }) {
   if (!isGameComplete) return null;

@@ -1,4 +1,5 @@
 import React from 'react';
+import './ScoreLedger.css';
 
 export default function ScoreLedger({
   showHostLobbyModal,

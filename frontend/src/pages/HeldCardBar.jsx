@@ -1,4 +1,5 @@
 import React from 'react';
+import './HeldCardBar.css';
 import { getCardImage, getCardAlt } from './cardHelpers';
 
 export default function HeldCardBar({

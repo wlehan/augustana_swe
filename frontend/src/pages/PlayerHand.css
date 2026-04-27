@@ -1,0 +1,251 @@
+.player-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+  position: relative;
+}
+
+.player-profile-img {
+  width: 40px;
+  height: 40px;
+  margin: 10px;
+  background: white;
+  border-radius: 50%;
+  border: 2px solid #000;
+  z-index: 2;
+}
+
+.score-chip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.52);
+  color: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 11px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 25;
+  max-width: 180px;
+  overflow: hidden;
+}
+
+.score-chip-name {
+  opacity: 0.9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.score-chip-total {
+  font-weight: 700;
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+  padding-left: 8px;
+}
+
+.score-chip.top {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 35;
+  background: rgba(242, 232, 207, 0.92);
+  border-color: rgba(0, 0, 0, 0.45);
+  color: #1f1f1f;
+}
+
+.score-chip.top .score-chip-total {
+  border-left-color: rgba(0, 0, 0, 0.35);
+}
+
+.score-chip.left {
+  top: 50%;
+  left: -36px;
+  transform: translateY(-50%);
+}
+
+.score-chip.right {
+  top: 50%;
+  right: -36px;
+  transform: translateY(-50%);
+}
+
+.score-chip.bottom {
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.top {
+  grid-area: top;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.top .player-profile-img {
+  margin-bottom: 14px;
+}
+
+.bottom {
+  grid-area: bottom;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 30px;
+}
+
+.left {
+  grid-area: left;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.right {
+  grid-area: right;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.left .player-profile-img,
+.right .player-profile-img {
+  margin: 0 14px;
+}
+
+.center {
+  grid-area: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.left .card-grid,
+.right .card-grid {
+  transform: rotate(90deg);
+  margin: -10px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 70px);
+  grid-template-rows: repeat(2, 90px);
+  gap: 12px;
+}
+
+.card-slot {
+  width: 70px;
+  height: 90px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+}
+
+.card-clickable {
+  cursor: pointer;
+  position: relative;
+  z-index: 30;
+}
+
+.playing-card-img {
+  width: 140%;
+  height: 140%;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+}
+
+.dealt-card {
+  border: none;
+  background: transparent;
+  opacity: 0;
+  transform: translateY(26px) scale(0.92);
+  animation: dealIn 420ms ease-out forwards;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.card-flip-anim {
+  animation: flipReveal 300ms ease-in-out forwards;
+}
+
+.card-hl-setup {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #f0c040, 0 0 14px rgba(240, 192, 64, 0.5);
+  border-radius: 8px;
+}
+
+.card-hl-setup:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 0 4px #f0c040, 0 0 20px rgba(240, 192, 64, 0.7);
+}
+
+.card-hl-swap {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #a7c957, 0 0 14px rgba(167, 201, 87, 0.5);
+  border-radius: 8px;
+}
+
+.card-hl-swap:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 0 4px #a7c957, 0 0 20px rgba(167, 201, 87, 0.7);
+}
+
+.card-hl-flip {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #e07030, 0 0 14px rgba(224, 112, 48, 0.5);
+  border-radius: 8px;
+}
+
+.card-hl-flip:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 0 4px #e07030, 0 0 20px rgba(224, 112, 48, 0.7);
+}
+
+@keyframes dealIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes flipReveal {
+  0% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 1100px) {
+  .score-chip {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .score-chip.left {
+    left: -22px;
+  }
+
+  .score-chip.right {
+    right: -22px;
+  }
+}

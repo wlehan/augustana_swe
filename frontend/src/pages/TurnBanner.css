@@ -1,0 +1,60 @@
+.turn-banner {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 2px solid rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.52);
+  color: #fff;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.turn-banner.my-turn {
+  background: rgba(58, 120, 40, 0.88);
+  border-color: rgba(167, 201, 87, 0.7);
+  box-shadow: 0 0 0 3px rgba(167, 201, 87, 0.3), 0 4px 14px rgba(0,0,0,0.35);
+}
+
+.turn-banner.setup-banner {
+  background: rgba(90, 60, 20, 0.82);
+  border-color: rgba(220, 170, 80, 0.7);
+}
+
+.final-turns-tag {
+  background: #e25c30;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.setup-progress {
+  background: rgba(167, 201, 87, 0.85);
+  color: #1f2e17;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .turn-banner {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+}

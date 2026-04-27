@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import './PlayerHand.css';
 import profileIcon from '../assets/profile.png';
 import { getCardImage, getCardAlt } from './cardHelpers';
 

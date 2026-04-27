@@ -1,4 +1,5 @@
 import React from 'react';
+import './HostLobbyModal.css';
 
 export default function HostLobbyModal({
   showHostLobbyModal,

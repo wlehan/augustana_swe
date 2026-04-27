@@ -1,4 +1,5 @@
 import React from 'react';
+import './RoundSummaryOverlay.css';
 
 export default function RoundSummaryOverlay({ showRoundSummary, roundSummaryData, onClose }) {
   if (!showRoundSummary || !roundSummaryData) return null;
