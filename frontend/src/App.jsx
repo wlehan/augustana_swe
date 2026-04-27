@@ -5,6 +5,7 @@ import SignupPage from "./pages/SignupPage";
 import GameSelection from "./pages/GameSelection";
 import JoinCode from "./pages/JoinCode";
 import GamePage from "./pages/Gamepage";
+import TutorialPage from "./pages/TutorialPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AudioProvider } from "./audio/AudioProvider";
 import "./App.css";
@@ -17,6 +18,15 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/tutorial" element={<TutorialPage />} />
+          <Route
+            path="/tutorial"
+            element={
+              <ProtectedRoute>
+                <TutorialPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/game-selection"
             element={

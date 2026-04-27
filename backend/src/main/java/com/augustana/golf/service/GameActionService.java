@@ -377,6 +377,15 @@ public class GameActionService {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
 
+        boolean isTutorialGame = players.stream()
+        .anyMatch(p -> "tutorial_bot".equals(p.getUser().getUsername()));
+
+        if (isTutorialGame) {
+            game.setStatus(Game.Status.COMPLETED);
+            gameRepository.save(game);
+            return;
+        }
+
         if (round.getRoundNumber() >= 9) {
             game.setStatus(Game.Status.COMPLETED);
             gameRepository.save(game);

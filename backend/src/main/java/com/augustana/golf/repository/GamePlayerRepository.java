@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface GamePlayerRepository extends JpaRepository<GamePlayer, Long> {
 
     List<GamePlayer> findByGame_GameIdOrderBySeatNumberAsc(Long gameId);
+    List<GamePlayer> findByUser_UserId(Long userId);
 
     Optional<GamePlayer> findByGame_GameIdAndUser_UserId(Long gameId, Long userId);
 
