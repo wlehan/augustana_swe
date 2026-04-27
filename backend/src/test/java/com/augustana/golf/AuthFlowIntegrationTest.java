@@ -73,8 +73,7 @@ class AuthFlowIntegrationTest {
         String signupRequestBody = """
                 {
                   "username": "alice",
-                  "password": "verysecure123",
-                  "email": "alice@example.com"
+                  "password": "verysecure123"
                 }
                 """;
 
@@ -85,7 +84,6 @@ class AuthFlowIntegrationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userId").exists())
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.token").isString())
                 .andExpect(jsonPath("$.message").value("Signup successful."));
 
@@ -95,7 +93,6 @@ class AuthFlowIntegrationTest {
         User savedUser = savedUserOptional.get();
         assertNotNull(savedUser.getUserId());
         assertEquals("alice", savedUser.getUsername());
-        assertEquals("alice@example.com", savedUser.getEmail());
         assertNotEquals("verysecure123", savedUser.getPasswordHash());
         assertTrue(passwordEncoder.matches("verysecure123", savedUser.getPasswordHash()));
 
@@ -113,7 +110,6 @@ class AuthFlowIntegrationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userId").value(savedUser.getUserId()))
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.token").isString())
                 .andExpect(jsonPath("$.message").value("Login successful."));
     }
@@ -123,8 +119,7 @@ class AuthFlowIntegrationTest {
         String signupRequestBody = """
                 {
                   "username": "alice",
-                  "password": "verysecure123",
-                  "email": "alice@example.com"
+                  "password": "verysecure123"
                 }
                 """;
 
@@ -146,8 +141,7 @@ class AuthFlowIntegrationTest {
         String signupRequestBody = """
                 {
                   "username": "alice",
-                  "password": "verysecure123",
-                  "email": "alice@example.com"
+                  "password": "verysecure123"
                 }
                 """;
 
@@ -189,50 +183,11 @@ class AuthFlowIntegrationTest {
     }
 
     @Test
-    void signup_blankEmail_savesNullEmail_andLoginStillWorks() throws Exception {
-        String signupRequestBody = """
-                {
-                  "username": "alice",
-                  "password": "verysecure123",
-                  "email": "   "
-                }
-                """;
-
-        mockMvc.perform(post("/api/auth/signup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(signupRequestBody))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").doesNotExist())
-                .andExpect(jsonPath("$.message").value("Signup successful."));
-
-        User savedUser = userRepository.findByUsername("alice").orElseThrow();
-        assertNull(savedUser.getEmail());
-
-        String loginRequestBody = """
-                {
-                  "username": "alice",
-                  "password": "verysecure123"
-                }
-                """;
-
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginRequestBody))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(savedUser.getUserId()))
-                .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.token").isString())
-                .andExpect(jsonPath("$.message").value("Login successful."));
-    }
-
-    @Test
     void signup_trimmedUsername_canLoginWithTrimmedUsernameLater() throws Exception {
         String signupRequestBody = """
                 {
                   "username": "   alice   ",
-                  "password": "verysecure123",
-                  "email": "alice@example.com"
+                  "password": "verysecure123"
                 }
                 """;
 
@@ -241,7 +196,6 @@ class AuthFlowIntegrationTest {
                         .content(signupRequestBody))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.message").value("Signup successful."));
 
         User savedUser = userRepository.findByUsername("alice").orElseThrow();
@@ -260,7 +214,6 @@ class AuthFlowIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(savedUser.getUserId()))
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.message").value("Login successful."));
     }
 
@@ -269,8 +222,7 @@ class AuthFlowIntegrationTest {
         String signupRequestBody = """
                 {
                   "username": "alice",
-                  "password": "short",
-                  "email": "alice@example.com"
+                  "password": "short"
                 }
                 """;
 
@@ -317,8 +269,7 @@ class AuthFlowIntegrationTest {
         String signupRequestBody = """
                 {
                   "username": "alice",
-                  "password": "verysecure123",
-                  "email": "alice@example.com"
+                  "password": "verysecure123"
                 }
                 """;
 

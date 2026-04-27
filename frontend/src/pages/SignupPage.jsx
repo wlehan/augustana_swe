@@ -6,7 +6,7 @@ import './LoginPage.css'
 
 function SignupPage() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ username: '', email: '', password: '' })
+  const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
@@ -60,21 +60,6 @@ function SignupPage() {
               className="text-input"
               placeholder="Enter username"
               value={form.username}
-              onChange={onChange}
-            />
-          </div>
-
-          <div className="input-group">
-            <label className="input-label" htmlFor="email">
-              Email (optional)
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="text-input"
-              placeholder="Enter email"
-              value={form.email}
               onChange={onChange}
             />
           </div>

@@ -58,7 +58,6 @@ describe('SignupPage', () => {
     )
 
     await user.type(screen.getByLabelText(/username/i), 'existinguser')
-    await user.type(screen.getByLabelText(/email/i), 'existing@test.com')
     await user.type(screen.getByLabelText(/password/i), 'verysecurepass')
     await user.click(screen.getByRole('button', { name: /create account/i }))
 
@@ -70,7 +69,6 @@ describe('SignupPage', () => {
     signup.mockResolvedValue({
       userId: 2,
       username: 'newuser',
-      email: 'newuser@test.com',
       token: 'jwt-token',
       message: 'Signup successful.',
     })
@@ -84,7 +82,6 @@ describe('SignupPage', () => {
     )
 
     await user.type(screen.getByLabelText(/username/i), 'newuser')
-    await user.type(screen.getByLabelText(/email/i), 'newuser@test.com')
     await user.type(screen.getByLabelText(/password/i), 'verysecurepass')
     await user.click(screen.getByRole('button', { name: /create account/i }))
 
@@ -98,7 +95,6 @@ describe('SignupPage', () => {
     expect(JSON.parse(localStorage.getItem('demo_user'))).toEqual({
       userId: 2,
       username: 'newuser',
-      email: 'newuser@test.com',
       token: 'jwt-token',
     })
   })
@@ -122,7 +118,6 @@ describe('SignupPage', () => {
     )
 
     await user.type(screen.getByLabelText(/username/i), 'newuser')
-    await user.type(screen.getByLabelText(/email/i), 'newuser@test.com')
     await user.type(screen.getByLabelText(/password/i), 'verysecurepass')
     await user.click(screen.getByRole('button', { name: /create account/i }))
 
@@ -131,72 +126,12 @@ describe('SignupPage', () => {
     resolveSignup({
       userId: 2,
       username: 'newuser',
-      email: 'newuser@test.com',
       token: 'jwt-token',
       message: 'Signup successful.',
     })
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/game-selection')
-    })
-  })
-
-  test('allows blank optional email and submits it as empty string', async () => {
-    signup.mockResolvedValue({
-      userId: 2,
-      username: 'newuser',
-      email: null,
-      token: 'jwt-token',
-      message: 'Signup successful.',
-    })
-
-    const user = userEvent.setup()
-
-    render(
-      <MemoryRouter>
-        <SignupPage />
-      </MemoryRouter>
-    )
-
-    await user.type(screen.getByLabelText(/username/i), 'newuser')
-    await user.type(screen.getByLabelText(/password/i), 'verysecurepass')
-    await user.click(screen.getByRole('button', { name: /create account/i }))
-
-    await waitFor(() => {
-      expect(signup).toHaveBeenCalledWith({
-        username: 'newuser',
-        email: '',
-        password: 'verysecurepass',
-      })
-    })
-  })
-
-  test('blocks whitespace-only optional email through UI', async () => {
-    signup.mockResolvedValue({
-      userId: 2,
-      username: 'newuser',
-      email: null,
-      token: 'jwt-token',
-      message: 'Signup successful.',
-    })
-
-    const user = userEvent.setup()
-
-    render(
-      <MemoryRouter>
-        <SignupPage />
-      </MemoryRouter>
-    )
-
-    await user.type(screen.getByLabelText(/username/i), 'newuser')
-    await user.type(screen.getByLabelText(/email/i), '   ')
-    await user.type(screen.getByLabelText(/password/i), 'verysecurepass')
-    await user.click(screen.getByRole('button', { name: /create account/i }))
-
-    expect(signup).toHaveBeenCalledWith({
-      username: 'newuser',
-      email: "",
-      password: 'verysecurepass',
     })
   })
 
@@ -226,7 +161,6 @@ describe('SignupPage', () => {
     signup.mockResolvedValue({
       userId: 2,
       username: 'newuser',
-      email: 'newuser@test.com',
       token: 'jwt-token',
       message: 'Signup successful.',
     })
@@ -240,13 +174,11 @@ describe('SignupPage', () => {
     )
 
     await user.type(screen.getByLabelText(/username/i), 'newuser')
-    await user.type(screen.getByLabelText(/email/i), 'newuser@test.com')
     await user.type(screen.getByLabelText(/password/i), 'verysecurepass{enter}')
 
     await waitFor(() => {
       expect(signup).toHaveBeenCalledWith({
         username: 'newuser',
-        email: 'newuser@test.com',
         password: 'verysecurepass',
       })
     })

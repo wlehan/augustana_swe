@@ -3,12 +3,10 @@ import { test, expect } from '@playwright/test'
 test('user can sign up and then log in', async ({ page }) => {
   const uniqueUser = `user${Date.now()}`
   const password = 'verysecurepass123'
-  const email = `${uniqueUser}@test.com`
 
   await page.goto('/signup')
 
   await page.getByLabel('Username').fill(uniqueUser)
-  await page.getByLabel('Email (optional)').fill(email)
   await page.getByLabel('Password').fill(password)
   await page.getByRole('button', { name: /create account/i }).click()
 
@@ -37,11 +35,9 @@ test('shows error for invalid login', async ({ page }) => {
 test('duplicate username signup shows error', async ({ page }) => {
   const uniqueUser = `user${Date.now()}`
   const password = 'verysecurepass123'
-  const email = `${uniqueUser}@test.com`
 
   await page.goto('/signup')
   await page.getByLabel('Username').fill(uniqueUser)
-  await page.getByLabel('Email (optional)').fill(email)
   await page.getByLabel('Password').fill(password)
   await page.getByRole('button', { name: /create account/i }).click()
 
@@ -49,7 +45,6 @@ test('duplicate username signup shows error', async ({ page }) => {
 
   await page.goto('/signup')
   await page.getByLabel('Username').fill(uniqueUser)
-  await page.getByLabel('Email (optional)').fill(`second-${email}`)
   await page.getByLabel('Password').fill(password)
   await page.getByRole('button', { name: /create account/i }).click()
 
@@ -61,7 +56,6 @@ test('short password signup shows error', async ({ page }) => {
 
   await page.goto('/signup')
   await page.getByLabel('Username').fill(uniqueUser)
-  await page.getByLabel('Email (optional)').fill(`${uniqueUser}@test.com`)
   await page.getByLabel('Password').fill('short123')
   await page.getByRole('button', { name: /create account/i }).click()
 
@@ -84,18 +78,6 @@ test('blank password login shows error', async ({ page }) => {
   await page.getByRole('button', { name: /go!/i }).click()
 
   await expect(page.getByText(/password is required/i)).toBeVisible()
-})
-
-test('blank email signup still works', async ({ page }) => {
-  const uniqueUser = `user${Date.now()}`
-  const password = 'verysecurepass123'
-
-  await page.goto('/signup')
-  await page.getByLabel('Username').fill(uniqueUser)
-  await page.getByLabel('Password').fill(password)
-  await page.getByRole('button', { name: /create account/i }).click()
-
-  await expect(page).toHaveURL(/game-selection/)
 })
 
 test('homepage buttons navigate correctly', async ({ page }) => {

@@ -3,7 +3,6 @@ CREATE TABLE users (
     user_id BIGINT IDENTITY(1,1) PRIMARY KEY,
     username NVARCHAR(100) NOT NULL UNIQUE,
     password_hash NVARCHAR(255) NOT NULL,
-    email NVARCHAR(255),
     created_at DATETIME2 DEFAULT CURRENT_TIMESTAMP
 );
 

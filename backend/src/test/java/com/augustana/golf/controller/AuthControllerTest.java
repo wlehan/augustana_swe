@@ -38,11 +38,10 @@ class AuthControllerTest {
 
     @Test
     void signup_validRequest_returnsCreatedAndResponseBody() throws Exception {
-        SignupRequest request = new SignupRequest("alice", "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "verysecure123");
         AuthResponse response = new AuthResponse(
                 1L,
                 "alice",
-                "alice@example.com",
                 "test-jwt-token",
                 "Signup successful."
         );
@@ -56,7 +55,6 @@ class AuthControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.message").value("Signup successful."));
 
         verify(authService).signup(any(SignupRequest.class));
@@ -64,7 +62,7 @@ class AuthControllerTest {
 
     @Test
     void signup_duplicateUsername_returnsBadRequestAndMessage() throws Exception {
-        SignupRequest request = new SignupRequest("alice", "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "verysecure123");
 
         when(authService.signup(any(SignupRequest.class)))
                 .thenThrow(new IllegalArgumentException("Username already exists."));
@@ -79,7 +77,7 @@ class AuthControllerTest {
 
     @Test
     void signup_shortPassword_returnsBadRequestAndMessage() throws Exception {
-        SignupRequest request = new SignupRequest("alice", "short", "alice@example.com");
+        SignupRequest request = new SignupRequest("alice", "short");
 
         when(authService.signup(any(SignupRequest.class)))
                 .thenThrow(new IllegalArgumentException("Password must be at least 12 characters."));
@@ -93,7 +91,7 @@ class AuthControllerTest {
 
     @Test
     void signup_missingUsername_returnsBadRequestAndMessage() throws Exception {
-        SignupRequest request = new SignupRequest(null, "verysecure123", "alice@example.com");
+        SignupRequest request = new SignupRequest(null, "verysecure123");
 
         when(authService.signup(any(SignupRequest.class)))
                 .thenThrow(new IllegalArgumentException("Username is required."));
@@ -111,7 +109,6 @@ class AuthControllerTest {
         AuthResponse response = new AuthResponse(
                 1L,
                 "alice",
-                "alice@example.com",
                 "test-jwt-token",
                 "Login successful."
         );
@@ -125,7 +122,6 @@ class AuthControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.username").value("alice"))
-                .andExpect(jsonPath("$.email").value("alice@example.com"))
                 .andExpect(jsonPath("$.message").value("Login successful."));
 
         verify(authService).login(any(LoginRequest.class));

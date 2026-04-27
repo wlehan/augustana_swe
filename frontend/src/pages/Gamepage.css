@@ -190,7 +190,7 @@
 .table-layout {
   width: min(1200px, calc(100vw - 64px));
   height: calc(100vh - 40px);
-  margin: -14px auto 0;
+  margin: -70px auto 0;
   display: grid;
   grid-template-areas:
     ". top ."
@@ -212,7 +212,6 @@
   object-fit: cover;
 }
 
-
 .score-ledger {
   position: absolute;
   left: 50%;
@@ -224,9 +223,6 @@
   flex-direction: column;
   align-items: center;
   pointer-events: none;
-}
-
-.score-ledger.open {
 }
 
 .score-ledger:not(.open) .scoreboard-container {
@@ -1059,20 +1055,23 @@
 
 .held-card-bar {
   position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 25%;
+  right: 5%;
+  transform: none;
   z-index: 80;
-  width: min(700px, calc(100vw - 24px));
+  height: 50vh; 
+  min-height: 100px;
+  width: 200px;
   background: rgba(242, 232, 207, 0.97);
   border: 3px solid #111;
   border-bottom: none;
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px 20px 20px 20px;
   padding: 14px 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 30px;
   box-shadow: 0 -6px 22px rgba(0,0,0,0.3);
+  flex-direction: column;
 }
 
 .held-card-label {
@@ -1101,6 +1100,7 @@
   height: 72px !important;
   border: 2px solid rgba(0,0,0,0.2);
   border-radius: 6px;
+  margin: 10px;
 }
 
 .held-card-name {

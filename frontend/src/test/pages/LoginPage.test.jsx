@@ -71,7 +71,6 @@ describe('LoginPage', () => {
     login.mockResolvedValue({
       userId: 1,
       username: 'testuser',
-      email: 'test@example.com',
       token: 'jwt-token',
       message: 'Login successful.',
     })
@@ -98,7 +97,6 @@ describe('LoginPage', () => {
     expect(JSON.parse(localStorage.getItem('demo_user'))).toEqual({
       userId: 1,
       username: 'testuser',
-      email: 'test@example.com',
       token: 'jwt-token',
     })
   })
@@ -130,7 +128,6 @@ describe('LoginPage', () => {
     resolveLogin({
       userId: 1,
       username: 'testuser',
-      email: 'test@example.com',
       token: 'jwt-token',
       message: 'Login successful.',
     })
@@ -186,7 +183,6 @@ describe('LoginPage', () => {
     login.mockResolvedValue({
       userId: 1,
       username: 'testuser',
-      email: 'test@example.com',
       token: 'jwt-token',
       message: 'Login successful.',
     })
@@ -214,7 +210,6 @@ describe('LoginPage', () => {
     login.mockResolvedValue({
       userId: 1,
       username: 'testuser',
-      email: 'test@example.com',
       token: 'jwt-token',
       message: 'Login successful.',
     })
