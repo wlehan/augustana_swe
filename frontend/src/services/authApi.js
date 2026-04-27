@@ -5,11 +5,10 @@ const defaultApiHost =
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${defaultApiHost}:8080`
 
-export async function signup({ username, password, email }) {
+export async function signup({ username, password }) {
   const response = await axios.post(`${API_BASE_URL}/api/auth/signup`, {
     username,
     password,
-    email,
   })
 
   return response.data
