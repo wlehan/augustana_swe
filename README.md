@@ -13,24 +13,24 @@ This website is a digital version of the Golf card game, designed for multiple p
 
 The goal is to provide a clean, accessible way to play Golf with regular playing-card rules without needing manual scorekeeping.
 
-## How The Game Works (Golf Card Game)
+## How The Game Works (6-Golf Card Game)
 
 The objective is to finish with the lowest total score after all rounds.
 
-- Each player has a personal grid of face-down cards (commonly 6 cards in a 2x3 layout).
+- Each player has a personal grid of face-down cards (6 cards in a 2x3 layout).
 - On a turn, a player draws from the deck or discard pile.
 - The player may swap the drawn card with one card in their grid, then discards the replaced card.
-- If they do not want the drawn card, they discard it and usually flip one of their face-down cards (depending on variant rules).
+- If they do not want the drawn card, they discard it and flip one of their face-down cards.
 - A round ends when a player has all cards revealed; other players get one final turn.
-- Scores are added at the end of each round, and the game continues for a set number of rounds.
+- Scores are added at the end of each round, and the game consists of 9 holes (rounds).
 
-Typical scoring (can vary by house rules):
+Scoring:
 
-- Number cards count as face value
+- Number cards count as face value (except for 2s, which are worth -2)
 - Aces count as 1
-- Face cards (J, Q, K) are typically 10
-- Some variants treat Kings as 0
-- Matching columns may cancel out (variant-dependent)
+- Face cards (Jack and Queen) are worth 10
+- Kings are worth 0
+- Matching columns may cancel out (e.g. a column of 4s = 0)
 
 This app is built to support the core Golf loop: draw, replace/discard, reveal, and automatic score tracking across rounds.
 
