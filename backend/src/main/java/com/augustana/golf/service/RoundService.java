@@ -52,8 +52,12 @@ public class RoundService {
 
         List<GamePlayer> players = gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(gameId);
 
-        if (players.isEmpty()) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "At least 1 player is required to start a round");
+        if (players.size() < 2) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "At least 2 players are required to start a round");
+        }
+
+        if (players.size() > 4) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "No more than 4 players can start a round");
         }
 
         boolean activeRoundExists = !roundRepository.findByGame_GameIdAndStatusIn(

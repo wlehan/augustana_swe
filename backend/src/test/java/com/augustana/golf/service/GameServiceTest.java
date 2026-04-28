@@ -81,7 +81,7 @@ class GameServiceTest {
     void createGame_invalidMaxPlayers_throwsApiException() {
         ApiException exception = assertThrows(ApiException.class, () -> gameService.createGame(10L, 5));
 
-        assertTrue(exception.getMessage().contains("maxPlayers must be between 1 and 4"));
+        assertTrue(exception.getMessage().contains("maxPlayers must be between 2 and 4"));
         verify(gameRepository, never()).save(any());
     }
 
@@ -97,6 +97,8 @@ class GameServiceTest {
 
         when(userRepository.findById(10L)).thenReturn(Optional.of(user));
         when(gameRepository.findByGameCode("ABC123")).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdAndUser_UserId(55L, 10L))
+                .thenReturn(Optional.empty());
         when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(55L))
                 .thenReturn(List.of(new GamePlayer()));
 
@@ -140,10 +142,51 @@ class GameServiceTest {
     }
 
     @Test
+    void joinGameByCode_alreadyJoinedInProgress_returnsExistingGame() {
+        User user = new User();
+        user.setUserId(10L);
+        user.setUsername("alice");
+
+        Game game = new Game();
+        setField(game, "gameId", 55L);
+        game.setMaxPlayers(4);
+        game.setStatus(Game.Status.IN_PROGRESS);
+        game.setGameCode("ABC123");
+
+        GamePlayer existingPlayer = new GamePlayer();
+        setField(existingPlayer, "gamePlayerId", 101L);
+        existingPlayer.setGame(game);
+        existingPlayer.setUser(user);
+        existingPlayer.setSeatNumber(1);
+        existingPlayer.setTotalScore(0);
+
+        when(userRepository.findById(10L)).thenReturn(Optional.of(user));
+        when(gameRepository.findByGameCode("ABC123")).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdAndUser_UserId(55L, 10L))
+                .thenReturn(Optional.of(existingPlayer));
+        when(gameRepository.findById(55L)).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(55L))
+                .thenReturn(List.of(existingPlayer));
+
+        GameResponse response = gameService.joinGameByCode(10L, "ABC123");
+
+        assertEquals(55L, response.getGameId());
+        assertEquals("IN_PROGRESS", response.getStatus());
+        assertEquals(101L, response.getPlayers().get(0).gamePlayerId());
+    }
+
+    @Test
     void createGame_maxPlayersZero_throwsApiException() {
         ApiException exception = assertThrows(ApiException.class, () -> gameService.createGame(10L, 0));
 
-        assertTrue(exception.getMessage().contains("maxPlayers must be between 1 and 4"));
+        assertTrue(exception.getMessage().contains("maxPlayers must be between 2 and 4"));
+    }
+
+    @Test
+    void createGame_maxPlayersOne_throwsApiException() {
+        ApiException exception = assertThrows(ApiException.class, () -> gameService.createGame(10L, 1));
+
+        assertTrue(exception.getMessage().contains("maxPlayers must be between 2 and 4"));
     }
 
     @Test
@@ -191,6 +234,8 @@ class GameServiceTest {
 
         when(userRepository.findById(10L)).thenReturn(Optional.of(user));
         when(gameRepository.findByGameCode("ABC123")).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdAndUser_UserId(55L, 10L))
+                .thenReturn(Optional.empty());
 
         ApiException exception = assertThrows(ApiException.class,
                 () -> gameService.joinGameByCode(10L, "ABC123"));
@@ -345,6 +390,99 @@ class GameServiceTest {
         GameResponse response = gameService.joinGameByCode(30L, "ABC123");
 
         assertEquals(3, response.getPlayers().size());
+    }
+
+    @Test
+    void leaveGame_waitingRemovesPlayerAndPromotesNextHost() {
+        User hostUser = new User();
+        hostUser.setUserId(10L);
+        hostUser.setUsername("host");
+
+        User playerUser = new User();
+        playerUser.setUserId(20L);
+        playerUser.setUsername("player2");
+
+        Game game = new Game();
+        setField(game, "gameId", 55L);
+        game.setStatus(Game.Status.WAITING);
+
+        GamePlayer host = new GamePlayer();
+        setField(host, "gamePlayerId", 101L);
+        host.setGame(game);
+        host.setUser(hostUser);
+        host.setSeatNumber(1);
+
+        GamePlayer player2 = new GamePlayer();
+        setField(player2, "gamePlayerId", 102L);
+        player2.setGame(game);
+        player2.setUser(playerUser);
+        player2.setSeatNumber(2);
+
+        when(gameRepository.findById(55L)).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdAndUser_UserId(55L, 10L))
+                .thenReturn(Optional.of(host));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(55L))
+                .thenReturn(List.of(host, player2));
+
+        gameService.leaveGame(55L, 10L);
+
+        verify(gamePlayerRepository).delete(host);
+        verify(gamePlayerRepository).flush();
+        verify(gamePlayerRepository).save(player2);
+        assertEquals(1, player2.getSeatNumber());
+        verify(gameRepository, never()).delete(any());
+    }
+
+    @Test
+    void leaveGame_waitingDeletesEmptyGameWhenLastPlayerLeaves() {
+        User user = new User();
+        user.setUserId(10L);
+
+        Game game = new Game();
+        setField(game, "gameId", 55L);
+        game.setStatus(Game.Status.WAITING);
+
+        GamePlayer player = new GamePlayer();
+        setField(player, "gamePlayerId", 101L);
+        player.setGame(game);
+        player.setUser(user);
+        player.setSeatNumber(1);
+
+        when(gameRepository.findById(55L)).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdAndUser_UserId(55L, 10L))
+                .thenReturn(Optional.of(player));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(55L))
+                .thenReturn(List.of(player));
+
+        gameService.leaveGame(55L, 10L);
+
+        verify(gamePlayerRepository).delete(player);
+        verify(gameRepository).delete(game);
+    }
+
+    @Test
+    void leaveGame_inProgressKeepsSeatForRejoin() {
+        User user = new User();
+        user.setUserId(10L);
+
+        Game game = new Game();
+        setField(game, "gameId", 55L);
+        game.setStatus(Game.Status.IN_PROGRESS);
+
+        GamePlayer player = new GamePlayer();
+        setField(player, "gamePlayerId", 101L);
+        player.setGame(game);
+        player.setUser(user);
+        player.setSeatNumber(1);
+
+        when(gameRepository.findById(55L)).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdAndUser_UserId(55L, 10L))
+                .thenReturn(Optional.of(player));
+
+        gameService.leaveGame(55L, 10L);
+
+        verify(gamePlayerRepository, never()).delete(any());
+        verify(gameRepository, never()).delete(any());
     }
 
     private static void setField(Object target, String fieldName, Object value) {

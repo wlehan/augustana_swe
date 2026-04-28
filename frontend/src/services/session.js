@@ -1,16 +1,16 @@
 const AUTH_STORAGE_KEY = 'demo_user'
+const TAB_AUTH_STORAGE_KEY = 'demo_user_tab'
 const ACTIVE_GAME_STORAGE_KEY = 'active_game'
 
 function hasLocalStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
 }
 
-export function readStoredSession() {
-  if (!hasLocalStorage()) {
-    return null
-  }
+function hasSessionStorage() {
+  return typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined'
+}
 
-  const raw = window.localStorage.getItem(AUTH_STORAGE_KEY)
+function parseSession(raw) {
   if (!raw) {
     return null
   }
@@ -21,6 +21,26 @@ export function readStoredSession() {
   } catch {
     return null
   }
+}
+
+export function readStoredSession() {
+  if (hasSessionStorage()) {
+    const tabSession = parseSession(window.sessionStorage.getItem(TAB_AUTH_STORAGE_KEY))
+    if (tabSession) {
+      return tabSession
+    }
+  }
+
+  if (!hasLocalStorage()) {
+    return null
+  }
+
+  const raw = window.localStorage.getItem(AUTH_STORAGE_KEY)
+  const storedSession = parseSession(raw)
+  if (storedSession && hasSessionStorage()) {
+    window.sessionStorage.setItem(TAB_AUTH_STORAGE_KEY, raw)
+  }
+  return storedSession
 }
 
 export function saveStoredSession(authResponse) {
@@ -34,16 +54,23 @@ export function saveStoredSession(authResponse) {
     token: authResponse.token ?? null,
   }
 
-  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session))
+  const serializedSession = JSON.stringify(session)
+  window.localStorage.setItem(AUTH_STORAGE_KEY, serializedSession)
+
+  if (hasSessionStorage()) {
+    window.sessionStorage.setItem(TAB_AUTH_STORAGE_KEY, serializedSession)
+  }
 }
 
 export function clearStoredSession() {
-  if (!hasLocalStorage()) {
-    return
+  if (hasSessionStorage()) {
+    window.sessionStorage.removeItem(TAB_AUTH_STORAGE_KEY)
   }
 
-  window.localStorage.removeItem(AUTH_STORAGE_KEY)
-  window.localStorage.removeItem(ACTIVE_GAME_STORAGE_KEY)
+  if (hasLocalStorage()) {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY)
+    window.localStorage.removeItem(ACTIVE_GAME_STORAGE_KEY)
+  }
 }
 
 export function getAuthToken() {

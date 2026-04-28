@@ -54,6 +54,15 @@ public class GameController {
         return ResponseEntity.ok(gameService.joinGameByCode(userId, req.getGameCode()));
     }
 
+    @PostMapping("/{gameId}/leave")
+    public ResponseEntity<Void> leaveGame(
+            @PathVariable Long gameId,
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+        Long userId = principal.getUserId();
+        gameService.leaveGame(gameId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{gameId}")
     public ResponseEntity<GameResponse> getGame(@PathVariable Long gameId) {
         return ResponseEntity.ok(gameService.getGame(gameId));

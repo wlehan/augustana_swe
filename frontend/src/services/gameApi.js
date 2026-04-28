@@ -10,6 +10,11 @@ export async function joinGame({ gameCode }) {
   return resp.data
 }
 
+export async function leaveGame({ gameId }) {
+  const resp = await apiClient.post(`/api/games/${gameId}/leave`, {})
+  return resp.data
+}
+
 export async function getGame({ gameId }) {
   const resp = await apiClient.get(`/api/games/${gameId}`)
   return resp.data

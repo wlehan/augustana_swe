@@ -10,7 +10,13 @@
   overflow: hidden;
 }
 
-.settings-gear { top: 20px; left: 20px; position: absolute; width: 60px; }
+.game-container .settings-gear {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 60px;
+  z-index: 260;
+}
 .top-profile { top: 20px; right: 20px; position: absolute; width: 60px; height: 60px; }
 
 .top-profile-btn {
@@ -100,7 +106,7 @@
 
 .help-button {
   position: absolute;
-  bottom: 20px;
+  bottom: 82px;
   left: 20px;
   width: 50px;
   height: 50px;
@@ -126,15 +132,21 @@
   justify-content: center;
   align-items: center;
   z-index: 400;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .help-popup {
-  width: min(90vw, 500px);
+  width: min(92vw, 560px);
+  max-height: calc(100vh - 40px);
   background: #f2e8cf;
   border: 3px solid #000;
   border-radius: 16px;
 
   padding: 32px 36px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
   color: #111;
@@ -159,6 +171,10 @@
 .help-popup ul {
   margin: 6px 0 12px 18px;
   padding: 0;
+}
+
+.help-popup li {
+  margin-bottom: 4px;
 }
 
 .help-close-btn {
@@ -226,13 +242,16 @@
 }
 
 .score-ledger:not(.open) .scoreboard-container {
-  transform: translateY(calc(100% + 6px));
+  transform: translateY(calc(100% + 96px));
 }
 
 .ledger-toggle {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 90;
   border: 2px solid #111;
-  border-bottom: 0;
-  border-radius: 12px 12px 0 0;
+  border-radius: 12px;
   padding: 7px 14px;
   background: #a7c957;
   color: #1f1f1f;
@@ -242,13 +261,15 @@
   cursor: pointer;
   display: block;
   margin-right: 0;
-  margin-bottom: -1px;
   min-width: 180px;
   text-align: center;
   transition: background 120ms ease, transform 120ms ease;
-  position: relative;
-  z-index: 2;
   pointer-events: auto;
+}
+
+.ledger-toggle:hover {
+  background: #b9d86f;
+  transform: translateY(-1px);
 }
 
 .scoreboard-container {
@@ -360,7 +381,10 @@
   z-index: 20;
 }
 
-.settings-gear { top: 20px; left: 20px; }
+.game-container .settings-gear {
+  top: 20px;
+  left: 20px;
+}
 .top-profile { top: 20px; right: 20px; width: 60px; height: 60px; }
 .top-profile-img.profile-image {
   width: 60px;
@@ -380,6 +404,10 @@
   align-items: center;
   padding: 0 20px;
   position: relative;
+}
+
+.player-area.empty {
+  pointer-events: none;
 }
 
 .score-chip {
@@ -453,42 +481,51 @@
   align-items: center;
 }
 
-.top { grid-area: top;
+.player-area.top {
+  grid-area: top;
   display: flex; 
   justify-content: center; 
   align-items: center;
 }
-.top .player-profile-img {
+
+.player-area.top .player-profile-img {
   margin-bottom: 14px;
 }
-.bottom { 
+
+.player-area.bottom {
   grid-area: bottom;
   display: flex;
   justify-content: center;
   align-items: center;
   padding-bottom: 30px;
 }
-.left { 
+
+.player-area.left {
   grid-area: left; 
   flex-direction: row; 
   justify-content: flex-end;
 }
-.right { 
+
+.player-area.right {
   grid-area: right; 
   flex-direction: row-reverse; 
   justify-content: flex-end;
 }
-.left .player-profile-img,
-.right .player-profile-img {
+
+.player-area.left .player-profile-img,
+.player-area.right .player-profile-img {
   margin: 0 14px;
 }
-.center { 
+
+.player-area.center {
   grid-area: center; 
   display: flex; 
   align-items: center; 
   justify-content: center;
 }
-  .left .card-grid, .right .card-grid{
+
+.player-area.left .card-grid,
+.player-area.right .card-grid {
   transform: rotate(90deg);
   margin: -10px;
 }
@@ -1374,6 +1411,33 @@
 
 
 @media (max-width: 600px) {
+  .help-overlay {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .help-popup {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    padding: 20px 22px;
+    border-radius: 14px;
+  }
+
+  .help-popup h2 {
+    font-size: 22px;
+  }
+
+  .help-popup h3 {
+    font-size: 16px;
+    margin-top: 12px;
+  }
+
+  .help-popup p,
+  .help-popup li {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
   .held-card-bar {
     gap: 10px;
     padding: 10px 14px;

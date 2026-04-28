@@ -10,7 +10,7 @@ public class GameResponse {
     private int currentRound;
     private List<PlayerInGame> players;
 
-    public record PlayerInGame(Long userId, String username, int seatNumber, int totalScore) {}
+    public record PlayerInGame(Long gamePlayerId, Long userId, String username, int seatNumber, int totalScore) {}
 
     // getters/setters
     public Long getGameId() { return gameId; }

@@ -23,6 +23,7 @@ describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.clear()
+    sessionStorage.clear()
   })
 
   test('renders login page and accepts typing', async () => {

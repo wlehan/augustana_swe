@@ -64,8 +64,8 @@ class RequestDtosGameResponseTest {
     void gameResponse_setPlayers_works() {
         GameResponse response = new GameResponse();
         List<GameResponse.PlayerInGame> players = new ArrayList<>();
-        players.add(new GameResponse.PlayerInGame(1L, "alice", 1, 0));
-        players.add(new GameResponse.PlayerInGame(2L, "bob", 2, 5));
+        players.add(new GameResponse.PlayerInGame(101L, 1L, "alice", 1, 0));
+        players.add(new GameResponse.PlayerInGame(102L, 2L, "bob", 2, 5));
         
         response.setPlayers(players);
         
@@ -76,8 +76,9 @@ class RequestDtosGameResponseTest {
 
     @Test
     void gameResponse_playerInGame_record_hasAllFields() {
-        GameResponse.PlayerInGame player = new GameResponse.PlayerInGame(10L, "player1", 1, 50);
+        GameResponse.PlayerInGame player = new GameResponse.PlayerInGame(100L, 10L, "player1", 1, 50);
         
+        assertEquals(100L, player.gamePlayerId());
         assertEquals(10L, player.userId());
         assertEquals("player1", player.username());
         assertEquals(1, player.seatNumber());
@@ -88,9 +89,9 @@ class RequestDtosGameResponseTest {
     void gameResponse_playerInGame_multiplePlayers() {
         GameResponse response = new GameResponse();
         List<GameResponse.PlayerInGame> players = List.of(
-            new GameResponse.PlayerInGame(1L, "alice", 1, 10),
-            new GameResponse.PlayerInGame(2L, "bob", 2, 20),
-            new GameResponse.PlayerInGame(3L, "charlie", 3, 30)
+            new GameResponse.PlayerInGame(101L, 1L, "alice", 1, 10),
+            new GameResponse.PlayerInGame(102L, 2L, "bob", 2, 20),
+            new GameResponse.PlayerInGame(103L, 3L, "charlie", 3, 30)
         );
         response.setPlayers(players);
         

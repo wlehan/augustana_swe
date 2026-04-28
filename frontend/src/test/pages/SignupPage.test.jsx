@@ -23,6 +23,7 @@ describe('SignupPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.clear()
+    sessionStorage.clear()
   })
 
   test('renders signup page and password progress text updates', async () => {

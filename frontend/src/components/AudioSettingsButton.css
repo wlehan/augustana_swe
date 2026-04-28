@@ -71,8 +71,17 @@
   margin-bottom: 0;
 }
 
+.settings-item:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
 .settings-item.danger {
   background: #f5d4cd;
+}
+
+.settings-item.danger:hover:not(:disabled) {
+  background: #efbeb4;
 }
 
 .toggle-pill {
