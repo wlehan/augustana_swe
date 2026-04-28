@@ -974,14 +974,6 @@
   animation: flipReveal 300ms ease-in-out forwards;
 }
 
-.center-pile-card.discard-pile {
-  width: 130px;
-  height: 130px;
-  top: 5px;
-}
-
-
-
 .turn-banner {
   position: absolute;
   top: 72px;
