@@ -12,6 +12,7 @@ import {
   flipInitialCard,
   getGame,
   getGameState,
+  leaveGame,
   startGame,
   swapCard,
 } from '../services/gameApi';
@@ -219,6 +220,7 @@ export default function GamePage() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
+  const [leavingGame, setLeavingGame] = useState(false);
   const [startError, setStartError] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
 
@@ -527,6 +529,28 @@ export default function GamePage() {
     } finally { setStartingGame(false); }
   };
 
+  const handleLeaveGame = async () => {
+    if (!gameId || leavingGame) return;
+
+    setLeavingGame(true);
+    setActionError('');
+    setStartError('');
+
+    try {
+      await leaveGame({ gameId });
+      localStorage.removeItem('active_game');
+      navigate('/game-selection');
+    } catch (e) {
+      if (isUnauthorizedError(e)) {
+        redirectToLogin();
+        return;
+      }
+      setActionError(e?.response?.data?.message || e?.response?.data?.error || 'Could not leave game.');
+    } finally {
+      setLeavingGame(false);
+    }
+  };
+
 
   const handleFlipInitial = (position) => {
     if (myInitialFlips >= 2) return;
@@ -618,7 +642,16 @@ export default function GamePage() {
         iconSrc={gearIcon}
         iconAlt="Settings"
         className="settings-gear"
-      />
+      >
+        <button
+          className="settings-item danger"
+          type="button"
+          onClick={handleLeaveGame}
+          disabled={leavingGame}
+        >
+          <span>{leavingGame ? 'Leaving...' : 'Leave game'}</span>
+        </button>
+      </AudioSettingsButton>
       <button
         type="button"
         className="top-profile top-profile-btn"

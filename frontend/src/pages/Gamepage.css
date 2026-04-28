@@ -10,7 +10,13 @@
   overflow: hidden;
 }
 
-.settings-gear { top: 20px; left: 20px; position: absolute; width: 60px; }
+.game-container .settings-gear {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 60px;
+  z-index: 260;
+}
 .top-profile { top: 20px; right: 20px; position: absolute; width: 60px; height: 60px; }
 
 .top-profile-btn {
@@ -375,7 +381,10 @@
   z-index: 20;
 }
 
-.settings-gear { top: 20px; left: 20px; }
+.game-container .settings-gear {
+  top: 20px;
+  left: 20px;
+}
 .top-profile { top: 20px; right: 20px; width: 60px; height: 60px; }
 .top-profile-img.profile-image {
   width: 60px;

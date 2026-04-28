@@ -70,13 +70,13 @@ public class GameService {
         Game game = gameRepository.findByGameCode(gameCode.trim())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
 
-        if (game.getStatus() != Game.Status.WAITING) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Game is not joinable");
-        }
-
         // already joined?
         if (gamePlayerRepository.findByGame_GameIdAndUser_UserId(game.getGameId(), userId).isPresent()) {
             return toResponse(game.getGameId());
+        }
+
+        if (game.getStatus() != Game.Status.WAITING) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Game is not joinable");
         }
 
         List<GamePlayer> existingPlayers = gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(game.getGameId());
@@ -98,6 +98,38 @@ public class GameService {
         gamePlayerRepository.save(gp);
 
         return toResponse(game.getGameId());
+    }
+
+    @Transactional
+    public void leaveGame(Long gameId, Long userId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
+
+        GamePlayer player = gamePlayerRepository.findByGame_GameIdAndUser_UserId(gameId, userId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Player is not in this game"));
+
+        if (game.getStatus() != Game.Status.WAITING) {
+            return;
+        }
+
+        List<GamePlayer> players = gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(gameId);
+        List<GamePlayer> remainingPlayers = players.stream()
+                .filter(p -> !p.getGamePlayerId().equals(player.getGamePlayerId()))
+                .toList();
+
+        gamePlayerRepository.delete(player);
+        gamePlayerRepository.flush();
+
+        if (remainingPlayers.isEmpty()) {
+            gameRepository.delete(game);
+            return;
+        }
+
+        if (player.getSeatNumber() == 1) {
+            GamePlayer nextHost = remainingPlayers.get(0);
+            nextHost.setSeatNumber(1);
+            gamePlayerRepository.save(nextHost);
+        }
     }
 
     @Transactional(readOnly = true)
