@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,19 +44,14 @@ class RoundServiceTest {
     void startRound_success_createsRoundAndDealsCards() {
         Game game = new Game();
         setField(game, "gameId", 100L);
-        game.setMaxPlayers(1);
+        game.setMaxPlayers(4);
         game.setStatus(Game.Status.WAITING);
 
-        User user = new User();
-        user.setUserId(10L);
-
-        GamePlayer player = new GamePlayer();
-        setField(player, "gamePlayerId", 1L);
-        player.setSeatNumber(1);
-        player.setUser(user);
+        GamePlayer player1 = createPlayer(1L, 10L, 1);
+        GamePlayer player2 = createPlayer(2L, 20L, 2);
 
         when(gameRepository.findById(100L)).thenReturn(Optional.of(game));
-        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L)).thenReturn(List.of(player));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L)).thenReturn(List.of(player1, player2));
         when(roundRepository.findByGame_GameIdAndStatusIn(eq(100L), any())).thenReturn(List.of());
         when(roundRepository.findTopByGame_GameIdOrderByRoundNumberDesc(100L)).thenReturn(Optional.empty());
         when(roundRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -67,6 +63,7 @@ class RoundServiceTest {
         assertEquals(1, round.getRoundNumber());
         assertEquals(Round.Status.SETUP, round.getStatus());
         assertNotNull(round.getCurrentTurnGamePlayer());
+        assertEquals(player1, round.getCurrentTurnGamePlayer());
         verify(golfCardRepository).saveAll(any());
         verify(gameRepository).save(game);
     }
@@ -77,7 +74,8 @@ class RoundServiceTest {
         setField(game, "gameId", 100L);
 
         when(gameRepository.findById(100L)).thenReturn(Optional.of(game));
-        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L)).thenReturn(List.of(new GamePlayer()));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L))
+                .thenReturn(List.of(createPlayer(1L, 10L, 1), createPlayer(2L, 20L, 2)));
         when(roundRepository.findByGame_GameIdAndStatusIn(eq(100L), any())).thenReturn(List.of(new Round()));
 
         ApiException exception = assertThrows(ApiException.class, () -> roundService.startRound(100L));
@@ -169,29 +167,37 @@ class RoundServiceTest {
         when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L)).thenReturn(List.of());
 
         ApiException exception = assertThrows(ApiException.class, () -> roundService.startRound(100L));
-        assertTrue(exception.getMessage().contains("At least 1 player is required"));
+        assertTrue(exception.getMessage().contains("At least 2 players are required"));
+    }
+
+    @Test
+    void startRound_onePlayer_throwsApiException() {
+        Game game = new Game();
+        setField(game, "gameId", 100L);
+
+        when(gameRepository.findById(100L)).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L))
+                .thenReturn(List.of(createPlayer(1L, 10L, 1)));
+
+        ApiException exception = assertThrows(ApiException.class, () -> roundService.startRound(100L));
+        assertTrue(exception.getMessage().contains("At least 2 players are required"));
     }
 
     @Test
     void startRound_nextRoundNumberIncrements() {
         Game game = new Game();
         setField(game, "gameId", 100L);
-        game.setMaxPlayers(1);
+        game.setMaxPlayers(4);
         game.setStatus(Game.Status.WAITING);
 
-        User user = new User();
-        user.setUserId(10L);
-
-        GamePlayer player = new GamePlayer();
-        setField(player, "gamePlayerId", 1L);
-        player.setSeatNumber(1);
-        player.setUser(user);
+        GamePlayer player1 = createPlayer(1L, 10L, 1);
+        GamePlayer player2 = createPlayer(2L, 20L, 2);
 
         Round previousRound = new Round();
         previousRound.setRoundNumber(1);
 
         when(gameRepository.findById(100L)).thenReturn(Optional.of(game));
-        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L)).thenReturn(List.of(player));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L)).thenReturn(List.of(player1, player2));
         when(roundRepository.findByGame_GameIdAndStatusIn(eq(100L), any())).thenReturn(List.of());
         when(roundRepository.findTopByGame_GameIdOrderByRoundNumberDesc(100L)).thenReturn(Optional.of(previousRound));
         when(roundRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -227,38 +233,68 @@ class RoundServiceTest {
     void startRound_withMultiplePlayers_dealsCorrectly() {
         Game game = new Game();
         setField(game, "gameId", 100L);
-        game.setMaxPlayers(2);
+        game.setMaxPlayers(4);
         game.setStatus(Game.Status.WAITING);
 
-        User user1 = new User();
-        user1.setUserId(10L);
-
-        GamePlayer player1 = new GamePlayer();
-        setField(player1, "gamePlayerId", 1L);
-        player1.setSeatNumber(1);
-        player1.setUser(user1);
-
-        User user2 = new User();
-        user2.setUserId(20L);
-
-        GamePlayer player2 = new GamePlayer();
-        setField(player2, "gamePlayerId", 2L);
-        player2.setSeatNumber(2);
-        player2.setUser(user2);
+        GamePlayer player1 = createPlayer(1L, 10L, 1);
+        GamePlayer player2 = createPlayer(2L, 20L, 2);
+        List<GolfCard> savedCards = new ArrayList<>();
 
         when(gameRepository.findById(100L)).thenReturn(Optional.of(game));
         when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L)).thenReturn(List.of(player1, player2));
         when(roundRepository.findByGame_GameIdAndStatusIn(eq(100L), any())).thenReturn(List.of());
         when(roundRepository.findTopByGame_GameIdOrderByRoundNumberDesc(100L)).thenReturn(Optional.empty());
         when(roundRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(golfCardRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(golfCardRepository.saveAll(any())).thenAnswer(invocation -> captureSavedCards(invocation.getArgument(0), savedCards));
         when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Round round = roundService.startRound(100L);
 
         assertEquals(1, round.getRoundNumber());
         assertEquals(Round.Status.SETUP, round.getStatus());
-        verify(golfCardRepository).saveAll(any()); // 12 grid + draw pile
+
+        assertEquals(52, savedCards.size());
+        assertEquals(12, savedCards.stream().filter(c -> c.getPile() == GolfCard.Pile.GRID).count());
+        assertEquals(39, savedCards.stream().filter(c -> c.getPile() == GolfCard.Pile.DRAW).count());
+        assertEquals(1, savedCards.stream().filter(c -> c.getPile() == GolfCard.Pile.DISCARD).count());
+        assertEquals(6, savedCards.stream().filter(c -> isGridCardFor(c, player1)).count());
+        assertEquals(6, savedCards.stream().filter(c -> isGridCardFor(c, player2)).count());
+    }
+
+    @Test
+    void startRound_withFourPlayers_dealsSixGridCardsEachAndOneDiscard() {
+        Game game = new Game();
+        setField(game, "gameId", 100L);
+        game.setMaxPlayers(4);
+        game.setStatus(Game.Status.WAITING);
+
+        GamePlayer player1 = createPlayer(1L, 10L, 1);
+        GamePlayer player2 = createPlayer(2L, 20L, 2);
+        GamePlayer player3 = createPlayer(3L, 30L, 3);
+        GamePlayer player4 = createPlayer(4L, 40L, 4);
+        List<GolfCard> savedCards = new ArrayList<>();
+
+        when(gameRepository.findById(100L)).thenReturn(Optional.of(game));
+        when(gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(100L))
+                .thenReturn(List.of(player1, player2, player3, player4));
+        when(roundRepository.findByGame_GameIdAndStatusIn(eq(100L), any())).thenReturn(List.of());
+        when(roundRepository.findTopByGame_GameIdOrderByRoundNumberDesc(100L)).thenReturn(Optional.empty());
+        when(roundRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(golfCardRepository.saveAll(any())).thenAnswer(invocation -> captureSavedCards(invocation.getArgument(0), savedCards));
+        when(gameRepository.save(any(Game.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Round round = roundService.startRound(100L);
+
+        assertEquals(player1, round.getCurrentTurnGamePlayer());
+
+        assertEquals(52, savedCards.size());
+        assertEquals(24, savedCards.stream().filter(c -> c.getPile() == GolfCard.Pile.GRID).count());
+        assertEquals(27, savedCards.stream().filter(c -> c.getPile() == GolfCard.Pile.DRAW).count());
+        assertEquals(1, savedCards.stream().filter(c -> c.getPile() == GolfCard.Pile.DISCARD).count());
+        assertEquals(6, savedCards.stream().filter(c -> isGridCardFor(c, player1)).count());
+        assertEquals(6, savedCards.stream().filter(c -> isGridCardFor(c, player2)).count());
+        assertEquals(6, savedCards.stream().filter(c -> isGridCardFor(c, player3)).count());
+        assertEquals(6, savedCards.stream().filter(c -> isGridCardFor(c, player4)).count());
     }
 
     @Test
@@ -414,5 +450,30 @@ class RoundServiceTest {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static GamePlayer createPlayer(Long gamePlayerId, Long userId, int seatNumber) {
+        User user = new User();
+        user.setUserId(userId);
+
+        GamePlayer player = new GamePlayer();
+        setField(player, "gamePlayerId", gamePlayerId);
+        player.setSeatNumber(seatNumber);
+        player.setUser(user);
+        player.setTotalScore(0);
+        return player;
+    }
+
+    private static Iterable<GolfCard> captureSavedCards(Iterable<GolfCard> cards, List<GolfCard> savedCards) {
+        for (GolfCard card : cards) {
+            savedCards.add(card);
+        }
+        return cards;
+    }
+
+    private static boolean isGridCardFor(GolfCard card, GamePlayer player) {
+        return card.getPile() == GolfCard.Pile.GRID
+                && card.getOwnerGamePlayer() != null
+                && card.getOwnerGamePlayer().getGamePlayerId().equals(player.getGamePlayerId());
     }
 }

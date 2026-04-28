@@ -397,6 +397,10 @@
   position: relative;
 }
 
+.player-area.empty {
+  pointer-events: none;
+}
+
 .score-chip {
   position: absolute;
   display: flex;
@@ -468,42 +472,51 @@
   align-items: center;
 }
 
-.top { grid-area: top;
+.player-area.top {
+  grid-area: top;
   display: flex; 
   justify-content: center; 
   align-items: center;
 }
-.top .player-profile-img {
+
+.player-area.top .player-profile-img {
   margin-bottom: 14px;
 }
-.bottom { 
+
+.player-area.bottom {
   grid-area: bottom;
   display: flex;
   justify-content: center;
   align-items: center;
   padding-bottom: 30px;
 }
-.left { 
+
+.player-area.left {
   grid-area: left; 
   flex-direction: row; 
   justify-content: flex-end;
 }
-.right { 
+
+.player-area.right {
   grid-area: right; 
   flex-direction: row-reverse; 
   justify-content: flex-end;
 }
-.left .player-profile-img,
-.right .player-profile-img {
+
+.player-area.left .player-profile-img,
+.player-area.right .player-profile-img {
   margin: 0 14px;
 }
-.center { 
+
+.player-area.center {
   grid-area: center; 
   display: flex; 
   align-items: center; 
   justify-content: center;
 }
-  .left .card-grid, .right .card-grid{
+
+.player-area.left .card-grid,
+.player-area.right .card-grid {
   transform: rotate(90deg);
   margin: -10px;
 }

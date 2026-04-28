@@ -10,6 +10,7 @@ vi.mock('react-router-dom', () => ({
 describe('GameSelectionPage', () => {
   beforeEach(() => {
     localStorage.clear()
+    sessionStorage.clear()
     mockNavigate.mockReset()
   })
 

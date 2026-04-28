@@ -81,7 +81,7 @@ class GameServiceTest {
     void createGame_invalidMaxPlayers_throwsApiException() {
         ApiException exception = assertThrows(ApiException.class, () -> gameService.createGame(10L, 5));
 
-        assertTrue(exception.getMessage().contains("maxPlayers must be between 1 and 4"));
+        assertTrue(exception.getMessage().contains("maxPlayers must be between 2 and 4"));
         verify(gameRepository, never()).save(any());
     }
 
@@ -143,7 +143,14 @@ class GameServiceTest {
     void createGame_maxPlayersZero_throwsApiException() {
         ApiException exception = assertThrows(ApiException.class, () -> gameService.createGame(10L, 0));
 
-        assertTrue(exception.getMessage().contains("maxPlayers must be between 1 and 4"));
+        assertTrue(exception.getMessage().contains("maxPlayers must be between 2 and 4"));
+    }
+
+    @Test
+    void createGame_maxPlayersOne_throwsApiException() {
+        ApiException exception = assertThrows(ApiException.class, () -> gameService.createGame(10L, 1));
+
+        assertTrue(exception.getMessage().contains("maxPlayers must be between 2 and 4"));
     }
 
     @Test

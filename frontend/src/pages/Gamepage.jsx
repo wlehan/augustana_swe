@@ -120,6 +120,12 @@ function normalizeId(v) {
 
 const PLAYER_HAND_SLOTS = [1, 2, 3, 4, 5, 6];
 
+function getOpponentPositionOrder(opponentCount) {
+  if (opponentCount <= 1) return ['top'];
+  if (opponentCount === 2) return ['left', 'right'];
+  return ['left', 'top', 'right'];
+}
+
 function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
   const cardsByPosition = useMemo(
     () => new Map((playerMeta?.cards || []).map((c) => [c.position, c])),
@@ -154,22 +160,22 @@ function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
     }
   }, [cardsByPosition]);
 
+  if (!playerMeta) {
+    return <div className={`player-area ${position} empty`} aria-hidden="true" />;
+  }
+
   return (
     <div className={`player-area ${position}`}>
-      {playerMeta && (
-        <div className={`score-chip ${position}`}>
-          <span className="score-chip-name">{playerMeta.name}</span>
-          <span className="score-chip-total">{playerMeta.total}</span>
-        </div>
-      )}
+      <div className={`score-chip ${position}`}>
+        <span className="score-chip-name">{playerMeta.name}</span>
+        <span className="score-chip-total">{playerMeta.total}</span>
+      </div>
 
-      {playerMeta && (
-        <img
-          src={playerMeta.profileImage || profileIcon}
-          className="player-profile-img"
-          alt={`${playerMeta.name} profile`}
-        />
-      )}
+      <img
+        src={playerMeta.profileImage || profileIcon}
+        className="player-profile-img"
+        alt={`${playerMeta.name} profile`}
+      />
 
       <div className="card-grid">
         {PLAYER_HAND_SLOTS.map((slot, index) => {
@@ -398,16 +404,30 @@ export default function GamePage() {
     return Boolean(a.name) && (a.name || '').trim().toLowerCase() === (b.name || '').trim().toLowerCase();
   };
 
-  const otherPlayers = currentUserPlayer
-    ? playerScores.filter((p) => !isSamePlayer(p, currentUserPlayer))
-    : [...playerScores];
-
   const playersByPosition = { top: null, left: null, right: null, bottom: null };
-  if (currentUserPlayer) {
-    playersByPosition.bottom = currentUserPlayer;
-    ['top', 'left', 'right'].forEach((pos, i) => { playersByPosition[pos] = otherPlayers[i] || null; });
-  } else {
-    ['top', 'left', 'right', 'bottom'].forEach((pos, i) => { playersByPosition[pos] = otherPlayers[i] || null; });
+  const currentPlayerIndex = currentUserPlayer
+    ? playerScores.findIndex((p) => isSamePlayer(p, currentUserPlayer))
+    : -1;
+
+  if (currentPlayerIndex >= 0) {
+    const rotatedOpponents = [
+      ...playerScores.slice(currentPlayerIndex + 1),
+      ...playerScores.slice(0, currentPlayerIndex),
+    ];
+    const opponentPositionOrder = getOpponentPositionOrder(rotatedOpponents.length);
+
+    playersByPosition.bottom = playerScores[currentPlayerIndex];
+    opponentPositionOrder.forEach((pos, i) => {
+      playersByPosition[pos] = rotatedOpponents[i] || null;
+    });
+  } else if (playerScores.length > 0) {
+    const [fallbackPlayer, ...fallbackOpponents] = playerScores;
+    const opponentPositionOrder = getOpponentPositionOrder(fallbackOpponents.length);
+
+    playersByPosition.bottom = fallbackPlayer;
+    opponentPositionOrder.forEach((pos, i) => {
+      playersByPosition[pos] = fallbackOpponents[i] || null;
+    });
   }
 
   const isHost = Boolean(
@@ -867,7 +887,7 @@ export default function GamePage() {
               <div className="host-lobby-players-title">Players in game</div>
               {waitingPlayers.map((player) => (
                 <div
-                  key={player.userId ?? player.gamePlayerId ?? `${player.username}-${player.seatNumber}`}
+                  key={player.gamePlayerId ?? player.userId ?? `${player.username}-${player.seatNumber}`}
                   className="host-lobby-player-row"
                 >
                   <span className="host-lobby-player-name">

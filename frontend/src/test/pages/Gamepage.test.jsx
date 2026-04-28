@@ -19,6 +19,7 @@ describe('GamePage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.clear()
+    sessionStorage.clear()
     localStorage.setItem('demo_user', JSON.stringify({ userId: 10, username: 'player1', token: 'token' }))
   })
 

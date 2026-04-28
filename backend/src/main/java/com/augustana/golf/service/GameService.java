@@ -34,8 +34,8 @@ public class GameService {
 
     @Transactional
     public GameResponse createGame(Long userId, int maxPlayers) {
-        if (maxPlayers < 1 || maxPlayers > 4) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "maxPlayers must be between 1 and 4");
+        if (maxPlayers < 2 || maxPlayers > 4) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "maxPlayers must be between 2 and 4");
         }
 
         User user = userRepository.findById(userId)
@@ -120,6 +120,7 @@ public class GameService {
 
         resp.setPlayers(players.stream()
                 .map(p -> new GameResponse.PlayerInGame(
+                        p.getGamePlayerId(),
                         p.getUser().getUserId(),
                         p.getUser().getUsername(),
                         p.getSeatNumber(),
