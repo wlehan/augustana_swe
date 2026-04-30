@@ -1,0 +1,211 @@
+.playing-card-img {
+  width: 110%;
+  height: 110%;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+}
+
+.dealt-card {
+  border: none;
+  background: transparent;
+  opacity: 0;
+  transform: translateY(26px) scale(0.92);
+  animation: dealIn 420ms ease-out forwards;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.center-pile-card {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.pile-count-badge {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #f2e8cf;
+  color: #1f1f1f;
+  border: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.discard-placeholder {
+  color: #fff;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+}
+
+@keyframes dealIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes flipReveal {
+  0%   { transform: scaleX(1);   }
+  50%  { transform: scaleX(0);   }
+  100% { transform: scaleX(1);   }
+}
+
+.card-flip-anim {
+  animation: flipReveal 300ms ease-in-out forwards;
+}
+
+.pile-active {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #a7c957, 0 0 18px rgba(167, 201, 87, 0.55);
+  border-radius: 8px;
+  transition: box-shadow 120ms ease, transform 120ms ease;
+}
+
+.pile-active:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 0 0 4px #a7c957, 0 0 24px rgba(167, 201, 87, 0.7);
+}
+
+.card-hl-setup {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #f0c040, 0 0 14px rgba(240, 192, 64, 0.5);
+  border-radius: 8px;
+}
+
+.card-hl-setup:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 0 4px #f0c040, 0 0 20px rgba(240, 192, 64, 0.7);
+}
+
+.card-hl-swap {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #a7c957, 0 0 14px rgba(167, 201, 87, 0.5);
+  border-radius: 8px;
+}
+
+.card-hl-swap:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 0 4px #a7c957, 0 0 20px rgba(167, 201, 87, 0.7);
+}
+
+.card-hl-flip {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #e07030, 0 0 14px rgba(224, 112, 48, 0.5);
+  border-radius: 8px;
+}
+
+.card-hl-flip:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 0 4px #e07030, 0 0 20px rgba(224, 112, 48, 0.7);
+}
+
+.held-card-bar {
+  position: fixed;
+  top: 25%;
+  right: 5%;
+  transform: none;
+  z-index: 80;
+  height: 50vh;
+  min-height: 100px;
+  width: 200px;
+  background: rgba(242, 232, 207, 0.97);
+  border: 3px solid #111;
+  border-bottom: none;
+  border-radius: 20px 20px 20px 20px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  box-shadow: 0 -6px 22px rgba(0,0,0,0.3);
+  flex-direction: column;
+}
+
+.held-card-label {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.held-card-preview {
+  flex-shrink: 0;
+}
+
+.held-card-copy {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.held-card-slot {
+  width: 56px !important;
+  height: 72px !important;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 6px;
+  margin: 10px;
+}
+
+.held-card-name {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.held-card-instructions {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.3;
+}
+
+.discard-btn {
+  flex-shrink: 0;
+  border: 2px solid #c0392b;
+  border-radius: 10px;
+  background: #e74c3c;
+  color: #fff;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.discard-btn:hover { background: #c0392b; }
+.discard-btn:active { transform: translateY(1px); }
+.discard-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.discard-cancel-btn {
+  flex-shrink: 0;
+  border: 2px solid #888;
+  border-radius: 10px;
+  background: #ccc;
+  color: #333;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.discard-cancel-btn:hover { background: #bbb; }

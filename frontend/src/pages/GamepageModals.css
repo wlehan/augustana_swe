@@ -1,0 +1,516 @@
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 400;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.help-popup {
+  width: min(92vw, 560px);
+  max-height: calc(100vh - 40px);
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 16px;
+
+  padding: 32px 36px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+  color: #111;
+
+  text-align: left;
+}
+
+.help-popup h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.help-popup h3 {
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+.help-popup p {
+  margin: 8px 0;
+}
+
+.help-popup ul {
+  margin: 6px 0 12px 18px;
+  padding: 0;
+}
+
+.help-popup li {
+  margin-bottom: 4px;
+}
+
+.help-close-btn {
+  margin-top: 16px;
+  padding: 8px 16px;
+
+  background-color: #92b74a;
+  color: #fff8e6;
+
+  border: 2px solid #000;
+  border-radius: 10px;
+
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.help-close-btn:hover {
+  background-color: #a7c957;
+}
+
+.help-close-btn:active {
+  transform: translateY(1px);
+}
+
+.lobby-banner,
+.lobby-code-banner {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 12px 16px;
+  border-radius: 16px;
+
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  min-width: 260px;
+}
+
+.lobby-banner-left,
+.lobby-code-left {
+  display: grid;
+  gap: 4px;
+}
+
+.lobby-label,
+.lobby-code-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.lobby-code,
+.lobby-code-value {
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 7px;
+  line-height: 1;
+
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.lobby-copy-btn {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+
+  border-radius: 12px;
+  padding: 10px 14px;
+
+  font-weight: 800;
+  cursor: pointer;
+
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.lobby-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.lobby-copy-btn:active {
+  transform: translateY(0px);
+}
+
+.lobby-copy-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lobby-error {
+  position: absolute;
+  top: 82px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: rgba(130, 25, 25, 0.85);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+}
+
+.host-lobby-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.36);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 180;
+  padding: 20px;
+}
+
+.host-lobby-card {
+  width: min(92vw, 520px);
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  padding: 24px;
+}
+
+.host-lobby-title {
+  margin: 0 0 14px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 30px;
+  color: #000;
+}
+
+.host-lobby-code-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #fff9e9;
+}
+
+.host-lobby-code-label {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.host-lobby-code-value {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #1f1f1f;
+}
+
+.host-lobby-players {
+  margin-top: 14px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #fff9e9;
+  padding: 10px;
+}
+
+.host-lobby-players-title {
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+  color: #1f1f1f;
+}
+
+.host-lobby-player-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 14px;
+  color: #1f1f1f;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.host-lobby-player-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.host-lobby-player-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.host-lobby-player-img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: #fff9e9;
+  object-fit: cover;
+}
+
+.host-lobby-player-row + .host-lobby-player-row {
+  margin-top: 6px;
+}
+
+.host-start-btn {
+  width: 100%;
+  margin-top: 14px;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #92b74a;
+  color: #fff8e6;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 10px 14px;
+  cursor: pointer;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.host-start-btn:hover {
+  background: #a7c957;
+}
+
+.host-start-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.host-lobby-error {
+  margin-top: 10px;
+  border-radius: 10px;
+  background: rgba(130, 25, 25, 0.85);
+  color: #fff;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
+.host-copy-btn {
+  border: 2px solid #000;
+  border-radius: 10px;
+  background: #92b74a;
+  color: #fff8e6;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+
+.host-copy-btn:hover {
+  background: #a7c957;
+}
+
+.host-copy-btn:active {
+  transform: translateY(1px);
+}
+
+.host-copy-btn.copied {
+  background: #b9d86f;
+  color: #1f2e17;
+  box-shadow: 0 0 0 2px rgba(146, 183, 74, 0.35);
+}
+
+.host-copy-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  z-index: 300;
+  border: 2px solid #000;
+  border-radius: 10px;
+  background: #92b74a;
+  color: #fff8e6;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 12px;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+}
+
+.round-summary-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 250;
+  padding: 20px;
+}
+
+.round-summary-card {
+  width: min(92vw, 480px);
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.45);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.round-summary-title {
+  margin: 0 0 20px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 28px;
+  color: #1f1f1f;
+}
+
+.round-summary-scores {
+  margin-bottom: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.round-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 15px;
+  color: #1f1f1f;
+}
+
+.round-summary-score {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.round-summary-close {
+  width: 100%;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #92b74a;
+  color: #fff8e6;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.round-summary-close:hover { background: #a7c957; }
+
+.game-over-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+
+.game-over-card {
+  width: min(92vw, 520px);
+  background: #f2e8cf;
+  border: 3px solid #000;
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.game-over-title {
+  margin: 0;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 36px;
+  color: #1f1f1f;
+}
+
+.game-over-subtitle {
+  margin: 6px 0 24px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 14px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.game-over-scores {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.game-over-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.5);
+  border: 2px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 15px;
+  color: #1f1f1f;
+}
+
+.game-over-row.winner {
+  background: rgba(167, 201, 87, 0.45);
+  border-color: rgba(100, 140, 40, 0.5);
+  box-shadow: 0 0 0 2px rgba(167, 201, 87, 0.4);
+}
+
+.game-over-rank { font-size: 18px; text-align: center; }
+.game-over-name { text-align: left; }
+.game-over-total { font-weight: 700; font-size: 18px; text-align: right; }
+
+.game-over-play-again {
+  width: 100%;
+  border: 2px solid #000;
+  border-radius: 12px;
+  background: #386641;
+  color: #fff;
+  font-family: 'OpenDyslexic', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.game-over-play-again:hover { background: #4a8255; }
