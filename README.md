@@ -1,88 +1,112 @@
 # Augustana SWE Golf App
 
-RAIK 284H Software Engineering IV project: a golf-themed card game app with a React frontend and Spring Boot backend.
+A full-stack web app for playing the Golf card game. The frontend is a React/Vite single-page app, and the backend is a Spring Boot REST API with authentication, game state, tutorial support, and database migrations.
 
-## What This Website Does
+## What The App Does
 
-This website is a digital version of the Golf card game, designed for multiple players.
+- Lets players create accounts and log in with JWT-based authentication.
+- Lets authenticated users create a game, join a game by code, wait in a lobby, leave a game, and start play.
+- Runs the Golf card-game loop: initial card flips, drawing from the deck or discard pile, swapping, discarding, revealing cards, ending rounds, and tracking scores.
+- Includes a tutorial mode with a bot player for guided practice.
+- Stores profile images and simple stats in browser local storage.
+- Uses the backend database for users, games, players, rounds, cards, and scores.
 
-- Players can create accounts and log in securely.
-- Users can join or start game sessions from the game selection flow.
-- The game interface is intended to guide players through rounds, track player state, and keep score.
-- The backend handles authentication, core game data, and persistent storage so sessions can be managed reliably.
+## Game Rules
 
-The goal is to provide a clean, accessible way to play Golf with regular playing-card rules without needing manual scorekeeping.
+The goal is to have the lowest score after 9 holes, where each hole is one round.
 
-## How The Game Works (Golf Card Game)
-
-The objective is to finish with the lowest total score after all rounds.
-
-- Each player has a personal grid of face-down cards (commonly 6 cards in a 2x3 layout).
+- Each player has a 2x3 grid of cards.
+- Players start by flipping two cards.
 - On a turn, a player draws from the deck or discard pile.
-- The player may swap the drawn card with one card in their grid, then discards the replaced card.
-- If they do not want the drawn card, they discard it and flip one of their face-down cards
-- A round ends when a player has all cards revealed; other players get one final turn.
-- Scores are added at the end of each round, and the game continues for 9 holes, or rounds.
+- The drawn card can be swapped into the grid, or discarded.
+- If the drawn card is discarded without swapping, the player flips one face-down card.
+- A round ends after a player has revealed all cards and the remaining players finish their final turns.
 
 Scoring:
 
-- Number cards count as face value (except 2s are negative 2)
-- Aces count as 1
-- Face cards (Jack and Queen) are worth 10
-- Kings are worth 0
-- Matching columns cancel out (ex a column of 7s becomes 0)
+- Number cards count as face value.
+- 2s are worth -2.
+- Aces are worth 1.
+- Jacks and Queens are worth 10.
+- Kings are worth 0.
+- Matching cards in a column cancel to 0.
 
-This app is built to support the core Golf loop: draw, replace/discard, reveal, and automatic score tracking across rounds.
-
-## Repository Structure
+## Repository Layout
 
 ```text
 augustana_swe/
-├── frontend/   # React + Vite client
-└── backend/    # Spring Boot API + persistence
+├── backend/    # Spring Boot API, game logic, auth, migrations, tests
+├── frontend/   # React + Vite client, pages, components, services, tests
+└── README.md
 ```
 
 ## Tech Stack
 
-- Frontend: React 19, React Router, Axios, Vite
-- Backend: Spring Boot 3.4, Spring Web, Spring Data JPA, Flyway
-- Database (local profile): H2 in-memory (MSSQL compatibility mode)
-- Database (non-local profiles): Azure SQL via Entra ID token auth
+- Frontend: React 19, React Router, Axios, Vite, Vitest
+- Backend: Spring Boot 3.4, Spring Security, Spring Data JPA, Flyway, JJWT
+- Local database: H2 in-memory database in MSSQL compatibility mode
+- Non-local database: Azure SQL
 
-## Prerequisites
+## Requirements
 
-- Node.js 20+ and npm
-- Java 21
+- Node.js 20 or newer
+- npm
+- Java 21 or newer
 
-## Quick Start (Local Development)
+The backend uses the Maven wrapper in `backend/`, so a separate Maven install is not required.
 
-1. Start the backend
+## First-Time Setup
+
+Clone the repo and install frontend dependencies:
+
+```bash
+git clone <repo-url>
+cd augustana_swe/frontend
+npm install
+```
+
+The backend dependencies are downloaded automatically the first time you run `./mvnw`.
+
+## Run Locally
+
+Use two terminals from the repo root.
+
+Terminal 1, start the backend with the local H2 database profile:
 
 ```bash
 cd backend
 SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
 ```
 
-Backend runs on `http://localhost:8080`.
+Backend URL:
 
-2. Start the frontend (new terminal)
+```text
+http://localhost:8080
+```
+
+Terminal 2, start the frontend:
 
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:5173`.
+Frontend URL:
+
+```text
+http://localhost:5173
+```
+
+Open `http://localhost:5173` in the browser. The frontend defaults to calling the backend at the same hostname on port `8080`, so `localhost:5173` talks to `localhost:8080`.
 
 ## Environment Variables
 
 Frontend:
 
-- `VITE_API_BASE_URL` (optional)
-- Default: `http://localhost:8080`
+- `VITE_API_BASE_URL`: optional API base URL override.
+- Default: `http://<current-browser-hostname>:8080`
 
-Example (`frontend/.env`):
+Example `frontend/.env`:
 
 ```bash
 VITE_API_BASE_URL=http://localhost:8080
@@ -90,96 +114,174 @@ VITE_API_BASE_URL=http://localhost:8080
 
 Backend:
 
-- Local development uses `backend/src/main/resources/application-local.properties`
-- Azure SQL/Entra config is enabled for profiles other than `local` and `test`
+- `SPRING_PROFILES_ACTIVE=local`: uses an in-memory H2 database and local Flyway migrations.
+- `JWT_SECRET`: optional override for JWT signing.
+- `JWT_EXPIRATION_MS`: optional token lifetime override. Defaults to one day.
 
-## Scripts and Commands
+The default non-local backend configuration points at Azure SQL. For local development, always use the `local` Spring profile unless you are intentionally connecting to Azure.
 
-Frontend (`frontend/`):
+## App Routes
 
-```bash
-npm run dev      # Start Vite dev server
-npm run build    # Production build
-npm run preview  # Preview production build
-npm run lint     # ESLint
+- `/`: home page
+- `/signup`: create an account
+- `/login`: log in
+- `/game-selection`: create a game or choose another game flow
+- `/join`: join an existing game by code
+- `/play`: active multiplayer game screen
+- `/tutorial`: tutorial game screen
+
+Most game routes require a logged-in user.
+
+## API Overview
+
+Base URL for local development:
+
+```text
+http://localhost:8080
 ```
 
-Backend (`backend/`):
-
-```bash
-./mvnw spring-boot:run           # Run app
-./mvnw test                      # Run tests
-SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
-```
-
-## API (Current)
-
-Base URL: `http://localhost:8080`
+Public endpoints:
 
 - `POST /api/auth/signup`
-- Signup body: `{ "username": "string", "password": "string", "email": "string | null" }`
-- Signup validation: username required
-- Signup validation: password required (minimum 6 characters)
-- Signup validation: username must be unique
 - `POST /api/auth/login`
-- Login body: `{ "username": "string", "password": "string" }`
-- `GET /health` -> `OK`
-- `GET /health/db` -> `DB OK` when datasource is healthy
+- `GET /health`
+- `GET /health/db`
 
-Auth success response shape:
+Authentication response:
 
 ```json
 {
   "userId": 1,
   "username": "player1",
-  "email": "player1@example.com",
+  "token": "jwt-token",
   "message": "Login successful."
 }
 ```
 
+Authenticated game endpoints:
+
+- `POST /api/games`
+- `POST /api/games/join`
+- `POST /api/games/{gameId}/leave`
+- `GET /api/games/{gameId}`
+- `POST /api/games/{gameId}/start`
+- `GET /api/games/{gameId}/state`
+- `POST /api/games/{gameId}/actions/flip-initial`
+- `POST /api/games/{gameId}/actions/draw`
+- `POST /api/games/{gameId}/actions/swap`
+- `POST /api/games/{gameId}/actions/discard`
+
+Authenticated tutorial endpoints:
+
+- `POST /api/tutorial/start`
+- `GET /api/tutorial/{gameId}/state`
+- `POST /api/tutorial/{gameId}/bot-flip`
+- `POST /api/tutorial/{gameId}/bot-turn`
+
+The frontend stores the JWT after signup/login and sends it as:
+
+```text
+Authorization: Bearer <token>
+```
+
 ## Database
 
-Flyway migration `V1__init.sql` creates:
+Local development uses:
 
-- `users`
-- `games`
-- `game_players`
-- `rounds`
-- `cards`
+```text
+jdbc:h2:mem:golfdb;MODE=MSSQLServer
+```
 
-## Notes
+Local data is in memory, so it resets when the backend stops.
 
-- CORS allowed origin: `http://localhost:5173`
-- CORS allowed origin: `http://127.0.0.1:5173`
-- CORS allowed origin: `http://localhost:3000`
-- CORS allowed origin: `http://127.0.0.1:3000`
-- Backend tests run with `test` profile and Flyway disabled.
+Migration folders:
+
+- `backend/src/main/resources/db/migration/local`: local H2 migrations and tutorial bot seed data
+- `backend/src/main/resources/db/migration`: non-local SQL Server migrations
+
+## Useful Commands
+
+Frontend commands from `frontend/`:
+
+```bash
+npm run dev            # Start Vite dev server
+npm run build          # Build production assets
+npm run preview        # Preview the production build
+npm run lint           # Run ESLint
+npm run test           # Run Vitest in watch mode
+npm run test:run       # Run Vitest once
+npm run test:coverage  # Run Vitest with coverage
+```
+
+Backend commands from `backend/`:
+
+```bash
+SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
+./mvnw test
+./mvnw clean test
+```
 
 ## Testing
 
-Frontend testing done using vitest and Playwright
+Run frontend unit tests:
 
-To run vitest:
-  In terminal, from directory /frontend use command:
-    npm run test:run
-To run Playwright:
-  In terminal, from directory /backend use command:
-    SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
-  Keep this backend terminal open
-  In new terminal, from directory /frontend use command:
-    npx playwright test
-Don't forget to close backend using ctrl C
+```bash
+cd frontend
+npm run test:run
+```
 
-To view frontend testing code coverage:
-  In terminal, from directory /frontend use command:
-    npm run test:coverage
+Run frontend coverage:
 
-Backend testing done using Java SpringBoot
+```bash
+cd frontend
+npm run test:coverage
+```
 
-To run backend tests:
-  In terminal, from directory /backend use command:
-  ./mvnw clean test
+Run backend tests:
 
-To view backend testing code coverage:
-  In terminal, from directory /backend use command:
-    open target/site/jacoco/index.html
+```bash
+cd backend
+./mvnw clean test
+```
+
+View backend coverage after tests:
+
+```bash
+cd backend
+open target/site/jacoco/index.html
+```
+
+Playwright is installed as a frontend dev dependency. If you are running browser tests, start the backend first with the local profile, then run Playwright from `frontend/`:
+
+```bash
+cd backend
+SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
+```
+
+```bash
+cd frontend
+npx playwright test
+```
+
+## Troubleshooting
+
+If the frontend cannot reach the backend:
+
+- Make sure the backend is running on `http://localhost:8080`.
+- Visit `http://localhost:8080/health`; it should return `OK`.
+- Check `VITE_API_BASE_URL` if you are using a custom frontend `.env`.
+
+If login or game requests return `401 Unauthorized`:
+
+- Log in again so the browser has a fresh JWT.
+- Make sure you are using the frontend app, or manually include `Authorization: Bearer <token>` for direct API calls.
+
+If the backend tries to connect to Azure SQL locally:
+
+- Stop it and restart with `SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run`.
+
+If ports are already in use:
+
+- Backend default: `8080`
+- Frontend default: `5173`
+- Stop the old process or run one of the apps on a different port.
