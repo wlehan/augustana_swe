@@ -3,6 +3,7 @@ package com.augustana.golf.controller;
 import com.augustana.golf.domain.dto.TutorialStateResponse;
 import com.augustana.golf.domain.dto.GameStateResponse;
 import com.augustana.golf.domain.model.TutorialStep;
+import com.augustana.golf.security.CustomUserPrincipal;
 import com.augustana.golf.security.JwtAuthenticationFilter;
 import com.augustana.golf.service.TutorialService;
 import org.junit.jupiter.api.Test;
@@ -11,16 +12,42 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
 @WebMvcTest(TutorialController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class TutorialControllerTest {
+
+    private RequestPostProcessor authenticatedUser(Long userId) {
+    return request -> {
+        CustomUserPrincipal principal = new CustomUserPrincipal(
+                userId,
+                "test@example.com",
+                "password"
+        );
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        principal,
+                        null,
+                        principal.getAuthorities()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        request.setUserPrincipal(authentication);
+
+        return request;
+    };
+}
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,7 +75,7 @@ class TutorialControllerTest {
         when(tutorialService.startTutorial(1L)).thenReturn(response);
 
         mockMvc.perform(post("/api/tutorial/start")
-                .header("X-User-Id", "1")
+                .with(authenticatedUser(1L))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.gameState.gameId").value(1))
@@ -76,7 +103,7 @@ class TutorialControllerTest {
         when(tutorialService.getCurrentState(1L, 1L)).thenReturn(response);
 
         mockMvc.perform(get("/api/tutorial/1/state")
-                .header("X-User-Id", "1")
+                .with(authenticatedUser(1L))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.gameState.gameId").value(1))
@@ -102,7 +129,7 @@ class TutorialControllerTest {
         when(tutorialService.botFlipInitial(1L, 1L)).thenReturn(response);
 
         mockMvc.perform(post("/api/tutorial/1/bot-flip")
-                .header("X-User-Id", "1")
+                .with(authenticatedUser(1L))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currentStep").value("YOUR_TURN_DRAW"))
@@ -131,7 +158,7 @@ class TutorialControllerTest {
         when(tutorialService.executeBotTurn(1L, 1L)).thenReturn(response);
 
         mockMvc.perform(post("/api/tutorial/1/bot-turn")
-                .header("X-User-Id", "1")
+                .with(authenticatedUser(1L))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currentStep").value("YOUR_TURN_DRAW"))
@@ -158,7 +185,7 @@ class TutorialControllerTest {
         when(tutorialService.executeBotTurn(1L, 1L)).thenReturn(response);
 
         mockMvc.perform(post("/api/tutorial/1/bot-turn")
-                .header("X-User-Id", "1")
+                .with(authenticatedUser(1L))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currentStep").value("FINAL_TURNS"));
@@ -183,7 +210,7 @@ class TutorialControllerTest {
         when(tutorialService.getCurrentState(1L, 1L)).thenReturn(response);
 
         mockMvc.perform(get("/api/tutorial/1/state")
-                .header("X-User-Id", "1")
+                .with(authenticatedUser(1L))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currentStep").value("TUTORIAL_COMPLETE"));
