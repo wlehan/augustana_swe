@@ -5,7 +5,6 @@
   font-style: normal;
 }
 
-/* bold font */
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('../assets/fonts/OpenDyslexic-Bold.otf') format('opentype');
@@ -27,9 +26,9 @@
 
 .login-window {
   position: relative;
-  z-index: 20;              /* above the green + other layers */
+  z-index: 20;
 
-  background-color: #F2E8CF; /* change to whatever color you want */
+  background-color: #F2E8CF;
   width: 712px;
   min-height: 456px;
   max-width: 90%;

@@ -253,7 +253,7 @@ public class TutorialService {
     }
 
     /**
-     * Pure function: maps current game state → TutorialStep.
+     * Pure function: maps current game state -> TutorialStep.
      * Order of checks matters — earlier checks take priority.
      */
     private TutorialStep deriveStep(GameStateResponse state, int humanFlips, boolean allReady) {
@@ -393,7 +393,7 @@ public class TutorialService {
 
     /**
      * Advances currentTurnGamePlayer to the next seat in order.
-     * Wraps around: seat 2 → seat 1.
+     * Wraps around: seat 2 -> seat 1.
      */
     private void advanceTurn(Round round, Long gameId) {
         List<GamePlayer> players = gamePlayerRepository

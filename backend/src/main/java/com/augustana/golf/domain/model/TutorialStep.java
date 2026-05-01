@@ -5,7 +5,7 @@ package com.augustana.golf.domain.model;
  * which hint panel / overlay to show the player.
  *
  * Each step has a short title and a longer description that the React UI can
- * surface directly — no translation layer needed.
+ * surface directly
  */
 public enum TutorialStep {
 
