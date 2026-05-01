@@ -88,7 +88,7 @@ describe('GamePage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Open profile/i }))
     expect(screen.getByRole('heading', { name: 'Profile' })).toBeInTheDocument()
-    expect(screen.getByText('player1')).toBeInTheDocument()
+    expect(screen.getAllByText('player1')).toHaveLength(3) // Score chip, profile alt, profile modal
 
     await waitFor(() => {
       expect(getGameState).toHaveBeenCalledWith({ gameId: '5', userId: 10 })

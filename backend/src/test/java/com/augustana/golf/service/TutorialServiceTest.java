@@ -1,15 +1,10 @@
 package com.augustana.golf.service;
 
-import com.augustana.golf.domain.dto.GameResponse;
-import com.augustana.golf.domain.dto.GameStateResponse;
-import com.augustana.golf.domain.dto.TutorialStateResponse;
 import com.augustana.golf.domain.model.Game;
 import com.augustana.golf.domain.model.GamePlayer;
 import com.augustana.golf.domain.model.GolfCard;
 import com.augustana.golf.domain.model.Round;
-import com.augustana.golf.domain.model.TutorialStep;
 import com.augustana.golf.domain.model.User;
-import com.augustana.golf.exception.ApiException;
 import com.augustana.golf.repository.GamePlayerRepository;
 import com.augustana.golf.repository.GameRepository;
 import com.augustana.golf.repository.GolfCardRepository;
@@ -20,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.mock;
+
 
 import java.util.List;
 import java.util.Optional;
