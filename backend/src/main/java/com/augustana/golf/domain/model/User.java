@@ -9,6 +9,9 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
+/**
+ * Registered account used for authentication and for assigning seats in games.
+ */
 @Entity
 @Table(name = "users")
 public class User {

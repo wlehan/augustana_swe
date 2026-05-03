@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import './LoginPage.css'
 import { clearStoredSession, readStoredSession } from '../services/session'
 
+/**
+ * Legacy post-login selection screen kept for older route tests.
+ */
 function GameSelectionPage() {
   const navigate = useNavigate()
 

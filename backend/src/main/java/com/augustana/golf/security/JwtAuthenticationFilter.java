@@ -14,6 +14,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Reads bearer tokens from incoming requests and populates Spring Security with
+ * the matching application user.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

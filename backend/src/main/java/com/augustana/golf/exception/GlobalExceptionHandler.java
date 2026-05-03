@@ -6,6 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * Converts service-level {@link ApiException}s into the compact error shape
+ * consumed by the frontend.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

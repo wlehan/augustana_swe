@@ -7,6 +7,10 @@ const BACKGROUND_MUSIC_URL = 'https://assets.mixkit.co/music/1009/1009.mp3'
 const BACKGROUND_MUSIC_PLAYBACK_RATE = 1
 const MUSIC_ENABLED_PATHS = new Set(['/game-selection', '/join', '/play'])
 
+/**
+ * Reads the persisted sound setting, including the older storage key used by
+ * previous builds.
+ */
 function readStoredSoundPreference() {
   if (typeof window === 'undefined') {
     return true
@@ -187,6 +191,9 @@ function stopBackgroundMusic(playerRef) {
   player.music.pause()
 }
 
+/**
+ * Provides shared music and sound-effect controls for the React app.
+ */
 export function AudioProvider({ children }) {
   const [isSoundEnabled, setIsSoundEnabled] = useState(readStoredSoundPreference)
   const [currentPath, setCurrentPath] = useState(() =>

@@ -10,6 +10,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AudioProvider } from "./audio/AudioProvider";
 import "./App.css";
 
+/**
+ * Top-level route map for the React app.
+ */
 function App() {
   return (
     <AudioProvider>

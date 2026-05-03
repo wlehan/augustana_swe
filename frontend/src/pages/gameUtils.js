@@ -1,6 +1,10 @@
 import { CARD_IMAGES } from './cardImages';
 import cardBack from '../assets/cards/card_back.png';
 
+/**
+ * Returns the image that should be shown for a card from the current viewer's
+ * perspective.
+ */
 export function getCardImage(card) {
   if (!card) return null;
   if (!card.faceUp && !card.revealedToViewer) return cardBack;
@@ -23,12 +27,18 @@ export function getCardAlt(card) {
   return getCardName(card);
 }
 
+/**
+ * Normalizes ids from API responses before comparing numeric and string values.
+ */
 export function normalizeId(v) {
   return v === null || v === undefined ? '' : String(v);
 }
 
 export const PLAYER_HAND_SLOTS = [1, 2, 3, 4, 5, 6];
 
+/**
+ * Places opponents around the table relative to the viewer sitting at bottom.
+ */
 export function getOpponentPositionOrder(opponentCount) {
   if (opponentCount <= 1) return ['top'];
   if (opponentCount === 2) return ['left', 'right'];

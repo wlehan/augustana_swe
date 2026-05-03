@@ -1,27 +1,23 @@
 package com.augustana.golf.domain.model;
 
 /**
- * Ordered steps of the tutorial. The frontend uses the current step to decide
- * which hint panel / overlay to show the player.
+ * Ordered tutorial prompts shown by the React hint panel.
  *
- * Each step has a short title and a longer description that the React UI can
- * surface directly
+ * <p>The backend derives the current value from round state, then sends the
+ * matching title and description to the frontend.</p>
  */
 public enum TutorialStep {
 
-    // -----------------------------------------------------------------------
-    // Intro & setup
-    // -----------------------------------------------------------------------
     WELCOME(
         "Welcome to Golf!",
-        "Golf is a card game where LOW scores win. Each player has a 2×3 grid of 6 cards "
+        "Golf is a card game where LOW scores win. Each player has a 2x3 grid of 6 cards "
         + "face-down in front of them. Your goal is to end each round with the lowest "
         + "total value in your grid. Ready? Let's flip two cards to get started."
     ),
 
     FLIP_FIRST(
         "Flip your first card",
-        "Click any card in your grid to flip it face-up. You may look at its value — "
+        "Click any card in your grid to flip it face-up. You may look at its value - "
         + "your opponents cannot see face-down cards in your grid, but they can see yours "
         + "once flipped."
     ),
@@ -34,19 +30,16 @@ public enum TutorialStep {
     ),
 
     WAIT_FOR_OTHERS_TO_FLIP(
-        "Waiting for other players…",
+        "Waiting for other players...",
         "Every player must flip 2 cards before the active round begins. "
         + "The bot is choosing its cards now."
     ),
 
-    // -----------------------------------------------------------------------
-    // Core turn loop
-    // -----------------------------------------------------------------------
     YOUR_TURN_DRAW(
-        "Your turn — draw a card",
+        "Your turn - draw a card",
         "On your turn you must draw one card. You have two choices:\n"
-        + "• Draw from the DECK (face-down, unknown card)\n"
-        + "• Take the TOP card of the DISCARD pile (visible)\n\n"
+        + "- Draw from the DECK (face-down, unknown card)\n"
+        + "- Take the TOP card of the DISCARD pile (visible)\n\n"
         + "The discard pile top card is always shown. Pick one!"
     ),
 
@@ -69,24 +62,18 @@ public enum TutorialStep {
     YOUR_TURN_DISCARD_AND_FLIP(
         "Discard & flip",
         "You chose to discard. Now click any face-down card in your grid to flip it "
-        + "face-up. You can't flip it back — choose a position you haven't seen yet!"
+        + "face-up. You can't flip it back - choose a position you haven't seen yet!"
     ),
 
-    // -----------------------------------------------------------------------
-    // Bot turn
-    // -----------------------------------------------------------------------
     BOT_TURN(
         "Bot's turn",
         "The bot is taking its turn. Watch the discard pile and the bot's grid "
         + "to see what it does. The bot plays randomly for this tutorial."
     ),
 
-    // -----------------------------------------------------------------------
-    // Special rules
-    // -----------------------------------------------------------------------
     COLUMN_CANCEL(
         "Column cancellation!",
-        "When both cards in a column are the same rank, they cancel out — both are "
+        "When both cards in a column are the same rank, they cancel out - both are "
         + "removed from the grid and score 0. Keep an eye out for matching pairs!"
     ),
 
@@ -97,23 +84,18 @@ public enum TutorialStep {
         + "Make your last move count!"
     ),
 
-    // -----------------------------------------------------------------------
-    // End of round
-    // -----------------------------------------------------------------------
     ROUND_OVER(
-        "Round over — see your score",
+        "Round over - see your score",
         "All cards are revealed and scored. Aces = 1, number cards = face value, "
-        + "Kings = 0, Other face cards = 10, Twos = −2. "
+        + "Kings = 0, Other face cards = 10, Twos = -2. "
         + "Cancelled columns score 0. The player with the lowest total wins!"
     ),
 
     TUTORIAL_COMPLETE(
         "Tutorial complete!",
         "You've played a full round of Golf! Head back to the lobby to start or join "
-        + "a real game with friends. Good luck — may your score stay low!"
+        + "a real game with friends. Good luck - may your score stay low!"
     );
-
-    // -----------------------------------------------------------------------
 
     public final String title;
     public final String description;

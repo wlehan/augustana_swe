@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useAudio } from '../audio/AudioContext'
 import './AudioSettingsButton.css'
 
+/**
+ * Reusable settings menu for music/sound plus optional page-specific actions.
+ */
 function AudioSettingsButton({ iconSrc, iconAlt, className = '', menuAlign = 'left', children }) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef(null)

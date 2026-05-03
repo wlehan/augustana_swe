@@ -23,6 +23,13 @@ import com.augustana.golf.repository.GolfCardRepository;
 import com.augustana.golf.repository.RoundRepository;
 import com.augustana.golf.repository.RoundScoreRepository;
 
+/**
+ * Applies player actions to the current round.
+ *
+ * <p>Each public method validates turn ownership and round status before moving
+ * cards between piles. The service also owns the final-turn transition and the
+ * round scoring rules.</p>
+ */
 @Service
 public class GameActionService {
 
@@ -49,11 +56,14 @@ public class GameActionService {
     }
 
 
-    
+    /**
+     * Reveals one of the player's two setup cards. The active turn loop begins
+     * after every player has flipped two grid cards.
+     */
     @Transactional
     public void flipInitialCard(Long gameId, Long userId, int position) {
         if (position < 1 || position > 6) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Position must be 1–6");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Position must be 1-6");
         }
 
         GamePlayer player = getPlayer(gameId, userId);
@@ -99,7 +109,11 @@ public class GameActionService {
     }
 
 
-    
+    /**
+     * Draws one card into the current player's hand from the stock or discard
+     * pile. The draw source is stored so the next action can enforce discard
+     * rules.
+     */
     @Transactional
     public void drawCard(Long gameId, Long userId, String source) {
         GamePlayer player = getPlayer(gameId, userId);
@@ -182,11 +196,14 @@ public class GameActionService {
     }
 
 
-    
+    /**
+     * Replaces one grid card with the card currently in hand and moves the
+     * replaced card to the top of the discard pile.
+     */
     @Transactional
     public void swapCard(Long gameId, Long userId, int position) {
         if (position < 1 || position > 6) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Position must be 1–6");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Position must be 1-6");
         }
 
         GamePlayer player = getPlayer(gameId, userId);
@@ -225,7 +242,10 @@ public class GameActionService {
     }
 
 
-    
+    /**
+     * Discards a stock-drawn card. If the player still has face-down grid cards,
+     * they must flip one to finish the turn.
+     */
     @Transactional
     public void discardCard(Long gameId, Long userId, Integer flipPosition) {
         GamePlayer player = getPlayer(gameId, userId);
@@ -261,7 +281,7 @@ public class GameActionService {
                         "You must flip a face-down card when discarding from the stock pile");
             }
             if (flipPosition < 1 || flipPosition > 6) {
-                throw new ApiException(HttpStatus.BAD_REQUEST, "flipPosition must be 1–6");
+                throw new ApiException(HttpStatus.BAD_REQUEST, "flipPosition must be 1-6");
             }
             GolfCard toFlip = golfCardRepository
                     .findByRound_RoundIdAndOwnerGamePlayer_GamePlayerIdAndPositionAndPile(
@@ -286,6 +306,7 @@ public class GameActionService {
     private void checkAndAdvanceTurn(Long gameId, Round round, GamePlayer currentPlayer) {
         boolean allFaceUp = isAllFaceUp(round, currentPlayer);
 
+        // The first player to reveal all cards triggers one final turn for everyone else.
         if (allFaceUp && round.getStatus() == Round.Status.ACTIVE) {
             round.setStatus(Round.Status.FINAL_TURNS);
             round.setFinalTurnTriggeredByGamePlayer(currentPlayer);
@@ -378,7 +399,7 @@ public class GameActionService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
 
         boolean isTutorialGame = players.stream()
-        .anyMatch(p -> "tutorial_bot".equals(p.getUser().getUsername()));
+                .anyMatch(p -> "tutorial_bot".equals(p.getUser().getUsername()));
 
         if (isTutorialGame) {
             game.setStatus(Game.Status.COMPLETED);
@@ -395,14 +416,15 @@ public class GameActionService {
     }
 
 
-    
+    /**
+     * Scores a six-card grid. Matching ranks in the same column cancel to zero.
+     */
     static int calculateScore(List<GolfCard> playerCards) {
         int total = 0;
         for (int col = 0; col < 3; col++) {
             GolfCard top    = findAtPosition(playerCards, col + 1);
             GolfCard bottom = findAtPosition(playerCards, col + 4);
-            if (top != null && bottom != null && top.getRank() == bottom.getRank()) {
-            } else {
+            if (!(top != null && bottom != null && top.getRank() == bottom.getRank())) {
                 total += cardValue(top) + cardValue(bottom);
             }
         }

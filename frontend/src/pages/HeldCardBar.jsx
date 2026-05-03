@@ -1,6 +1,9 @@
 import React from 'react';
 import { getCardImage, getCardName } from './gameUtils';
 
+/**
+ * Shows the current viewer's held card and the legal resolve actions for it.
+ */
 export default function HeldCardBar({
   myHeldCard,
   pendingDiscard,

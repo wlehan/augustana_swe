@@ -37,6 +37,11 @@ import LobbyModal from './LobbyModal';
 import RoundSummaryModal from './RoundSummaryModal';
 import GameOverModal from './GameOverModal';
 
+/**
+ * Main multiplayer game screen. It polls lobby/game state, maps players into
+ * viewer-relative table positions, and delegates rendering to focused table,
+ * modal, and control components.
+ */
 export default function GamePage() {
   const navigate = useNavigate();
   const { playSound } = useAudio();

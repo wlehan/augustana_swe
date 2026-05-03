@@ -140,7 +140,6 @@
   transform: none;
 }
 
-/* ---- Bot thinking indicator ---- */
 .bot-thinking-banner {
   position: fixed;
   top: 70px;
@@ -165,7 +164,6 @@
   50%       { opacity: 0.6; }
 }
 
-/* ---- Tutorial exit button (top-left) ---- */
 .tutorial-exit-btn {
   position: fixed;
   top: 18px;
@@ -187,7 +185,6 @@
   transform: translateY(-1px);
 }
 
-/* ---- "Show Hint" re-open button (when panel is dismissed) ---- */
 .hint-reopen-btn {
   position: fixed;
   bottom: 18px;
@@ -213,7 +210,6 @@
   transform: translateY(-2px) translateX(-50%);
 }
 
-/* ---- Tutorial complete overlay ---- */
 .tutorial-complete-overlay {
   position: fixed;
   inset: 0;
@@ -332,7 +328,6 @@
   transform: translateY(-2px);
 }
 
-/* ---- Responsive ---- */
 @media (max-width: 600px) {
   .tutorial-hint-panel {
     padding: 14px 14px 16px;

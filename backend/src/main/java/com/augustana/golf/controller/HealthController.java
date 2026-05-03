@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.sql.DataSource;
 
+/**
+ * Public health probes for the application and database connection.
+ */
 @RestController
 public class HealthController {
     private final DataSource dataSource;

@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Between-round dialog that shows the scores from the round that just ended.
+ */
 export default function RoundSummaryModal({ showRoundSummary, roundSummaryData, onClose }) {
   if (!showRoundSummary || !roundSummaryData) return null;
 
@@ -27,7 +30,7 @@ export default function RoundSummaryModal({ showRoundSummary, roundSummaryData, 
           className="round-summary-close"
           onClick={onClose}
         >
-          Continue →
+          Continue
         </button>
       </div>
     </div>

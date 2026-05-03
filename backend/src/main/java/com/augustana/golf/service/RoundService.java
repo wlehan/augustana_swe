@@ -23,6 +23,12 @@ import com.augustana.golf.repository.GolfCardRepository;
 import com.augustana.golf.repository.RoundRepository;
 import com.augustana.golf.repository.RoundScoreRepository;
 
+/**
+ * Creates rounds and assembles the read model consumed by the React game board.
+ *
+ * <p>Card rows are the source of truth for every pile: each player's grid,
+ * the draw pile, the discard pile, and a player's temporary held card.</p>
+ */
 @Service
 public class RoundService {
 
@@ -45,6 +51,10 @@ public class RoundService {
         this.roundScoreRepository = roundScoreRepository;
     }
 
+    /**
+     * Starts the next round for a game with 2-4 joined players, deals six grid
+     * cards to each player, and initializes stock and discard piles.
+     */
     @Transactional
     public Round startRound(Long gameId) {
         Game game = gameRepository.findById(gameId)
@@ -124,6 +134,7 @@ public class RoundService {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not initialize discard pile");
         }
 
+        // The first stock card becomes the visible discard starter.
         topDraw.setPile(GolfCard.Pile.DISCARD);
         topDraw.setFaceUp(true);
         topDraw.setDrawOrder(1);
@@ -143,6 +154,11 @@ public class RoundService {
         return savedRound;
     }
 
+    /**
+     * Builds the game-state response for one viewer. Face-down grid cards stay
+     * hidden in the response, and only the requesting player receives their held
+     * card.
+     */
     @Transactional(readOnly = true)
     public GameStateResponse getGameState(Long gameId, Long requestingUserId) {
         Game game = gameRepository.findById(gameId)

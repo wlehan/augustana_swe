@@ -4,6 +4,7 @@ import './Gamepage.css';
 import './TutorialPage.css';
 import cardBack from '../assets/cards/card_back.png';
 import profileIcon from '../assets/profile.png';
+import { CARD_IMAGES } from './cardImages';
 
 import {
   discardCard,
@@ -25,96 +26,38 @@ import {
   readStoredSession,
 } from '../services/session';
 
-// ── Card image imports (same as Gamepage) ────────────────────────────────────
-import aceclubs from '../assets/cards/clubs/aceclubs.png';
-import twoclubs from '../assets/cards/clubs/2clubs.png';
-import threeclubs from '../assets/cards/clubs/3clubs.png';
-import fourclubs from '../assets/cards/clubs/4clubs.png';
-import fiveclubs from '../assets/cards/clubs/5clubs.png';
-import sixclubs from '../assets/cards/clubs/6clubs.png';
-import sevenclubs from '../assets/cards/clubs/7clubs.png';
-import eightclubs from '../assets/cards/clubs/8clubs.png';
-import nineclubs from '../assets/cards/clubs/9clubs.png';
-import tenclubs from '../assets/cards/clubs/10clubs.png';
-import jackclubs from '../assets/cards/clubs/jackclubs.png';
-import queenclubs from '../assets/cards/clubs/queenclubs.png';
-import kingclubs from '../assets/cards/clubs/kingclubs.png';
-import acediamonds from '../assets/cards/diamonds/acediamonds.png';
-import twodiamonds from '../assets/cards/diamonds/2diamonds.png';
-import threediamonds from '../assets/cards/diamonds/3diamonds.png';
-import fourdiamonds from '../assets/cards/diamonds/4diamonds.png';
-import fivediamonds from '../assets/cards/diamonds/5diamonds.png';
-import sixdiamonds from '../assets/cards/diamonds/6diamonds.png';
-import sevendiamonds from '../assets/cards/diamonds/7diamonds.png';
-import eightdiamonds from '../assets/cards/diamonds/8diamonds.png';
-import ninediamonds from '../assets/cards/diamonds/9diamonds.png';
-import tendiamonds from '../assets/cards/diamonds/10diamonds.png';
-import jackdiamonds from '../assets/cards/diamonds/jackdiamonds.png';
-import queendiamonds from '../assets/cards/diamonds/queendiamonds.png';
-import kingdiamonds from '../assets/cards/diamonds/kingdiamonds.png';
-import acehearts from '../assets/cards/hearts/acehearts.png';
-import twohearts from '../assets/cards/hearts/2hearts.png';
-import threehearts from '../assets/cards/hearts/3hearts.png';
-import fourhearts from '../assets/cards/hearts/4hearts.png';
-import fivehearts from '../assets/cards/hearts/5hearts.png';
-import sixhearts from '../assets/cards/hearts/6hearts.png';
-import sevenhearts from '../assets/cards/hearts/7hearts.png';
-import eighthearts from '../assets/cards/hearts/8hearts.png';
-import ninehearts from '../assets/cards/hearts/9hearts.png';
-import tenhearts from '../assets/cards/hearts/10hearts.png';
-import jackhearts from '../assets/cards/hearts/jackhearts.png';
-import queenhearts from '../assets/cards/hearts/queenhearts.png';
-import kinghearts from '../assets/cards/hearts/kinghearts.png';
-import acespades from '../assets/cards/spades/acespades.png';
-import twospades from '../assets/cards/spades/2spades.png';
-import threespades from '../assets/cards/spades/3spades.png';
-import fourspades from '../assets/cards/spades/4spades.png';
-import fivespades from '../assets/cards/spades/5spades.png';
-import sixspades from '../assets/cards/spades/6spades.png';
-import sevenspades from '../assets/cards/spades/7spades.png';
-import eightspades from '../assets/cards/spades/8spades.png';
-import ninespades from '../assets/cards/spades/9spades.png';
-import tenspades from '../assets/cards/spades/10spades.png';
-import jackspades from '../assets/cards/spades/jackspades.png';
-import queenspades from '../assets/cards/spades/queenspades.png';
-import kingspades from '../assets/cards/spades/kingspades.png';
-
-const CARD_IMAGES = {
-  CLUBS:    { ACE: aceclubs, TWO: twoclubs, THREE: threeclubs, FOUR: fourclubs, FIVE: fiveclubs, SIX: sixclubs, SEVEN: sevenclubs, EIGHT: eightclubs, NINE: nineclubs, TEN: tenclubs, JACK: jackclubs, QUEEN: queenclubs, KING: kingclubs },
-  DIAMONDS: { ACE: acediamonds, TWO: twodiamonds, THREE: threediamonds, FOUR: fourdiamonds, FIVE: fivediamonds, SIX: sixdiamonds, SEVEN: sevendiamonds, EIGHT: eightdiamonds, NINE: ninediamonds, TEN: tendiamonds, JACK: jackdiamonds, QUEEN: queendiamonds, KING: kingdiamonds },
-  HEARTS:   { ACE: acehearts, TWO: twohearts, THREE: threehearts, FOUR: fourhearts, FIVE: fivehearts, SIX: sixhearts, SEVEN: sevenhearts, EIGHT: eighthearts, NINE: ninehearts, TEN: tenhearts, JACK: jackhearts, QUEEN: queenhearts, KING: kinghearts },
-  SPADES:   { ACE: acespades, TWO: twospades, THREE: threespades, FOUR: fourspades, FIVE: fivespades, SIX: sixspades, SEVEN: sevenspades, EIGHT: eightspades, NINE: ninespades, TEN: tenspades, JACK: jackspades, QUEEN: queenspades, KING: kingspades },
-};
-
 function getCardImage(card) {
   if (!card) return null;
   if (!card.faceUp && !card.revealedToViewer) return cardBack;
   return CARD_IMAGES?.[card.suit]?.[card.rank] || null;
 }
+
 function formatCardPart(value) {
   if (!value) return '';
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 }
+
 function getCardName(card) {
   if (!card) return 'Card';
   if (!card.faceUp && !card.revealedToViewer) return 'Face-down card';
   return `${formatCardPart(card.rank)} of ${formatCardPart(card.suit)}`;
 }
+
 function getCardAlt(card) {
   if (!card) return 'Card slot';
   return getCardName(card);
 }
 
-// Step ordering for the progress dots
 const STEP_ORDER = [
   'WELCOME', 'FLIP_FIRST', 'FLIP_SECOND', 'WAIT_FOR_OTHERS_TO_FLIP',
   'YOUR_TURN_DRAW', 'YOUR_TURN_DECIDE', 'BOT_TURN',
   'FINAL_TURNS', 'ROUND_OVER', 'TUTORIAL_COMPLETE',
 ];
 
-// ── HintPanel ────────────────────────────────────────────────────────────────
-
-function HintPanel({ step, title, description, onDismiss, onOk, okLabel, okDisabled }) {
+/**
+ * Floating tutorial guidance panel with progress dots derived from step order.
+ */
+function HintPanel({ step, title, description, onDismiss }) {
   const stepIndex = STEP_ORDER.indexOf(step);
 
   return (
@@ -128,7 +71,7 @@ function HintPanel({ step, title, description, onDismiss, onOk, okLabel, okDisab
           onClick={onDismiss}
           aria-label="Hide hint panel"
         >
-          ×
+          x
         </button>
       </div>
 
@@ -148,10 +91,12 @@ function HintPanel({ step, title, description, onDismiss, onOk, okLabel, okDisab
   );
 }
 
-// ── PlayerHand (same as Gamepage) ─────────────────────────────────────────────
-
 const PLAYER_HAND_SLOTS = [1, 2, 3, 4, 5, 6];
 
+/**
+ * Tutorial-local hand renderer. It mirrors the game board while keeping the
+ * tutorial fixed to a human bottom seat and bot top seat.
+ */
 function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
   const cardsByPosition = useMemo(
     () => new Map((playerMeta?.cards || []).map((c) => [c.position, c])),
@@ -219,8 +164,9 @@ function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
   );
 }
 
-// ── TutorialPage ──────────────────────────────────────────────────────────────
-
+/**
+ * Guided single-player tutorial screen backed by a normal game plus a bot seat.
+ */
 export default function TutorialPage() {
   const navigate = useNavigate();
 
@@ -237,13 +183,11 @@ export default function TutorialPage() {
     }
   }, [redirectToLogin, user]);
 
-  // Tutorial state from the backend
-  const [tutState, setTutState] = useState(null);   // full TutorialStateResponse
+  const [tutState, setTutState] = useState(null);
   const [gameId, setGameId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // UI state
   const [hintVisible, setHintVisible] = useState(true);
   const [actionBusy, setActionBusy] = useState(false);
   const [actionError, setActionError] = useState('');
@@ -259,7 +203,6 @@ export default function TutorialPage() {
   const humanFlipsCompleted = tutState?.humanFlipsCompleted ?? 0;
   const allPlayersReady = tutState?.allPlayersReady ?? false;
 
-  // ── Bootstrap: start tutorial on mount ──────────────────────────────────────
   useEffect(() => {
     if (!user?.userId) { navigate('/login'); return; }
 
@@ -278,9 +221,8 @@ export default function TutorialPage() {
     })();
 
     return () => { cancelled = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigate, user?.userId]);
 
-  // ── Refresh tutorial state from backend ──────────────────────────────────────
   const refreshState = useCallback(async (gId) => {
     const id = gId ?? gameId;
     if (!id || !user?.userId) return;
@@ -293,9 +235,6 @@ export default function TutorialPage() {
     }
   }, [gameId, user?.userId]);
 
-  // ── Bot turn automation ───────────────────────────────────────────────────────
-  // Whenever the step transitions to BOT_TURN, automatically execute it after a
-  // short delay so the player can see what's happening.
   useEffect(() => {
     if (currentStep !== 'BOT_TURN' || !gameId || !user?.userId || actionBusy) return;
 
@@ -315,12 +254,11 @@ export default function TutorialPage() {
       } finally {
         if (!cancelled) setBotThinking(false);
       }
-    }, 1400); // 1.4 s pause so the player can watch
+    }, 1400);
 
     return () => { cancelled = true; clearTimeout(timer); };
   }, [currentStep, gameId, user?.userId, actionBusy]);
 
-  // ── Bot initial flips (triggered once human has done both flips) ──────────────
   useEffect(() => {
     if (humanFlipsCompleted < 2 || allPlayersReady || !gameId || !user?.userId) return;
 
@@ -341,7 +279,6 @@ export default function TutorialPage() {
     return () => { cancelled = true; clearTimeout(timer); };
   }, [humanFlipsCompleted, allPlayersReady, gameId, user?.userId]);
 
-  // ── Player score view ─────────────────────────────────────────────────────────
   const playerScores = useMemo(() => {
     if (!Array.isArray(game?.players) || game.players.length === 0) return [];
     return [...game.players]
@@ -350,7 +287,7 @@ export default function TutorialPage() {
         id: player?.gamePlayerId || player?.userId || `${index}`,
         userId: player?.userId || null,
         gamePlayerId: player?.gamePlayerId || null,
-        name: player?.username === 'tutorial_bot' ? '🤖 Bot' : (player?.displayName || player?.username || 'You'),
+        name: player?.username === 'tutorial_bot' ? 'Bot' : (player?.displayName || player?.username || 'You'),
         seatNumber: player?.seatNumber || index + 1,
         total: player?.totalScore ?? player?.score ?? '-',
         cards: player?.cards || [],
@@ -368,7 +305,6 @@ export default function TutorialPage() {
     [playerScores]
   );
 
-  // ── Game phase flags (same logic as Gamepage) ─────────────────────────────────
   const roundStatus = game?.round?.status;
   const isSetupPhase = roundStatus === 'SETUP';
   const isActivePlaying = roundStatus === 'ACTIVE' || roundStatus === 'FINAL_TURNS';
@@ -379,13 +315,11 @@ export default function TutorialPage() {
   const myInitialFlips = humanPlayer?.initialFlipsCount ?? 0;
   const currentDrawSource = game?.round?.currentDrawSource;
 
-  // ── Action wrapper ─────────────────────────────────────────────────────────────
   const doAction = useCallback(async (fn) => {
     if (actionBusy) return;
     setActionBusy(true);
     setActionError('');
     try {
-      // Human actions use the standard game endpoints — just need to refresh tutorial state after
       await fn();
       await refreshState();
       setPendingDiscard(false);
@@ -396,7 +330,6 @@ export default function TutorialPage() {
     }
   }, [actionBusy, refreshState]);
 
-  // ── Card action handlers ───────────────────────────────────────────────────────
   const handleFlipInitial = (position) => {
     if (myInitialFlips >= 2) return;
     doAction(() => flipInitialCard({ gameId, userId: user?.userId, position }));
@@ -446,12 +379,11 @@ export default function TutorialPage() {
   const heldCardName = getCardName(myHeldCard);
   const canDiscardHeldCard = isMyTurn && myHeldCard && currentDrawSource === 'STOCK';
 
-  // ── Loading / error screens ────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="game-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontFamily: 'OpenDyslexic, sans-serif', fontSize: 22, color: '#f2e8cf' }}>
-          Setting up your tutorial…
+          Setting up your tutorial...
         </div>
       </div>
     );
@@ -468,22 +400,18 @@ export default function TutorialPage() {
 
   return (
     <div className="game-container">
-
-      {/* Exit tutorial */}
       <button
         type="button"
         className="tutorial-exit-btn"
         onClick={() => navigate('/game-selection')}
       >
-        ← Exit Tutorial
+        Exit Tutorial
       </button>
 
-      {/* Bot thinking indicator */}
       {botThinking && (
-        <div className="bot-thinking-banner">🤖 Bot is thinking…</div>
+        <div className="bot-thinking-banner">Bot is thinking...</div>
       )}
 
-      {/* Turn banner (same as Gamepage) */}
       {isActivePlaying && (
         <div className={`turn-banner ${isMyTurn ? 'my-turn' : ''}`}>
           {roundStatus === 'FINAL_TURNS' && (
@@ -492,11 +420,11 @@ export default function TutorialPage() {
           {isMyTurn ? (
             myHeldCard
               ? pendingDiscard
-                ? '🃏 Click a face-down card in your grid to flip'
-                : '🃏 Swap a card — or discard below'
-              : '📥 Your turn — draw from the stock or discard pile'
+                ? 'Click a face-down card in your grid to flip'
+                : 'Swap a card - or discard below'
+              : 'Your turn - draw from the stock or discard pile'
           ) : (
-            `🤖 Bot's turn…`
+            "Bot's turn..."
           )}
         </div>
       )}
@@ -508,7 +436,6 @@ export default function TutorialPage() {
         </div>
       )}
 
-      {/* Main table layout */}
       <div className="table-layout">
         <PlayerHand position="top" playerMeta={botPlayer} />
         <PlayerHand position="left" playerMeta={null} />
@@ -557,7 +484,6 @@ export default function TutorialPage() {
         />
       </div>
 
-      {/* Held card bar */}
       {myHeldCard && (
         <div className="held-card-bar" aria-live="polite">
           <div className="held-card-preview">
@@ -591,23 +517,21 @@ export default function TutorialPage() {
         </div>
       )}
 
-      {/* Action error */}
       {actionError && (
         <div className="lobby-error" style={{ position: 'fixed', bottom: hintVisible ? 220 : 80, left: '50%', transform: 'translateX(-50%)', zIndex: 130 }}>
           {actionError}
         </div>
       )}
 
-      {/* ── Tutorial hint panel ── */}
       {hintVisible && stepTitle && !showComplete && !showSpecialRules && (
         <HintPanel
           step={currentStep}
           title={stepTitle}
           description={stepDescription}
+          onDismiss={() => setHintVisible(false)}
         />
       )}
 
-      {/* ── Special rules overlay ── */}
       {showSpecialRules && (
         <div className="tutorial-complete-overlay">
           <div className="tutorial-complete-card">
@@ -630,20 +554,19 @@ export default function TutorialPage() {
                 setShowComplete(true);
               }}
             >
-              Continue →
+              Continue
             </button>
           </div>
         </div>
       )}
 
-      {/* ── Tutorial complete overlay ── */}
-      {showComplete &&  !showSpecialRules && (
+      {showComplete && !showSpecialRules && (
         <div className="tutorial-complete-overlay">
           <div className="tutorial-complete-card">
-            <div className="tutorial-complete-trophy">🏆</div>
+            <div className="tutorial-complete-trophy">#1</div>
             <h2 className="tutorial-complete-title">Tutorial Complete!</h2>
             <p className="tutorial-complete-subtitle">
-              You've played a full round of Six-Card Golf. You're ready for the real thing — may your score stay low!
+              You've played a full round of Six-Card Golf. You're ready for the real thing - may your score stay low!
             </p>
 
             <div className="tutorial-complete-scores">
@@ -651,7 +574,7 @@ export default function TutorialPage() {
                 .sort((a, b) => (a.total ?? 999) - (b.total ?? 999))
                 .map((p, i) => (
                   <div key={p.id} className={`tutorial-complete-score-row ${i === 0 ? 'winner' : ''}`}>
-                    <span>{i === 0 ? '🥇 ' : ''}{p.name}</span>
+                    <span>{i === 0 ? 'Winner: ' : ''}{p.name}</span>
                     <strong>{p.total}</strong>
                   </div>
                 ))}

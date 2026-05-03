@@ -1,7 +1,9 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Mock localStorage and sessionStorage
+/**
+ * Creates the browser storage API surface used by session/profile tests.
+ */
 const createMockStorage = () => {
   let storage = {}
   return {

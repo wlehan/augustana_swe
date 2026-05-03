@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * Status banner that tells the viewer what phase or turn action is currently
+ * expected.
+ */
 export default function TurnBanner({
   isActivePlaying,
   isMyTurn,
@@ -21,13 +25,13 @@ export default function TurnBanner({
         {isMyTurn ? (
           myHeldCard
             ? pendingDiscard
-              ? '🃏 Click a face-down card in your grid to flip'
-              : '🃏 Swap a card — or discard below'
-            : '📥 Your turn — draw from the stock or discard pile'
+              ? 'Click a face-down card in your grid to flip'
+              : 'Swap a card - or discard below'
+            : 'Your turn - draw from the stock or discard pile'
         ) : (
           roundStatus === 'FINAL_TURNS' && finalTriggerPlayer
-            ? `Final turns after ${finalTriggerPlayer.name}. Waiting for ${currentTurnPlayer?.name || 'player'}…`
-            : `Waiting for ${currentTurnPlayer?.name || 'player'}…`
+            ? `Final turns after ${finalTriggerPlayer.name}. Waiting for ${currentTurnPlayer?.name || 'player'}...`
+            : `Waiting for ${currentTurnPlayer?.name || 'player'}...`
         )}
       </div>
     );
@@ -36,7 +40,7 @@ export default function TurnBanner({
   if (isSetupPhase) {
     return (
       <div className="turn-banner setup-banner">
-        Round {game?.currentRound} — Flip 2 cards to start &nbsp;
+        Round {game?.currentRound} - Flip 2 cards to start &nbsp;
         {isActivePlaying ? null : (
           <span className="setup-progress">{myInitialFlips}/2 flipped</span>
         )}

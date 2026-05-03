@@ -3,6 +3,9 @@ import PlayerHand from './PlayerHand';
 import { getCardImage, getCardAlt } from './gameUtils';
 import cardBack from '../assets/cards/card_back.png';
 
+/**
+ * Renders the four table seats plus the central draw and discard piles.
+ */
 export default function GameTable({
   playersByPosition,
   isMyTurn,

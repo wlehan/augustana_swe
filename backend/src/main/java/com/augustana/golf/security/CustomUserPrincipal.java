@@ -6,6 +6,10 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+/**
+ * Spring Security principal that keeps the database user id available to
+ * controllers through {@code @AuthenticationPrincipal}.
+ */
 public class CustomUserPrincipal implements UserDetails {
 
     private final Long userId;

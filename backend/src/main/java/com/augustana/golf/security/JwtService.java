@@ -16,6 +16,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+/**
+ * Creates and validates JWTs that carry the username as the subject and the
+ * database user id as a claim.
+ */
 @Service
 public class JwtService {
 

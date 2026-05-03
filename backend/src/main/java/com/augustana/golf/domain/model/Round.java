@@ -15,10 +15,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * A single dealt round inside a game. It owns turn status, the player whose turn
+ * it is, and the player who triggered final turns.
+ */
 @Entity
 @Table(name = "rounds")
 public class Round {
 
+    /**
+     * SETUP is the initial two-card reveal, ACTIVE is normal turns,
+     * FINAL_TURNS gives everyone else one last turn, and SCORED is terminal.
+     */
     public enum Status {
         SETUP,
         ACTIVE,

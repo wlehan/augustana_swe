@@ -4,6 +4,9 @@ import { signup } from '../services/authApi'
 import { saveStoredSession } from '../services/session'
 import './LoginPage.css'
 
+/**
+ * Account creation form with a small password-length strength indicator.
+ */
 function SignupPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })

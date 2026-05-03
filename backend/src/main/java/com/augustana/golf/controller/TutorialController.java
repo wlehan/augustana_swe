@@ -12,15 +12,10 @@ import com.augustana.golf.domain.dto.TutorialStateResponse;
 import com.augustana.golf.service.TutorialService;
 
 /**
- * REST surface for the tutorial feature.
+ * REST endpoints for the guided tutorial flow.
  *
- * <h3>Endpoint overview</h3>
- * <pre>
- * POST /api/tutorial/start              -> create game + bot, start round, return step WELCOME
- * GET  /api/tutorial/{gameId}/state     -> re-derive current step from live game state
- * POST /api/tutorial/{gameId}/bot-flip  -> bot does its 2 initial flips (call after human flips 2)
- * POST /api/tutorial/{gameId}/bot-turn  -> bot executes a full random turn (call when it's bot's turn)
- * </pre>
+ * <p>The tutorial reuses the normal game endpoints for human actions, while
+ * these endpoints start the tutorial and advance the bot when needed.</p>
  */
 @RestController
 @RequestMapping("/api/tutorial")
@@ -33,10 +28,7 @@ public class TutorialController {
     }
 
     /**
-     * Creates a tutorial game for the given user and starts the first round.
-     *
-     * <p>Response includes the full {@link TutorialStateResponse} with
-     * {@code currentStep = WELCOME}.
+     * Creates a tutorial game for the current user and starts the first round.
      */
     @PostMapping("/start")
     public ResponseEntity<TutorialStateResponse> startTutorial(
@@ -48,10 +40,6 @@ public class TutorialController {
 
     /**
      * Returns the current tutorial state without mutating anything.
-     *
-     * <p>Call this after every human action to get the next step hint.
-     *
-     * @param gameId        the tutorial game's ID (returned by /start)
      */
     @GetMapping("/{gameId}/state")
     public ResponseEntity<TutorialStateResponse> getState(
@@ -63,9 +51,7 @@ public class TutorialController {
     }
 
     /**
-     * Triggers the bot's 2 initial card flips and transitions the round to ACTIVE.
-     *
-     * @param gameId        the tutorial game's ID
+     * Triggers the bot's two setup flips once the human has flipped theirs.
      */
     @PostMapping("/{gameId}/bot-flip")
     public ResponseEntity<TutorialStateResponse> botFlip(
@@ -77,9 +63,7 @@ public class TutorialController {
     }
 
     /**
-     * Executes a complete random bot turn: draw -> swap or discard+flip -> advance turn.
-     *
-     * @param gameId        the tutorial game's ID
+     * Executes one complete random bot turn.
      */
     @PostMapping("/{gameId}/bot-turn")
     public ResponseEntity<TutorialStateResponse> botTurn(

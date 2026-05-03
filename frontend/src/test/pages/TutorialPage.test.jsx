@@ -3,8 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import TutorialPage from '../../pages/TutorialPage'
-import { startTutorial, getTutorialState, botFlip, botTurn } from '../../services/tutorialApi'
-import { discardCard, drawCard, flipInitialCard, swapCard } from '../../services/gameApi'
+import { startTutorial } from '../../services/tutorialApi'
 import { clearStoredSession, hasAuthenticatedSession, readStoredSession } from '../../services/session'
 
 vi.mock('../../services/tutorialApi', () => ({
@@ -63,7 +62,7 @@ describe('TutorialPage', () => {
     const mockUser = { userId: 1, username: 'testuser' }
     readStoredSession.mockReturnValue(mockUser)
     hasAuthenticatedSession.mockReturnValue(true)
-    startTutorial.mockImplementation(() => new Promise(() => {})) // Never resolves
+    startTutorial.mockImplementation(() => new Promise(() => {}))
 
     render(
       <MemoryRouter>
@@ -71,7 +70,7 @@ describe('TutorialPage', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Setting up your tutorial…')).toBeInTheDocument()
+    expect(screen.getByText('Setting up your tutorial...')).toBeInTheDocument()
   })
 
   test('shows error message when tutorial start fails', async () => {
@@ -168,7 +167,7 @@ describe('TutorialPage', () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText('← Exit Tutorial')).toBeInTheDocument()
+      expect(screen.getByText('Exit Tutorial')).toBeInTheDocument()
     })
 
     const exitButton = screen.getByRole('button', { name: /exit tutorial/i })

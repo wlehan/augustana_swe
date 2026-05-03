@@ -9,6 +9,9 @@ import {
     readStoredSession,
 } from '../services/session'
 
+/**
+ * Join-code form that places an authenticated user into an existing lobby.
+ */
 function JoinCode({ onClose }) {
     const navigate = useNavigate()
     const [joinCode, setJoinCode] = useState('')
@@ -81,7 +84,7 @@ function JoinCode({ onClose }) {
         <div className="join-code-overlay">
             <div className="join-code-modal">
                 <button className="join-code-close" onClick={handleClose} aria-label="Close">
-                    ✕
+                    x
                 </button>
 
                 <h1 className="join-code-title">Enter the join code</h1>

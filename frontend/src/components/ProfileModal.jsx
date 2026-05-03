@@ -7,6 +7,9 @@ import './ProfileModal.css';
 
 const AVATAR_MAX_SIZE = 240;
 
+/**
+ * Resizes uploaded profile images before storing them in localStorage.
+ */
 function resizeProfileImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -47,6 +50,9 @@ function resizeProfileImage(file) {
   });
 }
 
+/**
+ * Shared profile dialog for viewing local stats and managing the stored avatar.
+ */
 export default function ProfileModal({
   user,
   userProfile,

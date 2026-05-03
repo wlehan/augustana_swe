@@ -1,5 +1,8 @@
 import apiClient from './apiClient'
 
+/**
+ * Thin wrappers around the multiplayer game REST endpoints.
+ */
 export async function createGame({ maxPlayers = 4 }) {
   const resp = await apiClient.post('/api/games', { maxPlayers })
   return resp.data

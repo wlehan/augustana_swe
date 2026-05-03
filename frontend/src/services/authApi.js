@@ -1,5 +1,8 @@
 import apiClient, { API_BASE_URL } from './apiClient'
 
+/**
+ * Thin wrappers around the authentication REST endpoints.
+ */
 export async function signup({ username, password, email }) {
   const response = await apiClient.post('/api/auth/signup', {
     username,

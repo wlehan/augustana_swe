@@ -17,6 +17,12 @@ import com.augustana.golf.security.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Configures stateless JWT security for the API.
+ *
+ * <p>Only authentication, health, and preflight routes are public; all game and
+ * tutorial endpoints require a valid bearer token.</p>
+ */
 @Configuration
 public class SecurityConfig {
 

@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.augustana.golf.domain.model.Round;
 
+/**
+ * Persistence access for finding the current and historical rounds of a game.
+ */
 public interface RoundRepository extends JpaRepository<Round, Long> {
 
     Optional<Round> findTopByGame_GameIdOrderByRoundNumberDesc(Long gameId);

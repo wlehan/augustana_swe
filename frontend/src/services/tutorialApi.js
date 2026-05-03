@@ -1,5 +1,9 @@
 import apiClient from './apiClient'
 
+/**
+ * Thin wrappers around tutorial-only endpoints. Human card actions still use
+ * the normal game API.
+ */
 export async function startTutorial() {
   const res = await apiClient.post('/api/tutorial/start')
   return res.data

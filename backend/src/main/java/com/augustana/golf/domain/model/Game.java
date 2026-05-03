@@ -15,10 +15,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+/**
+ * A game lobby and its overall lifecycle. The current round number is tracked
+ * here so lobby and game-board responses can show progress without scanning all
+ * rounds.
+ */
 @Entity
 @Table(name = "games")
 public class Game {
 
+    /**
+     * WAITING accepts joins, IN_PROGRESS has active rounds, and COMPLETED is
+     * terminal after the ninth round or tutorial completion.
+     */
     public enum Status { WAITING, IN_PROGRESS, COMPLETED }
 
     @Id
@@ -44,8 +53,6 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GamePlayer> players = new ArrayList<>();
-
-    // Getters and Setters
 
     public Long getGameId() { 
         return gameId; 
