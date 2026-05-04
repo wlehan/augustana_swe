@@ -12,6 +12,10 @@ import com.azure.core.credential.TokenRequestContext;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
+/**
+ * Production data source that authenticates to Azure SQL with Microsoft Entra
+ * credentials instead of a database username and password.
+ */
 @Configuration
 @org.springframework.context.annotation.Profile("!test & !local")
 public class AzureSqlEntraDataSourceConfig {
@@ -22,7 +26,6 @@ public class AzureSqlEntraDataSourceConfig {
     public DataSource dataSource() {
         var credential = new DefaultAzureCredentialBuilder().build();
 
-        // Get token for Azure SQL
         AccessToken token = credential
                 .getToken(new TokenRequestContext().addScopes(SCOPE))
                 .block();
@@ -37,7 +40,6 @@ public class AzureSqlEntraDataSourceConfig {
         ds.setHostNameInCertificate("*.database.windows.net");
         ds.setLoginTimeout(30);
 
-        // This is the key: Entra token instead of username/password
         ds.setAccessToken(token.getToken());
 
         return ds;

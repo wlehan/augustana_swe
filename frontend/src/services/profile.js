@@ -1,5 +1,9 @@
 const PROFILE_STORAGE_KEY = 'user_profiles'
 
+/**
+ * Profile data is intentionally local-only; images and stats are keyed by user
+ * id when available and by username as a fallback.
+ */
 const DEFAULT_STATS = {
   gamesPlayed: 0,
   wins: 0,

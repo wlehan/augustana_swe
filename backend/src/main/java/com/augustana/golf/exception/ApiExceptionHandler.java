@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.Map;
 
+/**
+ * Converts legacy exceptions into timestamped JSON responses.
+ */
 @RestControllerAdvice
 public class ApiExceptionHandler {
 

@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import com.augustana.golf.domain.model.User;
 import com.augustana.golf.repository.UserRepository;
 
+/**
+ * Adapts the application's {@link User} entity to Spring Security's
+ * {@link UserDetailsService} contract.
+ */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 

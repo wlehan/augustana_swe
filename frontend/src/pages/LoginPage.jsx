@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { login } from '../services/authApi'
 import { saveStoredSession } from '../services/session'
 
+/**
+ * Login form that saves the returned session and enters the game lobby.
+ */
 function LoginPage() {
     const navigate = useNavigate()
     const [username, setUsername] = useState('')

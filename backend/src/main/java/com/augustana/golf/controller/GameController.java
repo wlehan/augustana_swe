@@ -22,6 +22,13 @@ import com.augustana.golf.service.GameActionService;
 import com.augustana.golf.service.GameService;
 import com.augustana.golf.service.RoundService;
 
+/**
+ * REST endpoints for lobbies, round state, and player actions.
+ *
+ * <p>Every endpoint is authenticated. The user id is taken from the JWT
+ * principal rather than from request bodies so clients cannot act as another
+ * player.</p>
+ */
 @RestController
 @RequestMapping("/api/games")
 public class GameController {
@@ -85,8 +92,6 @@ public class GameController {
         return ResponseEntity.ok(roundService.getGameState(gameId, userId));
     }
 
-
-    
     @PostMapping("/{gameId}/actions/flip-initial")
     public ResponseEntity<GameStateResponse> flipInitialCard(
             @PathVariable Long gameId,
@@ -96,8 +101,6 @@ public class GameController {
         gameActionService.flipInitialCard(gameId, userId, req.getPosition());
         return ResponseEntity.ok(roundService.getGameState(gameId, userId));
     }
-
-    
     @PostMapping("/{gameId}/actions/draw")
     public ResponseEntity<GameStateResponse> drawCard(
             @PathVariable Long gameId,
@@ -107,8 +110,6 @@ public class GameController {
         gameActionService.drawCard(gameId, userId, req.getSource());
         return ResponseEntity.ok(roundService.getGameState(gameId, userId));
     }
-
-    
     @PostMapping("/{gameId}/actions/swap")
     public ResponseEntity<GameStateResponse> swapCard(
             @PathVariable Long gameId,
@@ -118,8 +119,6 @@ public class GameController {
         gameActionService.swapCard(gameId, userId, req.getPosition());
         return ResponseEntity.ok(roundService.getGameState(gameId, userId));
     }
-
-    
     @PostMapping("/{gameId}/actions/discard")
     public ResponseEntity<GameStateResponse> discardCard(
             @PathVariable Long gameId,

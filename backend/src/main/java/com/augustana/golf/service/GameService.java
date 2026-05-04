@@ -16,6 +16,14 @@ import com.augustana.golf.repository.GamePlayerRepository;
 import com.augustana.golf.repository.GameRepository;
 import com.augustana.golf.repository.UserRepository;
 
+/**
+ * Handles lobby-level game operations before and around a round of play.
+ *
+ * <p>The game code is the player-facing join key, while seat numbers are the
+ * stable order used by the game board and turn logic. Active games keep their
+ * player rows even when someone leaves so that a reconnect can restore the same
+ * seat and cards.</p>
+ */
 @Service
 public class GameService {
 
@@ -32,6 +40,9 @@ public class GameService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Creates a waiting lobby and assigns the creator to host seat 1.
+     */
     @Transactional
     public GameResponse createGame(Long userId, int maxPlayers) {
         if (maxPlayers < 2 || maxPlayers > 4) {
@@ -58,6 +69,10 @@ public class GameService {
         return toResponse(saved.getGameId());
     }
 
+    /**
+     * Adds a user to a waiting lobby, or returns the existing lobby if the user
+     * is rejoining with the same account.
+     */
     @Transactional
     public GameResponse joinGameByCode(Long userId, String gameCode) {
         if (gameCode == null || gameCode.isBlank()) {
@@ -70,7 +85,6 @@ public class GameService {
         Game game = gameRepository.findByGameCode(gameCode.trim())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Game not found"));
 
-        // already joined?
         if (gamePlayerRepository.findByGame_GameIdAndUser_UserId(game.getGameId(), userId).isPresent()) {
             return toResponse(game.getGameId());
         }
@@ -100,6 +114,11 @@ public class GameService {
         return toResponse(game.getGameId());
     }
 
+    /**
+     * Removes a player from a waiting lobby. Once play has started, the player
+     * row is kept so the user can rejoin with the game code and recover their
+     * original seat.
+     */
     @Transactional
     public void leaveGame(Long gameId, Long userId) {
         Game game = gameRepository.findById(gameId)
@@ -132,6 +151,9 @@ public class GameService {
         }
     }
 
+    /**
+     * Returns the lobby summary used by waiting-room screens.
+     */
     @Transactional(readOnly = true)
     public GameResponse getGame(Long gameId) {
         return toResponse(gameId);
@@ -164,7 +186,6 @@ public class GameService {
     }
 
     private String generateUniqueCode() {
-        // 6-char uppercase code
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         for (int attempt = 0; attempt < 20; attempt++) {
             StringBuilder sb = new StringBuilder();

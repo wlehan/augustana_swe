@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getCardImage, getCardAlt, PLAYER_HAND_SLOTS } from './gameUtils';
 import profileIcon from '../assets/profile.png';
 
+/**
+ * Renders one player's six-card grid, score chip, profile image, and card-flip
+ * animation state.
+ */
 export default function PlayerHand({ position, playerMeta, onCardClick, cardHighlight }) {
   const cardsByPosition = useMemo(
     () => new Map((playerMeta?.cards || []).map((c) => [c.position, c])),

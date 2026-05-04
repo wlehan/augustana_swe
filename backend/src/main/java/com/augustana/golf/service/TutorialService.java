@@ -1,10 +1,10 @@
 package com.augustana.golf.service;
 
-import java.util.List;
-import java.util.Random;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,31 +17,23 @@ import com.augustana.golf.domain.model.GamePlayer;
 import com.augustana.golf.domain.model.GolfCard;
 import com.augustana.golf.domain.model.Round;
 import com.augustana.golf.domain.model.RoundScore;
-import com.augustana.golf.domain.model.User;
 import com.augustana.golf.domain.model.TutorialStep;
+import com.augustana.golf.domain.model.User;
 import com.augustana.golf.exception.ApiException;
 import com.augustana.golf.repository.GamePlayerRepository;
 import com.augustana.golf.repository.GameRepository;
 import com.augustana.golf.repository.GolfCardRepository;
 import com.augustana.golf.repository.RoundRepository;
-import com.augustana.golf.repository.UserRepository;
 import com.augustana.golf.repository.RoundScoreRepository;
+import com.augustana.golf.repository.UserRepository;
 
 /**
- * Orchestrates the single-player tutorial experience.
+ * Runs the single-player tutorial by wrapping a normal two-player game.
  *
- * <h3>Design notes</h3>
- * <ul>
- *   <li>A tutorial game is a perfectly normal {@link Game} row in the database.
- *       The only special thing is that seat 2 is occupied by a dedicated bot
- *       {@link User} (username {@value #BOT_USERNAME}) that already exists (or
- *       is created on first use) in the users table.</li>
- *   <li>The current {@link TutorialStep} is NOT persisted — it is derived each
- *       time from the live game/round state. This keeps the schema unchanged and
- *       means the client can safely refresh without needing a separate session
- *       store.</li>
- *   <li>All bot moves are random — sufficient to demonstrate the game flow.</li>
- * </ul>
+ * <p>The human player is always seat 1 and the seeded {@code tutorial_bot}
+ * account is seat 2. Tutorial steps are derived from the live game state
+ * instead of being persisted, so refreshing the client does not need a separate
+ * tutorial session record.</p>
  */
 @Service
 public class TutorialService {
@@ -79,12 +71,11 @@ public class TutorialService {
     }
 
     /**
-     * Creates a fresh 2-player game (human + bot), starts the first round, and
-     * returns the initial tutorial state pointing at {@link TutorialStep#WELCOME}.
+     * Creates the tutorial game, joins the bot, starts round one, and returns
+     * the opening guidance state for the human player.
      */
     @Transactional
     public TutorialStateResponse startTutorial(Long humanUserId) {
-        // 1. Create the game under the human's userId (they become seat 1)
         var createdGame = gameService.createGame(humanUserId, 2);
 
         Game game = gameRepository.findById(createdGame.getGameId())
@@ -93,24 +84,17 @@ public class TutorialService {
                         "Tutorial game not found after creation"
                 ));
 
-        // 2. Ensure the bot user exists and join them as seat 2
-        User bot = getOrCreateBotUser();
+        User bot = getBotUser();
         joinAsBot(game, bot);
-
-        // 3. Start the round (shuffles deck, deals 6 cards each, flips top discard)
         roundService.startRound(game.getGameId());
 
-        // 4. Return initial state
         GameStateResponse state = roundService.getGameState(game.getGameId(), humanUserId);
         return TutorialStateResponse.of(state, TutorialStep.WELCOME, 0, false, false);
     }
 
     /**
-     * Inspects the live game state and returns the appropriate {@link TutorialStep}.
-     * Called after every player action so the frontend always gets an up-to-date step.
-     *
-     * @param gameId          the tutorial game
-     * @param humanUserId     the real player's userId
+     * Rebuilds the tutorial wrapper around the current game state without
+     * mutating the round.
      */
     @Transactional(readOnly = true)
     public TutorialStateResponse getCurrentState(Long gameId, Long humanUserId) {
@@ -118,13 +102,9 @@ public class TutorialService {
         return buildTutorialState(state, gameId, humanUserId, false);
     }
 
-    // =========================================================================
-    // Bot initial flips
-    // =========================================================================
-
     /**
-     * Makes the bot flip its 2 required initial cards at random.
-     * Should be called by the controller after the human has done both flips.
+     * Makes the bot complete its two setup flips after the human has finished
+     * theirs.
      */
     @Transactional
     public TutorialStateResponse botFlipInitial(Long gameId, Long humanUserId) {
@@ -137,7 +117,6 @@ public class TutorialService {
 
         long alreadyFlipped = botGrid.stream().filter(GolfCard::isFaceUp).count();
 
-        // Flip up to 2 random face-down cards
         List<GolfCard> faceDown = botGrid.stream()
                 .filter(c -> !c.isFaceUp())
                 .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
@@ -152,7 +131,6 @@ public class TutorialService {
             golfCardRepository.save(card);
         }
 
-        // Transition round to ACTIVE now that everyone is ready
         boolean everyoneReady = gamePlayerRepository
                 .findByGame_GameIdOrderBySeatNumberAsc(gameId)
                 .stream()
@@ -174,12 +152,8 @@ public class TutorialService {
     }
 
     /**
-     * Executes a complete random turn for the bot:
-     * <ol>
-     *   <li>Draw from deck or discard (50/50)</li>
-     *   <li>Randomly swap with a grid card, or discard + flip a face-down card</li>
-     * </ol>
-     * Must only be called when it is actually the bot's turn.
+     * Executes one legal random bot turn so the tutorial can demonstrate the
+     * full draw, resolve, and advance-turn loop.
      */
     @Transactional
     public TutorialStateResponse executeBotTurn(Long gameId, Long humanUserId) {
@@ -188,17 +162,12 @@ public class TutorialService {
 
         assertBotTurn(round, bot);
 
-        // --- Step 1: draw ---
         boolean drawFromDiscard = rng.nextBoolean();
-        GolfCard drawnCard;
-        if (drawFromDiscard) {
-            drawnCard = drawFromDiscard(round, bot);
-        } else {
-            drawnCard = drawFromDeck(round, bot);
-        }
+        GolfCard drawnCard = drawFromDiscard
+                ? drawFromDiscard(round, bot)
+                : drawFromDeck(round, bot);
 
         if (drawnCard == null) {
-            // Deck exhausted — fall back to discard
             drawnCard = drawFromDiscard(round, bot);
         }
 
@@ -206,7 +175,6 @@ public class TutorialService {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "No cards available to draw");
         }
 
-        // --- Step 2: swap or discard+flip ---
         List<GolfCard> botGrid = golfCardRepository
                 .findByRound_RoundIdAndOwnerGamePlayer_GamePlayerIdAndPile(
                         round.getRoundId(), bot.getGamePlayerId(), GolfCard.Pile.GRID);
@@ -214,11 +182,9 @@ public class TutorialService {
         boolean swap = rng.nextBoolean();
 
         if (swap && !botGrid.isEmpty()) {
-            // Swap drawn card into a random grid position
             GolfCard target = botGrid.get(rng.nextInt(botGrid.size()));
             swapCards(drawnCard, target, round);
         } else {
-            // Discard the drawn card, then flip a random face-down grid card
             discardCard(drawnCard, round);
             List<GolfCard> faceDown = botGrid.stream().filter(c -> !c.isFaceUp()).toList();
             if (!faceDown.isEmpty()) {
@@ -228,10 +194,7 @@ public class TutorialService {
             }
         }
 
-        // --- Step 3: check if bot triggered final turns (all 6 cards face-up) ---
         checkAndTriggerFinalTurns(round, bot);
-
-        // --- Step 4: advance turn to human ---
         advanceTurn(round, gameId);
 
         GameStateResponse state = roundService.getGameState(gameId, humanUserId);
@@ -246,32 +209,29 @@ public class TutorialService {
 
         int humanFlips = humanFlipsCompleted(state, humanUserId);
         boolean allReady = allPlayersReady(state);
-
         TutorialStep step = deriveStep(state, humanFlips, allReady);
 
         return TutorialStateResponse.of(state, step, humanFlips, allReady, botJustMoved);
     }
 
     /**
-     * Pure function: maps current game state -> TutorialStep.
-     * Order of checks matters — earlier checks take priority.
+     * Maps the live round state to a tutorial step. Terminal and setup states
+     * are checked before active-turn prompts because they take priority in the
+     * UI.
      */
     private TutorialStep deriveStep(GameStateResponse state, int humanFlips, boolean allReady) {
         String roundStatus = state.round == null ? "UNKNOWN" : state.round.status;
 
-        // Round finished
         if ("SCORED".equals(roundStatus)) {
             return TutorialStep.TUTORIAL_COMPLETE;
         }
 
-        // Setup phase — initial flips
         if ("SETUP".equals(roundStatus)) {
             if (humanFlips == 0) return TutorialStep.FLIP_FIRST;
             if (humanFlips == 1) return TutorialStep.FLIP_SECOND;
             return TutorialStep.WAIT_FOR_OTHERS_TO_FLIP;
         }
 
-        // Final turns phase
         if (state.round != null && state.round.currentTurnUserId != null
                 && ("ACTIVE".equals(roundStatus) || "FINAL_TURNS".equals(roundStatus))) {
 
@@ -293,16 +253,13 @@ public class TutorialService {
             return TutorialStep.YOUR_TURN_DRAW;
         }
 
-        // Active phase — whose turn is it?
         if (state.round != null && state.round.currentTurnUserId != null) {
-            boolean isHumanTurn = state.round.currentTurnUserId.equals(
-                    humanPlayerUserId(state));
+            boolean isHumanTurn = state.round.currentTurnUserId.equals(humanPlayerUserId(state));
 
             if (!isHumanTurn) {
                 return TutorialStep.BOT_TURN;
             }
 
-            // Human's turn — do they have a card in hand?
             GameStateResponse.PlayerBoardView humanBoard = humanBoard(state);
             if (humanBoard != null && humanBoard.heldCard != null) {
                 return TutorialStep.YOUR_TURN_DECIDE;
@@ -311,7 +268,7 @@ public class TutorialService {
             return TutorialStep.YOUR_TURN_DRAW;
         }
 
-        return TutorialStep.YOUR_TURN_DRAW; // safe fallback
+        return TutorialStep.YOUR_TURN_DRAW;
     }
 
     private GolfCard drawFromDeck(Round round, GamePlayer player) {
@@ -345,7 +302,6 @@ public class TutorialService {
     }
 
     private void swapCards(GolfCard heldCard, GolfCard gridCard, Round round) {
-        // Move the grid card to discard
         int position = gridCard.getPosition();
         gridCard.setPile(GolfCard.Pile.DISCARD);
         gridCard.setFaceUp(true);
@@ -353,7 +309,6 @@ public class TutorialService {
         gridCard.setDrawOrder(nextDiscardOrder(round));
         golfCardRepository.save(gridCard);
 
-        // Place held card into the grid slot
         heldCard.setPile(GolfCard.Pile.GRID);
         heldCard.setPosition(position);
         heldCard.setFaceUp(true);
@@ -392,12 +347,11 @@ public class TutorialService {
     }
 
     /**
-     * Advances currentTurnGamePlayer to the next seat in order.
-     * Wraps around: seat 2 -> seat 1.
+     * Moves to the next seat. In final turns, reaching the player who triggered
+     * the final-turn loop ends the tutorial round.
      */
     private void advanceTurn(Round round, Long gameId) {
-        List<GamePlayer> players = gamePlayerRepository
-                .findByGame_GameIdOrderBySeatNumberAsc(gameId);
+        List<GamePlayer> players = gamePlayerRepository.findByGame_GameIdOrderBySeatNumberAsc(gameId);
 
         if (players.size() < 2) return;
 
@@ -466,13 +420,15 @@ public class TutorialService {
         gameRepository.save(game);
     }
 
-        static int calculateScore(List<GolfCard> playerCards) {
+    /**
+     * Scores a six-card grid using the same column-cancel rules as normal play.
+     */
+    static int calculateScore(List<GolfCard> playerCards) {
         int total = 0;
         for (int col = 0; col < 3; col++) {
-            GolfCard top    = findAtPosition(playerCards, col + 1);
+            GolfCard top = findAtPosition(playerCards, col + 1);
             GolfCard bottom = findAtPosition(playerCards, col + 4);
-            if (top != null && bottom != null && top.getRank() == bottom.getRank()) {
-            } else {
+            if (!(top != null && bottom != null && top.getRank() == bottom.getRank())) {
                 total += cardValue(top) + cardValue(bottom);
             }
         }
@@ -488,19 +444,19 @@ public class TutorialService {
     private static int cardValue(GolfCard card) {
         if (card == null) return 0;
         return switch (card.getRank()) {
-            case ACE   -> 1;
-            case TWO   -> -2;
+            case ACE -> 1;
+            case TWO -> -2;
             case THREE -> 3;
-            case FOUR  -> 4;
-            case FIVE  -> 5;
-            case SIX   -> 6;
+            case FOUR -> 4;
+            case FIVE -> 5;
+            case SIX -> 6;
             case SEVEN -> 7;
             case EIGHT -> 8;
-            case NINE  -> 9;
-            case TEN   -> 10;
-            case JACK  -> 10;
+            case NINE -> 9;
+            case TEN -> 10;
+            case JACK -> 10;
             case QUEEN -> 10;
-            case KING  -> 0;
+            case KING -> 0;
         };
     }
 
@@ -520,7 +476,6 @@ public class TutorialService {
 
     private Long humanPlayerUserId(GameStateResponse state) {
         if (state.players == null || state.players.isEmpty()) return null;
-        // Seat 1 is always the human in a tutorial game.
         return state.players.stream()
                 .filter(p -> p.seatNumber == 1)
                 .map(p -> p.userId)
@@ -536,14 +491,14 @@ public class TutorialService {
                 .orElse(null);
     }
 
-    private User getOrCreateBotUser() {
+    private User getBotUser() {
         return userRepository.findByUsername(BOT_USERNAME)
                 .orElseThrow(() -> new ApiException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
                         "Tutorial bot user not found in database"
                 ));
     }
-    
+
     private void joinAsBot(Game game, User bot) {
         GamePlayer gp = new GamePlayer();
         gp.setGame(game);

@@ -5,7 +5,6 @@
   font-style: normal;
 }
 
-/* bold font */
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('./assets/fonts/OpenDyslexic-Bold.otf') format ('opentype');
@@ -27,7 +26,6 @@
   align-items: center;
 }
 
-/* putting green */
 .home-container::before {
   font-family: 'OpenDyslexic', sans-serif;
   width: 100%;
@@ -41,7 +39,6 @@
   background-color: #386641;
   border-bottom: 5px solid #000; 
   
-  /* curve the bottom edge */
   border-bottom-left-radius: 50% 20%;
   border-bottom-right-radius: 50% 20%;
   z-index: 1;
@@ -49,7 +46,7 @@
 
 .content-wrapper {
   position: relative;
-  z-index: 2; /* makes buttons and cards sit on top of the green */
+  z-index: 2;
   margin-top: 50px;
   display: flex;
   flex-direction: column;
@@ -65,7 +62,6 @@
   align-items: center;
   justify-content: center;
 }
-/* style for buttons */
 .green-btn {
   background-color: #a7c957; 
   color: #F2E8CF; 
@@ -84,18 +80,15 @@
   paint-order: stroke fill;
   
 }
-/* hover states for buttons */
 .green-btn:hover {
   background-color: #bcda6f;
   transform: translateY(-2px);
 }
 
-/* active state for buttons */
 .green-btn:active {
   transform: scale(0.98);
 }
 
-/* focus state for accessibility */
 .content-wrapper {
   position: absolute;
   top: 45%; 
@@ -118,7 +111,6 @@
   margin-bottom: 40px; 
 }
 
-/* golf ball image*/
 .golf-ball-img {
   position: absolute;
   top: 50%;
@@ -131,7 +123,7 @@
 .main-title {
   font-family: 'OpenDyslexic', sans-serif;
   position: relative;
-  z-index: 2; /* makes sure text is on top of the ball */
+  z-index: 2;
   font-size: 80px;
   color: #a7c957;
   line-height: 0.95;
@@ -163,13 +155,11 @@
   height: auto;
 }
 
-/* position for King of Clubs (Bottom Left) */
 .king-card img {
   margin-left: -24px;  
   margin-top: -320px; 
 }
 
-/* position for Green Card Back (Middle Top) */
 .green-card img {
   margin-left: -253px; 
   margin-top: -24px;    

@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.augustana.golf.domain.model.RoundScore;
 
+/**
+ * Persistence access for completed per-player round scores.
+ */
 public interface RoundScoreRepository extends JpaRepository<RoundScore, Long> {
 
     List<RoundScore> findByRound_RoundId(Long roundId);

@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Persistence access for player seats inside games.
+ */
 public interface GamePlayerRepository extends JpaRepository<GamePlayer, Long> {
 
     List<GamePlayer> findByGame_GameIdOrderBySeatNumberAsc(Long gameId);

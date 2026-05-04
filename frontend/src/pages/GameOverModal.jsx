@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Final scoreboard shown after the ninth round completes.
+ */
 export default function GameOverModal({ isGameComplete, playerScores }) {
   if (!isGameComplete) return null;
 
@@ -14,7 +17,7 @@ export default function GameOverModal({ isGameComplete, playerScores }) {
             .sort((a, b) => (a.total ?? 999) - (b.total ?? 999))
             .map((p, i) => (
               <div key={p.id} className={`game-over-row ${i === 0 ? 'winner' : ''}`}>
-                <span className="game-over-rank">{i === 0 ? '🏆' : `#${i + 1}`}</span>
+                <span className="game-over-rank">{i === 0 ? '#1' : `#${i + 1}`}</span>
                 <span className="game-over-name">{p.name}</span>
                 <span className="game-over-total">{p.total}</span>
               </div>

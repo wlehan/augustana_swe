@@ -1,6 +1,10 @@
 import React from 'react';
 import profileIcon from '../assets/profile.png';
 
+/**
+ * Host-only waiting-room dialog with joined players, copied game code, and the
+ * start button once enough players have joined.
+ */
 export default function LobbyModal({
   showHostLobbyModal,
   game,
@@ -61,7 +65,7 @@ export default function LobbyModal({
           onClick={onStartGame}
           disabled={!canStartGame || startingGame}
         >
-          {startingGame ? 'Starting…' : 'Start Game'}
+          {startingGame ? 'Starting...' : 'Start Game'}
         </button>
       </div>
     </div>

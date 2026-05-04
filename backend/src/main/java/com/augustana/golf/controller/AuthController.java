@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+/**
+ * Public authentication endpoints. Invalid credentials are translated here into
+ * the small JSON error shape expected by the React forms.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

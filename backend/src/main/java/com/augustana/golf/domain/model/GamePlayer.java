@@ -12,6 +12,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+/**
+ * Connects a user to a game and stores their seat and cumulative score.
+ *
+ * <p>Seat number is intentionally unique per game because both turn order and
+ * per-player board layout depend on it.</p>
+ */
 @Entity
 @Table(name = "game_players",
        uniqueConstraints = @UniqueConstraint(name = "uq_game_seat", columnNames = {"game_id", "seat_number"}))

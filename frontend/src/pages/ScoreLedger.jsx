@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Sliding ledger that summarizes completed round scores and player totals.
+ */
 export default function ScoreLedger({ isLedgerOpen, setIsLedgerOpen, game, playerScores }) {
   const allRoundScores = game?.allRoundScores || [];
   const ledgerRounds = allRoundScores.map((rs) => {
@@ -49,7 +52,7 @@ export default function ScoreLedger({ isLedgerOpen, setIsLedgerOpen, game, playe
         </div>
 
         <p className="scoreboard-footnote">
-          Lowest total after 9 rounds wins. Pair in a column = 0 pts. King = 0, Two = −2.
+          Lowest total after 9 rounds wins. Pair in a column = 0 pts. King = 0, Two = -2.
         </p>
       </div>
     </div>

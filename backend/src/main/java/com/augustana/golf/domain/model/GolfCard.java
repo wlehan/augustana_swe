@@ -13,6 +13,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * One physical card within a round. A card moves between piles by changing its
+ * pile, owner, grid position, and draw order fields.
+ */
 @Entity
 @Table(name = "cards")
 public class GolfCard {
@@ -40,6 +44,10 @@ public class GolfCard {
         KING
     }
 
+    /**
+     * GRID cards belong to a player board, DRAW cards are ordered stock, DISCARD
+     * cards are ordered by stack position, and HAND is the temporary held card.
+     */
     public enum Pile {
         GRID,
         DRAW,

@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.augustana.golf.domain.model.GolfCard;
 
+/**
+ * Persistence access for cards by round, pile, owner, and grid position.
+ */
 public interface GolfCardRepository extends JpaRepository<GolfCard, Long> {
 
     List<GolfCard> findByRound_RoundId(Long roundId);

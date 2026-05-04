@@ -2,6 +2,9 @@ package com.augustana.golf.domain.dto;
 
 import java.util.List;
 
+/**
+ * Lightweight lobby response used before a round has started.
+ */
 public class GameResponse {
     private Long gameId;
     private String gameCode;
@@ -10,9 +13,11 @@ public class GameResponse {
     private int currentRound;
     private List<PlayerInGame> players;
 
+    /**
+     * Player summary shown in lobby lists and host start-game dialogs.
+     */
     public record PlayerInGame(Long gamePlayerId, Long userId, String username, int seatNumber, int totalScore) {}
 
-    // getters/setters
     public Long getGameId() { return gameId; }
     public void setGameId(Long gameId) { this.gameId = gameId; }
     public String getGameCode() { return gameCode; }

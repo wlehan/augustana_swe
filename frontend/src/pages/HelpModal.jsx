@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Scrollable rules dialog opened from the in-game help button.
+ */
 export default function HelpModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 

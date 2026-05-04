@@ -3,6 +3,9 @@ import './HomePage.css'
 import golfLogo from '../assets/golfball.png'
 import homepageCards from '../assets/homepage_cards.png'
 
+/**
+ * Public landing screen that routes players to login or signup.
+ */
 function HomePage() {
   const navigate = useNavigate()
 
@@ -15,7 +18,6 @@ return (
         </div>
 
         <div className="game-area">
-          {/* King of Clubs Card */}
           <div className="card-window king-card">
             <img src={homepageCards} alt="King Card" />
           </div>
@@ -29,7 +31,6 @@ return (
             <button className="green-btn" onClick={() => navigate('/signup')}>Create an account</button>
           </div>
 
-          {/* Green Card Back */}
           <div className="card-window green-card">
             <img src={homepageCards} alt="Green Card" />
           </div>

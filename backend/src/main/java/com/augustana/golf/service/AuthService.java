@@ -10,6 +10,10 @@ import com.augustana.golf.domain.model.User;
 import com.augustana.golf.repository.UserRepository;
 import com.augustana.golf.security.JwtService;
 
+/**
+ * Validates signup/login requests, stores BCrypt password hashes, and issues
+ * JWTs for authenticated users.
+ */
 @Service
 public class AuthService {
 
@@ -25,6 +29,9 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
+    /**
+     * Creates a new user account and returns the token used by the frontend.
+     */
     public AuthResponse signup(SignupRequest request) {
         String username = normalizeUsername(request.username());
         String password = normalizePassword(request.password(), true);
@@ -48,6 +55,9 @@ public class AuthService {
         );
     }
 
+    /**
+     * Verifies credentials for an existing account and returns a fresh token.
+     */
     public AuthResponse login(LoginRequest request) {
         String username = normalizeUsername(request.username());
         String password = normalizePassword(request.password(), false);

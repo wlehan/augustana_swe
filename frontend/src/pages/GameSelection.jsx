@@ -16,6 +16,9 @@ import { readStoredUserProfile } from '../services/profile'
 import AudioSettingsButton from '../components/AudioSettingsButton';
 import ProfileModal from '../components/ProfileModal';
 
+/**
+ * Authenticated landing screen for starting, joining, or learning a game.
+ */
 function GameSelection() {
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);

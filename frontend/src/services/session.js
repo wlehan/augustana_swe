@@ -2,6 +2,10 @@ const AUTH_STORAGE_KEY = 'demo_user'
 const TAB_AUTH_STORAGE_KEY = 'demo_user_tab'
 const ACTIVE_GAME_STORAGE_KEY = 'active_game'
 
+/**
+ * Session helpers keep a tab-scoped auth copy so multiple browser tabs can sign
+ * in as different players during local testing.
+ */
 function hasLocalStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
 }

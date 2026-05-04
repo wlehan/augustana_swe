@@ -11,6 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * Persisted score for one player in one round. Totals are also accumulated on
+ * {@link GamePlayer} for quick display.
+ */
 @Entity
 @Table(name = "round_scores")
 public class RoundScore {
